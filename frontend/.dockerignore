@@ -4,10 +4,6 @@ node_modules
 README.md
 Dockerfile
 .dockerignore
-.env
-.env.local
-.env.production
-.env.staging
 dist
 build
 coverage

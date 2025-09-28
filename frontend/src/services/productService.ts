@@ -2,6 +2,8 @@ import axios from 'axios';
 import { Product } from '@/types/cart';
 
 const API_BASE_URL = import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
+// se as imagens forem servidas em outra pasta, ajuste aqui:
+const IMAGE_BASE_URL = import.meta.env.VITE_PRODUCTS_IMAGE_URL || `http://localhost:8080`;
 
 export interface ProductDetails {
   originalPrice?: number;
@@ -19,6 +21,7 @@ export interface ApiProduct extends Product {
   originalPrice?: number;
   isNew: boolean;
   features: string[];
+  image?: string; // pode ser só nome do arquivo
 }
 
 class ProductService {
@@ -52,22 +55,33 @@ class ProductService {
     return this.request<{ status: string; timestamp: string }>('/health');
   }
 
-  // Método para converter ApiProduct para o formato esperado pelo frontend
+  // 🔑 Normaliza a URL da imagem
+  private normalizeImage(image?: string): string {
+    if (!image) {
+      return '/placeholder.png'; // arquivo em public/
+    }
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return image; // já é URL completa
+    }
+    return `${IMAGE_BASE_URL}/${image}`; // só nome do arquivo
+  }
+
+  // Converter ApiProduct para o formato esperado pelo frontend
   convertToProduct(apiProduct: ApiProduct): Product {
     return {
       id: apiProduct.id,
       name: apiProduct.name,
       price: apiProduct.price,
-      image: apiProduct.image,
+      image: this.normalizeImage(apiProduct.image), // 👈 garante que o caminho é válido
       description: apiProduct.description,
       weight: apiProduct.weight,
       height: apiProduct.height,
       width: apiProduct.width,
-      length: apiProduct.length
+      length: apiProduct.length,
     };
   }
 
-  // Método para extrair detalhes adicionais do produto
+  // Extrair detalhes adicionais do produto
   extractProductDetails(apiProduct: ApiProduct): ProductDetails {
     return {
       originalPrice: apiProduct.originalPrice,
@@ -75,10 +89,9 @@ class ProductService {
       reviews: apiProduct.reviews,
       category: apiProduct.category,
       features: apiProduct.features,
-      isNew: apiProduct.isNew
+      isNew: apiProduct.isNew,
     };
   }
 }
 
 export const productService = new ProductService();
-

@@ -18,31 +18,33 @@ const Products = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
+
         const apiProducts = await productService.getAllProducts();
-        
+
         // Converter produtos da API para o formato do frontend
-        const convertedProducts = apiProducts.map(apiProduct => 
+        const convertedProducts = apiProducts.map(apiProduct =>
           productService.convertToProduct(apiProduct)
         );
-        
+
         // Extrair detalhes adicionais
-        const details = apiProducts.map(apiProduct => 
+        const details = apiProducts.map(apiProduct =>
           productService.extractProductDetails(apiProduct)
         );
-        
-        setProducts(convertedProducts);
-        setProductDetails(details);
+
+        // Pegar apenas os 3 primeiros produtos e detalhes
+        setProducts(convertedProducts.slice(0, 3));
+        setProductDetails(details.slice(0, 3));
       } catch (err) {
         setError('Erro ao carregar produtos. Usando dados locais.');
         console.error('Erro ao buscar produtos:', err);
 
-        // Fallback para dados hardcoded em caso de erro
+        // Dados fallback
         const fallbackProducts: Product[] = [
           {
             id: "1",
             name: "Arco Recurvo Profissional X-Elite",
             price: 70,
-            image: "/public/x-puller.png",
+            image: "x-puller.png",
             description: "Puxadores de Flechas de alta qualidade, projetados para oferecer máximo conforto e controle.",
             weight: 0.2,
             height: 15,
@@ -50,10 +52,10 @@ const Products = () => {
             length: 10
           },
           {
-            id: "2", 
+            id: "2",
             name: "Kit Completo Iniciante Pro",
             price: 1299,
-            image: "/src/assets/archery-equipment.jpg",
+            image: "archery-equipment.jpg",
             description: "Kit completo para iniciantes com todos os acessórios necessários.",
             weight: 2.5,
             height: 20,
@@ -64,12 +66,23 @@ const Products = () => {
             id: "3",
             name: "Flechas de Carbono X-Precision",
             price: 349,
-            image: "/src/assets/archery-equipment.jpg",
+            image: "archery-equipment.jpg",
             description: "Flechas de carbono de altíssima qualidade para competições.",
             weight: 0.8,
             height: 5,
             width: 5,
             length: 80
+          },
+          {
+            id: "4",
+            name: "Produto Extra Não Listado",
+            price: 499,
+            image: "produto-extra.jpg",
+            description: "Descrição extra.",
+            weight: 1,
+            height: 10,
+            width: 10,
+            length: 10
           }
         ];
 
@@ -96,11 +109,20 @@ const Products = () => {
             category: "Flechas",
             features: ["100% Carbono", "Peso consistente", "Ponta intercambiável"],
             isNew: false
+          },
+          {
+            originalPrice: 799,
+            rating: 4.5,
+            reviews: 10,
+            category: "Acessórios",
+            features: ["Alta durabilidade", "Design moderno"],
+            isNew: true
           }
         ];
 
-        setProducts(fallbackProducts);
-        setProductDetails(fallbackDetails);
+        // Pegar apenas os 3 primeiros no fallback também
+        setProducts(fallbackProducts.slice(0, 3));
+        setProductDetails(fallbackDetails.slice(0, 3));
       } finally {
         setLoading(false);
       }

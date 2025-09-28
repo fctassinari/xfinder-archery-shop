@@ -4,9 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, ArrowLeft } from "lucide-react";
-import archeryEquipment from "@/assets/archery-equipment.jpg";
-import xpuller from "@/assets/x-puller.png";
-import bowDetail from "@/assets/bow-detail.jpg";
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/types/cart";
 
@@ -37,7 +34,7 @@ const ProdutoDetalhesPage = () => {
       id: "1",
       name: "Puxadores de Flechas X-Elite",
       price: 70,
-      image: xpuller,
+      image: x-puller.png,
       description: "Puxadores de Flechas de alta qualidade, projetados para oferecer máximo conforto e controle. Essenciais para arqueiros de todos os níveis. Fabricados com materiais premium e design ergonômico para garantir durabilidade e performance.",
       category: "Acessórios",
       rating: 4.9,
@@ -48,7 +45,7 @@ const ProdutoDetalhesPage = () => {
         {
           id: "1a",
           name: "X-Elite Preto",
-          image: xpuller,
+          image: x-puller.png,
           price: 70,
           description: "Versão clássica em preto"
         },
@@ -62,7 +59,7 @@ const ProdutoDetalhesPage = () => {
         {
           id: "1c",
           name: "X-Elite Azul",
-          image: bowDetail,
+          image: bow-detail.jpg,
           price: 75,
           description: "Versão especial em azul"
         }
@@ -91,7 +88,7 @@ const ProdutoDetalhesPage = () => {
         {
           id: "2b",
           name: "Kit Iniciante 30lbs", 
-          image: bowDetail,
+          image: bow-detail.jpg,
           price: 1399,
           description: "Para intermediários - 30 libras"
         }
@@ -119,7 +116,7 @@ const ProdutoDetalhesPage = () => {
         {
           id: "3b",
           name: "X-Precision 400",
-          image: xpuller,
+          image: x-puller.png,
           price: 369,
           description: "Spine 400 - Para arcos 35-45lbs"
         }
@@ -130,7 +127,7 @@ const ProdutoDetalhesPage = () => {
       name: "Arco Recurvo Elite Carbon Pro",
       price: 2899,
       originalPrice: 3299,
-      image: bowDetail,
+      image: bow-detail.jpg,
       description: "Arco recurvo profissional de competição com tecnologia avançada em carbono. Aprovado pela World Archery para competições internacionais. Design inovador com sistema ILF para máxima versatilidade.",
       category: "Arcos",
       rating: 5.0,
@@ -142,7 +139,7 @@ const ProdutoDetalhesPage = () => {
         {
           id: "4a",
           name: "Elite Carbon 68\"",
-          image: bowDetail,
+          image: bow-detail.jpg,
           price: 2899,
           description: "Tamanho padrão 68 polegadas"
         },
@@ -177,14 +174,14 @@ const ProdutoDetalhesPage = () => {
         {
           id: "5b",
           name: "Leather Pro M",
-          image: xpuller,
+          image: x-puller.png,
           price: 89,
           description: "Tamanho M"
         },
         {
           id: "5c",
           name: "Leather Pro G",
-          image: bowDetail,
+          image: bow-detail.jpg,
           price: 89,
           description: "Tamanho G"
         }
@@ -212,7 +209,7 @@ const ProdutoDetalhesPage = () => {
         {
           id: "6b",
           name: "Alvo 122cm Premium",
-          image: bowDetail,
+          image: bow-detail.jpg,
           price: 349,
           description: "Versão premium com maior durabilidade"
         }
