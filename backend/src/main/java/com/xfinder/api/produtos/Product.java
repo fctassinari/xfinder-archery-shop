@@ -3,49 +3,52 @@ package com.xfinder.api.produtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Product {
-    
+
     @JsonProperty("id")
     private String id;
-    
+
     @JsonProperty("name")
     private String name;
-    
+
     @JsonProperty("price")
     private Double price;
-    
+
     @JsonProperty("image")
     private String image;
-    
+
     @JsonProperty("description")
     private String description;
-    
+
     @JsonProperty("weight")
     private Double weight;
-    
+
     @JsonProperty("height")
     private Double height;
-    
+
     @JsonProperty("width")
     private Double width;
-    
+
     @JsonProperty("length")
     private Double length;
-    
+
     @JsonProperty("category")
     private String category;
-    
+
     @JsonProperty("rating")
     private Double rating;
-    
+
     @JsonProperty("reviews")
     private Integer reviews;
-    
+
     @JsonProperty("originalPrice")
     private Double originalPrice;
-    
+
     @JsonProperty("isNew")
     private Boolean isNew;
-    
+
+    @JsonProperty("inStock")
+    private Boolean inStock;
+
     @JsonProperty("features")
     private String[] features;
 
@@ -53,7 +56,7 @@ public class Product {
     public Product() {}
 
     // Construtor completo
-    public Product(String id, String name, Double price, String image, String description, 
+    public Product(String id, String name, Double price, String image, String description,
                    Double weight, Double height, Double width, Double length, String category,
                    Double rating, Integer reviews, Double originalPrice, Boolean isNew, String[] features) {
         this.id = id;
@@ -71,6 +74,7 @@ public class Product {
         this.originalPrice = originalPrice;
         this.isNew = isNew;
         this.features = features;
+        this.inStock = true; // Default para inStock
     }
 
     // Getters e Setters
@@ -116,7 +120,9 @@ public class Product {
     public Boolean getIsNew() { return isNew; }
     public void setIsNew(Boolean isNew) { this.isNew = isNew; }
 
+    public Boolean getInStock() { return inStock; }
+    public void setInStock(Boolean inStock) { this.inStock = inStock; }
+
     public String[] getFeatures() { return features; }
     public void setFeatures(String[] features) { this.features = features; }
 }
-

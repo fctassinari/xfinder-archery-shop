@@ -23,19 +23,18 @@ public class ProductResource {
     ProductService productService;
 
     @GET
-    @Operation(summary = "Listar todos os produtos", description = "Retorna uma lista com todos os produtos disponíveis")
+    @Operation(summary = "Listar produtos", description = "Retorna todos os produtos ou de forma paginada")
     @APIResponse(responseCode = "200", description = "Lista de produtos",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class)))
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public List<Product> getProducts(
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("limit") @DefaultValue("6") int limit) {
+
+        return productService.getProductsPaginated(page, limit);
     }
 
     @GET
     @Path("/{id}")
-    @Operation(summary = "Buscar produto por ID", description = "Retorna um produto específico pelo seu ID")
-    @APIResponse(responseCode = "200", description = "Produto encontrado",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class)))
-    @APIResponse(responseCode = "404", description = "Produto não encontrado")
     public Response getProductById(@PathParam("id") String id) {
         Optional<Product> product = productService.getProductById(id);
         if (product.isPresent()) {
@@ -49,28 +48,19 @@ public class ProductResource {
 
     @GET
     @Path("/category/{category}")
-    @Operation(summary = "Buscar produtos por categoria", description = "Retorna produtos de uma categoria específica")
-    @APIResponse(responseCode = "200", description = "Lista de produtos da categoria",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class)))
     public List<Product> getProductsByCategory(@PathParam("category") String category) {
         return productService.getProductsByCategory(category);
     }
 
     @GET
     @Path("/featured")
-    @Operation(summary = "Buscar produtos em destaque", description = "Retorna produtos marcados como novos ou em destaque")
-    @APIResponse(responseCode = "200", description = "Lista de produtos em destaque",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class)))
     public List<Product> getFeaturedProducts() {
         return productService.getFeaturedProducts();
     }
 
     @GET
     @Path("/health")
-    @Operation(summary = "Health check", description = "Verifica se a API está funcionando")
-    @APIResponse(responseCode = "200", description = "API funcionando")
     public Response healthCheck() {
-        return Response.ok("{\"status\": \"API Products funcionando!\", \"timestamp\": \"" +
-                java.time.LocalDateTime.now() + "\"}").build();
+        return Response.ok("{\"status\": \"API Products funcionando!\"}").build();
     }
 }
