@@ -42,7 +42,7 @@ const Products = () => {
             id: "1",
             name: "Arco Recurvo Profissional X-Elite",
             price: 70,
-            image: "/src/assets/x-puller.png",
+            image: "/public/x-puller.png",
             description: "Puxadores de Flechas de alta qualidade, projetados para oferecer máximo conforto e controle.",
             weight: 0.2,
             height: 15,

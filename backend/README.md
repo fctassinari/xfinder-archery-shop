@@ -19,7 +19,7 @@ You can run your application in dev mode that enables live coding using:
 The application can be packaged using:
 
 ```shell script
-./mvnw package
+./mvnw clean package
 ```
 
 It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.

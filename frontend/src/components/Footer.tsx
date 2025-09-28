@@ -47,9 +47,6 @@ const Footer = () => {
               <a href="#contact" className="block text-white/80 hover:text-coral-accent transition-smooth">
                 Contato
               </a>
-              <a href="#" className="block text-white/80 hover:text-coral-accent transition-smooth">
-                Blog
-              </a>
             </nav>
           </div>
 
