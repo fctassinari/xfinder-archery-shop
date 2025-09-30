@@ -36,7 +36,9 @@ public class ProductResource {
     @GET
     @Path("/{id}")
     public Response getProductById(@PathParam("id") String id) {
+        System.out.println(id);
         Optional<Product> product = productService.getProductById(id);
+        System.out.println(product);
         if (product.isPresent()) {
             return Response.ok(product.get()).build();
         } else {
