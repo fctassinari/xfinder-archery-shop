@@ -4,13 +4,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
-import Index from "./pages/Index";
-import ProductsPage from "./pages/ProductsPage";
-import NotFound from "./pages/NotFound";
-import Sobre from "./pages/Sobre"
 import Compra from "./pages/Compra";
 import Contato from "./pages/Contato";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+import ProductsPage from "./pages/ProductsPage";
 import ProdutoDetalhes from "./pages/ProdutoDetalhes";
+import Sobre from "./pages/Sobre"
 
 const queryClient = new QueryClient();
 

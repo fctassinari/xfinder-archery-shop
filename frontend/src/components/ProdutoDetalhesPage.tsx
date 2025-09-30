@@ -34,7 +34,7 @@ const ProdutoDetalhesPage = () => {
       id: "1",
       name: "Puxadores de Flechas X-Elite",
       price: 70,
-      image: x-puller.png,
+      image: "x-puller.png",
       description: "Puxadores de Flechas de alta qualidade, projetados para oferecer máximo conforto e controle. Essenciais para arqueiros de todos os níveis. Fabricados com materiais premium e design ergonômico para garantir durabilidade e performance.",
       category: "Acessórios",
       rating: 4.9,
@@ -45,21 +45,21 @@ const ProdutoDetalhesPage = () => {
         {
           id: "1a",
           name: "X-Elite Preto",
-          image: x-puller.png,
+          image: "x-puller.png",
           price: 70,
           description: "Versão clássica em preto"
         },
         {
           id: "1b", 
           name: "X-Elite Vermelho",
-          image: archeryEquipment,
+          image: "archery-equipment.jpg",
           price: 75,
           description: "Versão especial em vermelho"
         },
         {
           id: "1c",
           name: "X-Elite Azul",
-          image: bow-detail.jpg,
+          image: "bow-detail.jpg",
           price: 75,
           description: "Versão especial em azul"
         }
@@ -70,7 +70,7 @@ const ProdutoDetalhesPage = () => {
       name: "Kit Completo Iniciante Pro",
       price: 1299,
       originalPrice: 1599,
-      image: archeryEquipment,
+      image: "archery-equipment.jpg",
       description: "Kit completo para iniciantes com todos os acessórios necessários para começar no tiro com arco. Inclui arco recurvo de qualidade, flechas profissionais, proteções de segurança e manual completo de instruções.",
       category: "Kits",
       rating: 4.8,
@@ -81,14 +81,14 @@ const ProdutoDetalhesPage = () => {
         {
           id: "2a",
           name: "Kit Iniciante 25lbs",
-          image: archeryEquipment,
+          image: "archery-equipment.jpg",
           price: 1299,
           description: "Para iniciantes - 25 libras"
         },
         {
           id: "2b",
           name: "Kit Iniciante 30lbs", 
-          image: bow-detail.jpg,
+          image: "bow-detail.jpg",
           price: 1399,
           description: "Para intermediários - 30 libras"
         }
@@ -98,7 +98,7 @@ const ProdutoDetalhesPage = () => {
       id: "3",
       name: "Flechas de Carbono X-Precision",
       price: 349,
-      image: archeryEquipment,
+      image: "archery-equipment.jpg",
       description: "Flechas de carbono de altíssima qualidade para competições profissionais e treinos avançados. Fabricadas com carbono 100% puro para máxima precisão e durabilidade.",
       category: "Flechas",
       rating: 4.9,
@@ -109,14 +109,14 @@ const ProdutoDetalhesPage = () => {
         {
           id: "3a",
           name: "X-Precision 500",
-          image: archeryEquipment,
+          image: "archery-equipment.jpg",
           price: 349,
           description: "Spine 500 - Para arcos 25-35lbs"
         },
         {
           id: "3b",
           name: "X-Precision 400",
-          image: x-puller.png,
+          image: "x-puller.png",
           price: 369,
           description: "Spine 400 - Para arcos 35-45lbs"
         }
@@ -127,7 +127,7 @@ const ProdutoDetalhesPage = () => {
       name: "Arco Recurvo Elite Carbon Pro",
       price: 2899,
       originalPrice: 3299,
-      image: bow-detail.jpg,
+      image: "bow-detail.jpg",
       description: "Arco recurvo profissional de competição com tecnologia avançada em carbono. Aprovado pela World Archery para competições internacionais. Design inovador com sistema ILF para máxima versatilidade.",
       category: "Arcos",
       rating: 5.0,
@@ -139,14 +139,14 @@ const ProdutoDetalhesPage = () => {
         {
           id: "4a",
           name: "Elite Carbon 68\"",
-          image: bow-detail.jpg,
+          image: "bow-detail.jpg",
           price: 2899,
           description: "Tamanho padrão 68 polegadas"
         },
         {
           id: "4b",
           name: "Elite Carbon 70\"",
-          image: archeryEquipment,
+          image: "archery-equipment.jpg",
           price: 2999,
           description: "Tamanho longo 70 polegadas"
         }
@@ -156,7 +156,7 @@ const ProdutoDetalhesPage = () => {
       id: "5",
       name: "Protetor de Braço Leather Pro",
       price: 89,
-      image: archeryEquipment,
+      image: "archery-equipment.jpg",
       description: "Protetor de braço em couro premium com ajuste perfeito e máximo conforto. Essencial para proteção durante a prática do tiro com arco.",
       category: "Proteções",
       rating: 4.7,
@@ -167,21 +167,21 @@ const ProdutoDetalhesPage = () => {
         {
           id: "5a",
           name: "Leather Pro P",
-          image: archeryEquipment,
+          image: "archery-equipment.jpg",
           price: 89,
           description: "Tamanho P"
         },
         {
           id: "5b",
           name: "Leather Pro M",
-          image: x-puller.png,
+          image: "x-puller.png",
           price: 89,
           description: "Tamanho M"
         },
         {
           id: "5c",
           name: "Leather Pro G",
-          image: bow-detail.jpg,
+          image: "bow-detail.jpg",
           price: 89,
           description: "Tamanho G"
         }
@@ -191,7 +191,7 @@ const ProdutoDetalhesPage = () => {
       id: "6",
       name: "Alvo Profissional 122cm",
       price: 299,
-      image: archeryEquipment,
+      image: "archery-equipment.jpg",
       description: "Alvo oficial para competições com cores vivas e durabilidade excepcional. Padrão FITA oficial para treinos e competições profissionais.",
       category: "Alvos",
       rating: 4.6,
@@ -202,14 +202,14 @@ const ProdutoDetalhesPage = () => {
         {
           id: "6a",
           name: "Alvo 122cm Standard",
-          image: archeryEquipment,
+          image: "archery-equipment.jpg",
           price: 299,
           description: "Versão padrão"
         },
         {
           id: "6b",
           name: "Alvo 122cm Premium",
-          image: bow-detail.jpg,
+          image: "bow-detail.jpg",
           price: 349,
           description: "Versão premium com maior durabilidade"
         }
