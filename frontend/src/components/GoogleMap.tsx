@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
-import { supabase } from '@/integrations/supabase/client';
 
 interface GoogleMapProps {
   address?: string;

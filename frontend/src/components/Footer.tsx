@@ -117,11 +117,17 @@ const Footer = () => {
             
             <div className="flex items-center space-x-3">
               <div className="bg-coral-accent/20 p-3 rounded-full">
+                <a
+                  href="https://maps.google.com/?q=Mooca,+São+Paulo,+SP,+Brasil"
+                  target="_blank">
                 <MapPin className="h-5 w-5 text-coral-accent" />
+                </a>
               </div>
               <div>
-                <p className="font-semibold">Endereço</p>
-                <p className="text-white/80">São Paulo, SP</p>
+
+                <p className="font-semibold">Localização</p>
+                <p className="text-white/80">Mooca</p>
+                <p className="text-white/80">São Paulo / SP - Brasil</p>
               </div>
             </div>
           </div>
@@ -134,13 +140,13 @@ const Footer = () => {
               © 2025 XFinder Archery. Todos os direitos reservados.
             </p>
             <div className="flex space-x-6 text-sm">
-              <a href="#" className="text-white/60 hover:text-coral-accent transition-smooth">
+              <a href="/politica-privacidade" className="text-white/60 hover:text-coral-accent transition-smooth">
                 Política de Privacidade
               </a>
-              <a href="#" className="text-white/60 hover:text-coral-accent transition-smooth">
+              <a href="/termos-uso" className="text-white/60 hover:text-coral-accent transition-smooth">
                 Termos de Uso
               </a>
-              <a href="#" className="text-white/60 hover:text-coral-accent transition-smooth">
+              <a href="/trocas-devolucoes" className="text-white/60 hover:text-coral-accent transition-smooth">
                 Trocas e Devoluções
               </a>
             </div>
