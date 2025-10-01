@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Award, Users, Zap, CheckCircle, ArrowRight, Heart } from "lucide-react";
-import flechas from "@/assets/flechas.png";
+import historyImage from "@/assets/wraping.jpg";
+import heroImage from "@/assets/nocks.jpeg";
 
 const Sobre = () => {
   {/*}const stats = [
@@ -33,7 +34,8 @@ const Sobre = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-r from-navy-primary to-navy-primary/80 text-white">
+      <section className="relative py-20 bg-cover bg-fixed bg-center text-white" style={{ backgroundImage: `url(${heroImage})` }}>
+      {/*<section className="relative py-20 bg-gradient-to-r from-navy-primary to-navy-primary/80 text-white" style={{ backgroundImage: `url(${heroImage})` }}>*/}
         <div className="container mx-auto px-4">
           <div className="text-center animate-fade-in">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
@@ -121,7 +123,7 @@ const Sobre = () => {
               <div className="bg-gradient-to-br from-coral-accent/10 to-navy-primary/10 h-96 flex items-center justify-center rounded-lg">
                 {/*<Target className="h-32 w-32 text-coral-accent" />*/}
                 <img
-                  src={flechas}
+                  src={historyImage}
                   alt="Arrows"
                   className="w-full h-full object-cover"
                 />
