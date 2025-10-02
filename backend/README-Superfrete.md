@@ -102,8 +102,8 @@ java -jar target/quarkus-app/quarkus-run.jar
 ## Documentação da API
 
 Após iniciar a aplicação, acesse:
-- Swagger UI: http://localhost:8181/swagger-ui
-- OpenAPI Spec: http://localhost:8181/swagger
+- Swagger UI: http://localhost:8081/swagger-ui
+- OpenAPI Spec: http://localhost:8081/swagger
 
 ## Configurações
 
@@ -114,8 +114,8 @@ Após iniciar a aplicação, acesse:
 
 ### Arquivo application.properties
 ```properties
-# Porta do servidor (padrão: 8181)
-quarkus.http.port=8181
+# Porta do servidor (padrão: 8081)
+quarkus.http.port=8081
 
 # Token da API Superfrete
 superfrete.api.token=YOUR_SUPERFRETE_API_TOKEN
@@ -131,7 +131,7 @@ superfrete.store.email=contato@xfinderarchery.com.br
 
 O frontend React pode consumir esta API fazendo requisições para:
 ```
-http://localhost:8181/api/superfrete/calculate-freight
+http://localhost:8081/api/superfrete/calculate-freight
 ```
 
 CORS está habilitado para permitir requisições de qualquer origem durante o desenvolvimento.
@@ -178,7 +178,7 @@ A API mantém total compatibilidade com o frontend existente:
 ```bash
 ./mvnw clean package
 docker build -f src/main/docker/Dockerfile.jvm -t superfrete-api .
-docker run -i --rm -p 8181:8181 superfrete-api
+docker run -i --rm -p 8081:8081 superfrete-api
 ```
 
 ### Native
@@ -191,12 +191,12 @@ docker run -i --rm -p 8181:8181 superfrete-api
 
 ### Health Check
 ```bash
-curl http://localhost:8181/api/superfrete/health
+curl http://localhost:8081/api/superfrete/health
 ```
 
 ### Métricas (se habilitadas)
 ```bash
-curl http://localhost:8181/q/metrics
+curl http://localhost:8081/q/metrics
 ```
 
 ## Troubleshooting

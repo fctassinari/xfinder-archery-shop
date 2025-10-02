@@ -21,8 +21,8 @@ const Cart = () => {
   const [selectedFreight, setSelectedFreight] = useState<any>(null);
   const [superfreteLabelInfo, setSuperfreteLabelInfo] = useState<any>(null);
 
-  const SUPERFRETE_API_URL = import.meta.env.VITE_SUPERFRETE_API_URL || "http://localhost:8181/api/superfrete/calculate-freight";
-  const CREATE_LABEL_URL = import.meta.env.VITE_SUPERFRETE_CREATE_LABEL_URL || "http://localhost:8181/api/superfrete/create-label";
+  const SUPERFRETE_API_URL = import.meta.env.VITE_SUPERFRETE_API_URL || "http://localhost:8081/api/superfrete/calculate-freight";
+  const CREATE_LABEL_URL = import.meta.env.VITE_SUPERFRETE_CREATE_LABEL_URL || "http://localhost:8081/api/superfrete/create-label";
 
   const calculateFreight = async () => {
     if (!cep) {
@@ -46,12 +46,12 @@ const Cart = () => {
         use_insurance_value: true
       });
 
-      if (response.data && response.data.data && response.data.data.length > 0) {
-        setFreightOptions(response.data.data);
+      if (response.data && response.data && response.data.length > 0) {
+        setFreightOptions(response.data);
         // Temporariamente, vamos selecionar a primeira opção como padrão
-        setSelectedFreight(response.data.data[0]);
+        setSelectedFreight(response.data[0]);
         // Guardar informações da caixa ideal para a etiqueta
-        setSuperfreteLabelInfo(response.data.data[0].package);
+        setSuperfreteLabelInfo(response.data[0].package);
       } else {
         setFreightOptions([]);
         setSelectedFreight(null);

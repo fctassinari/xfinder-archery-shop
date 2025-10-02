@@ -28,7 +28,7 @@ O processo é o mesmo para ambos os ambientes, mudando apenas o link de acesso:
 3. Clique em "Confirmar".
 4. O token será gerado e exibido na tela. Copie-o para usar em suas requisições no ambiente de Sandbox.
    ```
-   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NTc4NjQxOTQsInN1YiI6IktsQnlIY0ZhRWJSZWE5anJyS1lxM25KQWV4SjMifQ.0NlxWecPQoZlhl8gh_BxYfrZqeXCGE49ZxbsgE1Cftw
+   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NTk0MDMyNjYsInN1YiI6IktsQnlIY0ZhRWJSZWE5anJyS1lxM25KQWV4SjMifQ.x4pHsm3Z6-kP4TLcej8p2pC_OxW50cKDfDtl006cRmg
    ```
 
 **Ambiente de Produção (ambiente real):**

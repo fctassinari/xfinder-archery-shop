@@ -46,7 +46,8 @@ public class SuperfreteService {
             SuperfreteCalculationRequest superfreteRequest = new SuperfreteCalculationRequest();
             superfreteRequest.setFrom(new SuperfreteCalculationRequest.PostalCodeInfo(storePostalCode));
             superfreteRequest.setTo(new SuperfreteCalculationRequest.PostalCodeInfo(cleanCep));
-            superfreteRequest.setServices("1,2,17,3,31"); // PAC, SEDEX, Mini Envios, Jadlog, Loggi
+//            superfreteRequest.setServices("1,2,17,3,31"); // PAC, SEDEX, Mini Envios, Jadlog, Loggi
+            superfreteRequest.setServices("1,2,17"); // PAC, SEDEX, Mini Envios
             superfreteRequest.setProducts(request.getProducts());
 
             // Configurar opções
@@ -64,7 +65,7 @@ public class SuperfreteService {
             // Fazer requisição
             Response response = superfreteApiClient.calculateFreight(authorization, userAgent, superfreteRequest);
 
-            if (response.getStatus() == 200) {
+       if (response.getStatus() == 200) {
                 return Response.ok(response.readEntity(String.class)).build();
             } else {
                 String errorBody = response.readEntity(String.class);

@@ -64,7 +64,7 @@ public class SuperfreteCalculationRequest {
         
         @JsonProperty("insurance_value")
         private Double insuranceValue;
-        
+
         @JsonProperty("use_insurance_value")
         private Boolean useInsuranceValue;
 
