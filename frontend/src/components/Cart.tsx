@@ -20,6 +20,7 @@ const Cart = () => {
   const [freightOptions, setFreightOptions] = useState<any[]>([]);
   const [selectedFreight, setSelectedFreight] = useState<any>(null);
   const [superfreteLabelInfo, setSuperfreteLabelInfo] = useState<any>(null);
+  const [isCalculatingFreight, setIsCalculatingFreight] = useState(false);
 
   const SUPERFRETE_API_URL = import.meta.env.VITE_SUPERFRETE_API_URL || "http://localhost:8081/api/superfrete/calculate-freight";
   const CREATE_LABEL_URL = import.meta.env.VITE_SUPERFRETE_CREATE_LABEL_URL || "http://localhost:8081/api/superfrete/create-label";
@@ -31,13 +32,16 @@ const Cart = () => {
     }
 
     const productsForFreight = cart.items.map(item => ({
+      name: item.product.name,
       quantity: item.quantity,
-      weight: item.product.weight || 0.1, // Adicione peso ao seu produto
-      height: item.product.height || 10, // Adicione altura ao seu produto
-      width: item.product.width || 10, // Adicione largura ao seu produto
-      length: item.product.length || 10, // Adicione comprimento ao seu produto
+      unitary_value: item.product.price,
+      weight: item.product.weight || 0.1,
+      height: item.product.height || 10,
+      width: item.product.width || 10,
+      length: item.product.length || 10,
     }));
 
+    setIsCalculatingFreight(true);
     try {
       const response = await axios.post(SUPERFRETE_API_URL, {
         cep: cep.replace(/\D/g, ""),
@@ -48,9 +52,7 @@ const Cart = () => {
 
       if (response.data && response.data && response.data.length > 0) {
         setFreightOptions(response.data);
-        // Temporariamente, vamos selecionar a primeira opção como padrão
         setSelectedFreight(response.data[0]);
-        // Guardar informações da caixa ideal para a etiqueta
         setSuperfreteLabelInfo(response.data[0].package);
       } else {
         setFreightOptions([]);
@@ -64,6 +66,8 @@ const Cart = () => {
       setSelectedFreight(null);
       setSuperfreteLabelInfo(null);
       alert("Erro ao calcular frete. Verifique o CEP e tente novamente.");
+    } finally {
+      setIsCalculatingFreight(false);
     }
   };
 
@@ -103,7 +107,7 @@ const Cart = () => {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-lg">
+      <SheetContent className="w-full sm:max-w-lg flex flex-col">
         <SheetHeader>
           <SheetTitle>Carrinho de Compras</SheetTitle>
           <SheetDescription>
@@ -114,7 +118,7 @@ const Cart = () => {
           </SheetDescription>
         </SheetHeader>
         
-        <div className="mt-8 flex flex-col h-full">
+        <div className="mt-8 flex flex-col flex-1 overflow-hidden">
           {cart.items.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center">
               <ShoppingCart className="h-16 w-16 text-muted-foreground mb-4" />
@@ -125,7 +129,7 @@ const Cart = () => {
             </div>
           ) : (
             <>
-              <div className="flex-1 space-y-4 overflow-y-auto">
+              <div className="flex-1 space-y-4 overflow-y-auto pb-4">
                 <div className="mb-4">
                   <label htmlFor="cep" className="block text-sm font-medium text-gray-700">CEP de Entrega</label>
                   <input
@@ -138,10 +142,21 @@ const Cart = () => {
                     onChange={(e) => setCep(e.target.value)}
                   />
                   <button 
-                    className="mt-2 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="mt-2 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={calculateFreight}
+                    disabled={isCalculatingFreight}
                   >
-                    Calcular Frete
+                    {isCalculatingFreight ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Calculando...
+                      </>
+                    ) : (
+                      "Calcular Frete"
+                    )}
                   </button>
                 </div>
                 {cart.items.map((item) => (
@@ -193,18 +208,19 @@ const Cart = () => {
                 ))}
               </div>
               
-              <div className="border-t pt-4 space-y-4">
+              <div className="border-t pt-4 space-y-4 flex-shrink-0">
                 {freightOptions.length > 0 && (
                   <div className="space-y-2">
                     <h3 className="text-md font-semibold">Opções de Frete:</h3>
                     {freightOptions.map((option) => (
                       <div
                         key={option.service_code}
-                        className={`flex justify-between items-center p-2 border rounded-md cursor-pointer ${selectedFreight?.service_code === option.service_code ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'}`}
+                        className={`flex justify-between items-center p-3 border rounded-md cursor-pointer ${selectedFreight?.service_code === option.service_code ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'}`}
                         onClick={() => setSelectedFreight(option)}
                       >
                         <div>
-                          <p className="font-medium">{option.service_name}</p>
+                          <p className="font-semibold text-base">{option.company_name || option.company?.name}</p>
+                          <p className="font-medium text-sm mt-1">{option.name}</p>
                           <p className="text-sm text-muted-foreground">Prazo: {option.delivery_time} dias úteis</p>
                         </div>
                         <span className="font-bold">{formatPrice(option.price)}</span>
@@ -217,7 +233,7 @@ const Cart = () => {
                   <div className="border-t pt-4 space-y-2">
                     <h3 className="text-md font-semibold">Informações para Etiqueta (Temporário):</h3>
                     <div className="bg-gray-50 p-3 rounded-md text-sm space-y-1">
-                      <p><strong>Serviço:</strong> {selectedFreight.service_name}</p>
+                      <p><strong>Serviço:</strong> {selectedFreight.name}</p>
                       <p><strong>Preço do Frete:</strong> {formatPrice(selectedFreight.price)}</p>
                       <p><strong>Prazo:</strong> {selectedFreight.delivery_time} dias úteis</p>
                       {superfreteLabelInfo && (

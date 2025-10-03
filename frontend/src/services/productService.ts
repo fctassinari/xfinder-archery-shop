@@ -14,7 +14,7 @@ export interface ProductDetails {
   isNew: boolean;
 }
 
-export interface ApiProduct extends Product {
+export interface ApiProduct extends Omit<Product, 'image'> {
   category: string;
   rating: number;
   reviews: number;

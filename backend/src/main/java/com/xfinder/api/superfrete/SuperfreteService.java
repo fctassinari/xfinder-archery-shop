@@ -1,15 +1,23 @@
 package com.xfinder.api.superfrete;
 
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+
 import java.util.Optional;
+
+import com.fasterxml.jackson.databind.ObjectMapper; // Importar ObjectMapper
+
 
 @ApplicationScoped
 public class SuperfreteService {
+
+    @Inject
+    ObjectMapper objectMapper; // Injetar ObjectMapper
 
     @Inject
     @RestClient
@@ -62,10 +70,17 @@ public class SuperfreteService {
             String authorization = "Bearer " + apiToken.orElse("YOUR_SUPERFRETE_API_TOKEN");
             String userAgent = "XFinderArcheryShop/1.0 (" + storeEmail + ")";
 
+            // Imprimir JSON da requisição ANTES de enviá-la
+//            System.out.println("JSON da Requisição Superfrete: " + objectMapper.writeValueAsString(superfreteRequest));
+
             // Fazer requisição
             Response response = superfreteApiClient.calculateFreight(authorization, userAgent, superfreteRequest);
 
-       if (response.getStatus() == 200) {
+            // Ler a entidade da resposta como String para poder imprimir e retornar
+//            String responseBody = response.readEntity(String.class);
+//            System.out.println("JSON da Resposta Superfrete: " + responseBody);
+
+            if (response.getStatus() == 200) {
                 return Response.ok(response.readEntity(String.class)).build();
             } else {
                 String errorBody = response.readEntity(String.class);
@@ -84,8 +99,8 @@ public class SuperfreteService {
     public Response createLabel(LabelCreationRequest request) {
         try {
             // Validação dos dados
-            if (request.getFrom() == null || request.getTo() == null || 
-                request.getService() == null || request.getVolume() == null) {
+            if (request.getFrom() == null || request.getTo() == null ||
+                    request.getService() == null || request.getVolume() == null) {
                 return Response.status(Response.Status.BAD_REQUEST)
                         .entity("{\"error\": \"Todos os campos são obrigatórios: from, to, service, volume\"}")
                         .build();
