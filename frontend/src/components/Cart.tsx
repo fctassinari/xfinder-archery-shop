@@ -22,16 +22,26 @@ const Cart = () => {
   const [superfreteLabelInfo, setSuperfreteLabelInfo] = useState<any>(null);
   const [isCalculatingFreight, setIsCalculatingFreight] = useState(false);
 
-  const SUPERFRETE_API_URL = import.meta.env.VITE_SUPERFRETE_API_URL || "http://localhost:8081/api/superfrete/calculate-freight";
-  const CREATE_LABEL_URL = import.meta.env.VITE_SUPERFRETE_CREATE_LABEL_URL || "http://localhost:8081/api/superfrete/create-label";
+  const cleanUrl = (value: string | undefined, fallback: string) => {
+    if (!value) return fallback;
+    let v = value.trim();
+    // remove aspas iniciais/finais, ponto e vírgula finais e aspas escapadas
+    v = v.replace(/^['"][\s]*/g, "").replace(/[\s]*['";]+$/g, "");
+    v = v.replace(/\\"/g, '"').replace(/\\'/g, "'");
+    return v || fallback;
+  };
+
+  const SUPERFRETE_API_URL = cleanUrl(import.meta.env.VITE_SUPERFRETE_API_URL, "http://localhost:8081/api/superfrete/calculate-freight");
+  const CREATE_LABEL_URL = cleanUrl(import.meta.env.VITE_SUPERFRETE_CREATE_LABEL_URL, "http://localhost:8081/api/superfrete/create-label");
 
   const calculateFreight = async () => {
-    if (!cep) {
-      alert("Por favor, digite um CEP.");
+    const sanitizedCep = cep.replace(/\D/g, "");
+    if (!sanitizedCep || sanitizedCep.length !== 8) {
+      alert("Por favor, informe um CEP válido (8 dígitos).");
       return;
     }
 
-    const productsForFreight = cart.items.map(item => ({
+    const productsForFreight = cart.items.map((item) => ({
       name: item.product.name,
       quantity: item.quantity,
       unitary_value: item.product.price,
@@ -43,25 +53,79 @@ const Cart = () => {
 
     setIsCalculatingFreight(true);
     try {
-      const response = await axios.post(SUPERFRETE_API_URL, {
-        cep: cep.replace(/\D/g, ""),
-        products: productsForFreight,
-        insurance_value: cart.total,
-        use_insurance_value: true
-      });
+      const response = await axios.post(
+        SUPERFRETE_API_URL,
+        {
+          cep: sanitizedCep,
+          products: productsForFreight,
+          insurance_value: cart.total,
+          use_insurance_value: true,
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
 
-      if (response.data && response.data && response.data.length > 0) {
-        setFreightOptions(response.data);
-        setSelectedFreight(response.data[0]);
-        setSuperfreteLabelInfo(response.data[0].package);
+      const raw = response?.data;
+      const list = Array.isArray(raw)
+        ? raw
+        : Array.isArray(raw?.data)
+        ? raw.data
+        : Array.isArray(raw?.services)
+        ? raw.services
+        : Array.isArray(raw?.results)
+        ? raw.results
+        : [];
+
+      const normalized = list
+        .map((opt: any) => {
+          const companyName = opt.company_name || opt.company?.name || opt.company || "";
+          const name = opt.name || opt.service_name || opt.service || opt.service_code || "Serviço";
+          const price = Number(
+            opt.price ?? opt.final_price ?? opt.total ?? opt.value ?? opt.amount ?? 0
+          );
+          const deliveryTime = Number(
+            opt.delivery_time ??
+              opt.delivery_days ??
+              opt.delivery_range?.max ??
+              opt.delivery_range?.min ??
+              opt.delivery?.days ??
+              0
+          );
+          const serviceCode = opt.service_code || opt.service?.code || name;
+          const pkg = opt.package || opt.volume || opt.box || null;
+          const pkgNorm = pkg
+            ? {
+                weight: Number(pkg.weight ?? pkg.peso ?? 0),
+                height: Number(pkg.height ?? pkg.altura ?? 0),
+                width: Number(pkg.width ?? pkg.largura ?? 0),
+                length: Number(pkg.length ?? pkg.comprimento ?? 0),
+              }
+            : null;
+
+          return {
+            ...opt,
+            company_name: companyName,
+            name,
+            price,
+            delivery_time: deliveryTime,
+            service_code: serviceCode,
+            package: pkgNorm ?? undefined,
+          };
+        })
+        .filter((o: any) => !Number.isNaN(o.price) && o.price >= 0)
+        .sort((a: any, b: any) => a.price - b.price);
+
+      if (normalized.length > 0) {
+        setFreightOptions(normalized);
+        setSelectedFreight(normalized[0]);
+        setSuperfreteLabelInfo(normalized[0]?.package || null);
       } else {
         setFreightOptions([]);
         setSelectedFreight(null);
         setSuperfreteLabelInfo(null);
         alert("Nenhuma opção de frete encontrada para o CEP informado.");
       }
-    } catch (error) {
-      console.error("Erro ao calcular frete:", error);
+    } catch (error: any) {
+      console.error("Erro ao calcular frete:", error?.response?.data || error);
       setFreightOptions([]);
       setSelectedFreight(null);
       setSuperfreteLabelInfo(null);
@@ -76,6 +140,14 @@ const Cart = () => {
       style: 'currency',
       currency: 'BRL'
     }).format(price);
+  };
+
+  const handleClearCart = () => {
+    clearCart();
+    setCep("");
+    setFreightOptions([]);
+    setSelectedFreight(null);
+    setSuperfreteLabelInfo(null);
   };
 
   const handleCheckout = () => {
@@ -159,6 +231,7 @@ const Cart = () => {
                     )}
                   </button>
                 </div>
+
                 {cart.items.map((item) => (
                   <div key={item.product.id} className="flex items-center space-x-4 border-b pb-4">
                     <img 
@@ -206,11 +279,9 @@ const Cart = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-              
-              <div className="border-t pt-4 space-y-4 flex-shrink-0">
+
                 {freightOptions.length > 0 && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 pt-4 border-t">
                     <h3 className="text-md font-semibold">Opções de Frete:</h3>
                     {freightOptions.map((option) => (
                       <div
@@ -259,7 +330,9 @@ const Cart = () => {
                     </div>
                   </div>
                 )}
-
+              </div>
+              
+              <div className="border-t pt-4 space-y-4 flex-shrink-0">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold">Total do Pedido:</span>
                   <span className="text-lg font-bold text-primary">
@@ -274,7 +347,7 @@ const Cart = () => {
                   <Button 
                     variant="outline" 
                     className="w-full" 
-                    onClick={clearCart}
+                    onClick={handleClearCart}
                   >
                     Limpar Carrinho
                   </Button>

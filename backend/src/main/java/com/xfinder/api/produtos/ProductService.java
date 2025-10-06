@@ -13,7 +13,7 @@ public class ProductService {
 
     public ProductService() {
         this.products = Arrays.asList(
-                new Product("1", "Puxadores de Flechas X-Puller", 70.0, "x-puller.png","Puxadores de Flechas de alta qualidade, projetados para oferecer máximo conforto e controle. Essenciais para arqueiros de todos os níveis.",0.2, 15.0, 5.0, 10.0, "Acessórios", 4.9, 127, null, false,new String[]{"Grip antideslizante", "Material durável", "Design ergonômico"}),
+                new Product("1", "X-Puller", 70.0, "x-puller.png","Puxadores de Flechas de alta qualidade, projetados para oferecer máximo conforto e edifiência.",0.2, 15.0, 5.0, 10.0, "Acessórios", 4.9, 127, null, false,new String[]{"Grip antideslizante", "Material durável", "Design ergonômico"}),
                 new Product("2", "Kit Completo Iniciante Pro", 1299.0, "archery-equipment.jpg","Kit completo para iniciantes com todos os acessórios necessários para começar no tiro com arco.",2.5, 20.0, 30.0, 70.0, "Kits", 4.8, 89, 1599.0, false,new String[]{"Arco recurvo", "12 flechas", "Proteções incluídas", "Manual completo"}),
                 new Product("3", "Flechas de Carbono X-Precision", 349.0, "archery-equipment.jpg","Flechas de carbono de altíssima qualidade para competições profissionais e treinos avançados.",0.8, 5.0, 5.0, 80.0, "Flechas", 4.9, 203, null, false,new String[]{"100% Carbono", "Peso consistente", "Ponta intercambiável"}),
                 new Product("4", "Arco Recurvo Elite Carbon Pro", 2899.0, "bow-detail.jpg","Arco recurvo profissional de competição com tecnologia avançada em carbono.",1.5, 120.0, 25.0, 150.0, "Arcos", 5.0, 45, 3299.0, true,new String[]{"World Archery Approved", "Carbono Premium", "Peso ajustável", "ILF System"}),
