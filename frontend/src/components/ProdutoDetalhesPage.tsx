@@ -55,9 +55,6 @@ const ProdutoDetalhesPage = () => {
       return;
     }
 
-    // 🔑 CORREÇÃO CRÍTICA: Definir a URL base explicitamente, assim como na ProductsPage.tsx
-    // Usando a variável de ambiente (melhor prática) ou fallback para a porta 8081
-    // Nota: O endpoint de um produto específico é 'products/{id}', sem o '/api/products' no fim do baseUrl.
     const BASE_API_URL = import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
 
     // Constrói a URL completa para o produto específico

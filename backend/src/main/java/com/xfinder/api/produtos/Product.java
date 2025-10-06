@@ -58,7 +58,7 @@ public class Product {
     // Construtor completo
     public Product(String id, String name, Double price, String image, String description,
                    Double weight, Double height, Double width, Double length, String category,
-                   Double rating, Integer reviews, Double originalPrice, Boolean isNew, String[] features) {
+                   Double rating, Integer reviews, Double originalPrice, Boolean isNew, String[] features, boolean inStock) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -74,7 +74,7 @@ public class Product {
         this.originalPrice = originalPrice;
         this.isNew = isNew;
         this.features = features;
-        this.inStock = true; // Default para inStock
+        this.inStock = inStock;
     }
 
     // Getters e Setters
