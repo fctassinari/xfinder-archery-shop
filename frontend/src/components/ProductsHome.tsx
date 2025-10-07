@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShoppingCart } from "lucide-react";
+import { Star, ShoppingCart, Heart, Eye, Ruler, Package } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/types/cart";
-import { productService, ApiProduct, ProductDetails } from "@/services/productService";
+import { productService, ProductDetails } from "@/services/productService";
 import { useState, useEffect } from "react";
 
 const Products = () => {
@@ -49,7 +49,8 @@ const Products = () => {
             weight: 0.2,
             height: 15,
             width: 5,
-            length: 10
+            length: 10,
+            qtd: 15
           },
           {
             id: "2",
@@ -60,7 +61,8 @@ const Products = () => {
             weight: 2.5,
             height: 20,
             width: 30,
-            length: 70
+            length: 70,
+            qtd: 8
           },
           {
             id: "3",
@@ -71,7 +73,8 @@ const Products = () => {
             weight: 0.8,
             height: 5,
             width: 5,
-            length: 80
+            length: 80,
+            qtd: 25
           },
           {
             id: "4",
@@ -82,7 +85,8 @@ const Products = () => {
             weight: 1,
             height: 10,
             width: 10,
-            length: 10
+            length: 10,
+            qtd: 0
           }
         ];
 
@@ -138,6 +142,22 @@ const Products = () => {
     }).format(price);
   };
 
+  // Função para formatar dimensões
+  const formatDimensions = (product: Product) => {
+    if (product.height && product.width && product.length) {
+      return `${product.height} × ${product.width} × ${product.length} cm`;
+    }
+    return null;
+  };
+
+  // Função para formatar peso
+  const formatWeight = (weight?: number) => {
+    if (weight) {
+      return `${weight} kg`;
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <section id="products" className="py-20 bg-muted/30">
@@ -173,27 +193,34 @@ const Products = () => {
             const details = productDetails[index];
             return (
               <Card key={product.id} className="group hover:shadow-elegant transition-smooth animate-fade-in" style={{animationDelay: `${index * 0.1}s`}}>
-                <CardHeader className="p-0">
+                <div className="relative">
                   <div className="relative overflow-hidden rounded-t-lg">
                     <img 
                       src={product.image} 
                       alt={product.name}
-                      className="w-full h-48 object-cover group-hover:scale-110 transition-smooth"
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-smooth"
                     />
-                    {details?.isNew && (
-                      <Badge className="absolute top-4 left-4 bg-coral-accent text-white">
-                        Novo
-                      </Badge>
-                    )}
-                    {details?.originalPrice && (
-                      <Badge variant="destructive" className="absolute top-4 right-4">
-                        Oferta
-                      </Badge>
-                    )}
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      {details?.isNew && (
+                        <Badge className="bg-coral-accent text-white">
+                          Novo
+                        </Badge>
+                      )}
+                      {details?.originalPrice && (
+                        <Badge variant="destructive">
+                          Oferta
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="absolute top-4 right-4">
+                      <Button size="icon" variant="secondary" className="h-8 w-8">
+                        <Heart className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                </CardHeader>
+                </div>
 
-                <CardContent className="p-6">
+                <CardHeader className="pb-3">
                   <div className="flex items-center justify-between mb-2">
                     <Badge variant="secondary">{details?.category || "Produto"}</Badge>
                     <div className="flex items-center space-x-1">
@@ -202,19 +229,47 @@ const Products = () => {
                       <span className="text-sm text-muted-foreground">({details?.reviews || 0})</span>
                     </div>
                   </div>
-
-                  <CardTitle className="text-xl mb-2 group-hover:text-navy-primary transition-smooth">
+                  <CardTitle className="text-lg group-hover:text-navy-primary transition-smooth">
                     {product.name}
                   </CardTitle>
-                  
-                  <CardDescription className="mb-4">
+                </CardHeader>
+
+                <CardContent className="pb-3 flex-1">
+                  <CardDescription className="mb-3">
                     {product.description}
                   </CardDescription>
 
-                  <div className="space-y-2 mb-4">
-                    {details?.features?.map((feature, idx) => (
+                  {/* Dimensões e Peso */}
+                  {(product.weight || product.height) && (
+                    <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
+                      {product.weight && (
+                        <div className="flex items-center">
+                          <Package className="h-3 w-3 mr-1" />
+                          <span>{formatWeight(product.weight)}</span>
+                        </div>
+                      )}
+                      {formatDimensions(product) && (
+                        <div className="flex items-center">
+                          <Ruler className="h-3 w-3 mr-1" />
+                          <span>{formatDimensions(product)}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Quantidade em Estoque */}
+                  {product.qtd !== undefined && (
+                    <div className="mb-3 text-sm">
+                      <span className={`font-medium ${product.qtd > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {product.qtd > 0 ? `${product.qtd} em estoque` : 'Fora de estoque'}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="space-y-1 mb-4">
+                    {details?.features?.slice(0, 3).map((feature, idx) => (
                       <div key={idx} className="flex items-center text-sm text-muted-foreground">
-                        <div className="w-2 h-2 bg-coral-accent rounded-full mr-2"></div>
+                        <div className="w-2 h-2 bg-coral-accent rounded-full mr-2 flex-shrink-0"></div>
                         {feature}
                       </div>
                     ))}
@@ -230,7 +285,7 @@ const Products = () => {
                   </div>
                 </CardContent>
 
-                <CardFooter className="p-6 pt-0 space-x-2">
+                <CardFooter className="pt-0 space-x-2">
                   <Button 
                     variant="archery" 
                     className="flex-1"
@@ -239,8 +294,8 @@ const Products = () => {
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     Comprar
                   </Button>
-                  <Button variant="outline" size="icon">
-                    <Star className="h-4 w-4" />
+                  <Button variant="outline" size="icon" onClick={() => window.location.href = `/produto?id=${product.id}`}>
+                    <Eye className="h-4 w-4" />
                   </Button>
                 </CardFooter>
               </Card>

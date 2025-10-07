@@ -28,6 +28,7 @@ interface ApiProduct {
   height?: number;
   width?: number;
   length?: number;
+  qtd?: number;
 }
 
 const ProductsPage = () => {
@@ -208,7 +209,8 @@ const ProductsPage = () => {
         weight: product.weight,
         height: product.height,
         width: product.width,
-        length: product.length
+        length: product.length,
+        qtd: product.qtd
       }));
 
       if (reset) {
@@ -522,6 +524,15 @@ const ProductsPage = () => {
                                 <span>{formatDimensions(product)}</span>
                               </div>
                             )}
+                          </div>
+                        )}
+
+                        {/* Quantidade em Estoque */}
+                        {product.qtd !== undefined && (
+                          <div className="mb-3 text-sm">
+                            <span className={`font-medium ${product.qtd > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {product.qtd > 0 ? `${product.qtd} em estoque` : 'Fora de estoque'}
+                            </span>
                           </div>
                         )}
 

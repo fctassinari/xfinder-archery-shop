@@ -23,6 +23,7 @@ interface ApiProduct extends Product {
   height?: number; // Mapeado para Double do Java
   width?: number; // Mapeado para Double do Java
   length?: number; // Mapeado para Double do Java
+  qtd?: number; // Quantidade em estoque
 
   // Mantido 'variants' opcional
   variants?: Array<{
@@ -295,7 +296,10 @@ const ProdutoDetalhesPage = () => {
                   {product.inStock ? (
                     <div className="flex items-center space-x-2 text-green-600">
                       <div className="w-3 h-3 bg-green-600 rounded-full"></div>
-                      <span className="font-medium">Em estoque</span>
+                      <span className="font-medium">
+                        Em estoque
+                        {product.qtd !== undefined && ` - ${product.qtd} unidade${product.qtd !== 1 ? 's' : ''} disponível${product.qtd !== 1 ? 'is' : ''}`}
+                      </span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2 text-red-600">

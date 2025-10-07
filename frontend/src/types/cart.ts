@@ -8,6 +8,7 @@ export interface Product {
   height?: number;
   width?: number;
   length?: number;
+  qtd?: number;
 }
 
 export interface CartItem {

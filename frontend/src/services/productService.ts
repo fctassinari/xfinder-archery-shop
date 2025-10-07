@@ -22,6 +22,7 @@ export interface ApiProduct extends Omit<Product, 'image'> {
   isNew: boolean;
   features: string[];
   image?: string; // pode ser só nome do arquivo
+  qtd?: number; // quantidade em estoque
 }
 
 class ProductService {
@@ -78,6 +79,7 @@ class ProductService {
       height: apiProduct.height,
       width: apiProduct.width,
       length: apiProduct.length,
+      qtd: apiProduct.qtd,
     };
   }
 

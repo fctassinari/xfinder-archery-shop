@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Product {
 
+    @JsonProperty("variants")
+    private Variant[] variants;
+
     @JsonProperty("id")
     private String id;
 
@@ -52,13 +55,16 @@ public class Product {
     @JsonProperty("features")
     private String[] features;
 
+    @JsonProperty("qtd")
+    private int qtd;
+
     // Construtor padrão
     public Product() {}
 
     // Construtor completo
     public Product(String id, String name, Double price, String image, String description,
                    Double weight, Double height, Double width, Double length, String category,
-                   Double rating, Integer reviews, Double originalPrice, Boolean isNew, String[] features, boolean inStock) {
+                   Double rating, Integer reviews, Double originalPrice, Boolean isNew, String[] features, boolean inStock, int qtd, Variant[] variants) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -75,6 +81,8 @@ public class Product {
         this.isNew = isNew;
         this.features = features;
         this.inStock = inStock;
+        this.qtd = qtd;
+        this.variants = variants;
     }
 
     // Getters e Setters
@@ -125,4 +133,15 @@ public class Product {
 
     public String[] getFeatures() { return features; }
     public void setFeatures(String[] features) { this.features = features; }
+
+    public int getQtd() {
+        return qtd;
+    }
+
+    public void setQtd(int qtd) {
+        this.qtd = qtd;
+    }
+
+    public Variant[] getVariants() { return variants; }
+    public void setVariants(Variant[] variants) { this.variants = variants; }
 }

@@ -157,6 +157,15 @@ const Cart = () => {
       quantity: item.quantity,
     }));
 
+    // Adiciona o frete como item separado se houver frete selecionado
+    if (selectedFreight) {
+      items.push({
+        name: `Frete - ${selectedFreight.name} (${selectedFreight.company_name || ''})`,
+        price: Math.round(selectedFreight.price * 100),
+        quantity: 1,
+      });
+    }
+
     const redirectUrl = encodeURIComponent("https://xfinderarchery.com.br/compra");
     const totalWithFreight = cart.total + (selectedFreight ? selectedFreight.price : 0);
     const checkoutUrl = `https://checkout.infinitepay.io/fctassinari?items=${JSON.stringify(items)}&redirect_url=${redirectUrl}&total=${Math.round(totalWithFreight * 100)}`;
