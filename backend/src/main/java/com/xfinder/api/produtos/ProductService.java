@@ -10,6 +10,12 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final List<Product> products;
+    List<Product> tapVariants = Arrays.asList(
+            new Product("15a","X-Tap - Cavalete"     ,   2.0, "x-tap-cavalete.jpg","Adesivos temáticos",0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados"},true,2,null),
+            new Product("15b","X-Tap - Arqueira"     ,   2.0, "x-tap-arqueira.jpg","Adesivos temáticos",0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados"},true,4,null),
+            new Product("15c","X-Tap - Arco"         ,   2.0, "x-tap-arco.jpg","Adesivos temáticos"    ,0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados"},true,5,null),
+            new Product("15d","X-Tap - Alvo"         ,   2.0, "x-tap-alvo.jpg","Adesivos temáticos"    ,0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados"},true,5,null)
+    );
 
     public ProductService() {
         this.products = Arrays.asList(
@@ -27,16 +33,10 @@ public class ProductService {
                 new Product("12","X-Pin Cinza"          ,   5.0, "x-pin-cinza.jpg","Grampo para fixação de alvo"                                                                ,0.01, 3.0, 3.0, 13.0, "Acess. Alvo",           4.8,  89, null, false,new String[]{"Resistente", "Não destroi a flecha"},true,115,null),
                 new Product("13","X-Pin Azul"           ,   5.0, "x-pin-azul.jpg","Grampo para fixação de alvo"                                                                 ,0.01, 3.0, 3.0, 13.0, "Acess. Alvo",           4.8,  89, null, false,new String[]{"Resistente", "Não destroi a flecha"},true,78,null),
                 new Product("14","X-Pin Hard Core"      ,   8.0, "x-pin-hc.jpg","Grampo para fixação de alvo"                                                                   ,0.01, 3.0, 3.0, 13.0, "Acess. Alvo",           4.8,  89, null, false,new String[]{"Resistente", "Não destroi a flecha"},true,78,null),
-                new Product("15","X-Tap"                ,   2.0, "x-tap.jpg","Adesivos temáticos"                                                                               ,0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados"},true,16,tapVariants)
+                new Product("15","X-Tap"                ,   2.0, "x-tap.jpg","Adesivos temáticos"                                                                               ,0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados","Colecionáveis"},true,16,tapVariants)
         );
     }
 
-    Variant[] tapVariants = new Variant[]{
-            new Variant("15a", "X-Tap", "x-tap-cavalete.jpg", 2.0, "Cavalete"),
-            new Variant("15b", "X-Tap", "x-tap-arqueira.jpg", 2.0, "Arqueira"),
-            new Variant("15c", "X-Tap", "x-tap-arco.jpg",     2.0, "Arco"),
-            new Variant("15d", "X-Tap", "x-tap-alvo.jpg",     2.0, "Alvo")
-    };
 
 
 

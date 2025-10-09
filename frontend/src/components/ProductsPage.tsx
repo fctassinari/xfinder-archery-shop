@@ -563,7 +563,7 @@ const ProductsPage = () => {
                           disabled={!product.inStock}
                         >
                           <ShoppingCart className="mr-2 h-4 w-4" />
-                          {product.inStock ? "Comprar" : "Indisponível"}
+                          {product.inStock ? "Adicionar ao Carrinho" : "Indisponível"}
                         </Button>
                         <Button variant="outline" size="icon" onClick={() => window.location.href = `/produto?id=${product.id}`}>
                           <Eye className="h-4 w-4" />

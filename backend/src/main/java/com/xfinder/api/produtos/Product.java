@@ -1,11 +1,12 @@
 package com.xfinder.api.produtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 public class Product {
 
     @JsonProperty("variants")
-    private Variant[] variants;
+    private List<Product> variants;
 
     @JsonProperty("id")
     private String id;
@@ -64,7 +65,7 @@ public class Product {
     // Construtor completo
     public Product(String id, String name, Double price, String image, String description,
                    Double weight, Double height, Double width, Double length, String category,
-                   Double rating, Integer reviews, Double originalPrice, Boolean isNew, String[] features, boolean inStock, int qtd, Variant[] variants) {
+                   Double rating, Integer reviews, Double originalPrice, Boolean isNew, String[] features, boolean inStock, int qtd, List<Product> variants) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -142,6 +143,6 @@ public class Product {
         this.qtd = qtd;
     }
 
-    public Variant[] getVariants() { return variants; }
-    public void setVariants(Variant[] variants) { this.variants = variants; }
+    public List<Product> getVariants() { return variants; }
+    public void setVariants(List<Product> variants) { this.variants = variants; }
 }

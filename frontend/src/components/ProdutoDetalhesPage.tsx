@@ -25,14 +25,8 @@ interface ApiProduct extends Product {
   length?: number; // Mapeado para Double do Java
   qtd?: number; // Quantidade em estoque
 
-  // Mantido 'variants' opcional
-  variants?: Array<{
-    id: string;
-    name: string;
-    image: string;
-    price: number;
-    description: string;
-  }>;
+  // variants agora são produtos completos
+  variants?: ApiProduct[];
 }
 
 const ProdutoDetalhesPage = () => {
@@ -113,13 +107,6 @@ const ProdutoDetalhesPage = () => {
     }).format(price);
   };
 
-  // Lógica de manipulação de carrinho (usa o produto dinâmico)
-  const handleAddToCart = () => {
-    // Adiciona o produto principal ao carrinho
-    if (product) {
-        addItem(product as Product);
-    }
-  };
 
   // Seleciona o produto/variante a ser exibido
   const selectedProduct = product && product.variants ? product.variants[selectedVariant] : product;
@@ -179,12 +166,42 @@ const ProdutoDetalhesPage = () => {
         <div className="bg-white shadow-lg rounded-xl p-6 lg:p-10">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Imagem do Produto */}
-            <div className="lg:w-1/2 flex justify-center items-center">
-              <img
-                src={selectedProduct!.image}
-                alt={selectedProduct!.name}
-                className="rounded-lg shadow-md max-h-[500px] object-contain w-full"
-              />
+            <div className="lg:w-1/2">
+              <div className="flex justify-center items-center">
+                <img
+                  src={selectedProduct!.image}
+                  alt={selectedProduct!.name}
+                  className="rounded-lg shadow-md max-h-[500px] object-contain w-full"
+                />
+              </div>
+
+              {/* Seção de Variantes - Miniaturas */}
+              {product.variants && product.variants.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Variantes Disponíveis</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {product.variants.map((variant, index) => (
+                      <Card
+                        key={variant.id}
+                        className={`cursor-pointer transition-all hover:shadow-lg ${
+                          selectedVariant === index 
+                            ? 'border-navy-primary ring-2 ring-navy-primary' 
+                            : 'border-gray-200 hover:border-navy-secondary'
+                        }`}
+                        onClick={() => setSelectedVariant(index)}
+                      >
+                        <CardContent className="p-2">
+                          <img
+                            src={variant.image}
+                            alt={variant.name}
+                            className="w-20 h-20 object-contain rounded"
+                          />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Informações do Produto */}
@@ -195,9 +212,9 @@ const ProdutoDetalhesPage = () => {
 
                 <div className="flex items-center space-x-3">
                   <Badge variant="secondary" className="bg-orange-100 text-orange-600 font-medium">
-                    {product.category}
+                    {selectedProduct!.category}
                   </Badge>
-                  {product.isNew && (
+                  {selectedProduct!.isNew && (
                     <Badge variant="default" className="bg-teal-500 hover:bg-teal-600">
                       Novo
                     </Badge>
@@ -206,9 +223,9 @@ const ProdutoDetalhesPage = () => {
 
                 {/* Preço */}
                 <div className="flex items-baseline space-x-3">
-                    {product.originalPrice && (
+                    {selectedProduct!.originalPrice && (
                         <span className="text-xl text-gray-500 line-through">
-                            {formatPrice(product.originalPrice)}
+                            {formatPrice(selectedProduct!.originalPrice)}
                         </span>
                     )}
                     <span className="text-4xl font-bold text-navy-primary">
@@ -222,57 +239,37 @@ const ProdutoDetalhesPage = () => {
                     {Array.from({ length: 5 }).map((_, index) => (
                       <Star
                         key={index}
-                        className={`h-5 w-5 ${index < product.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                        className={`h-5 w-5 ${index < selectedProduct!.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
                       />
                     ))}
                   </div>
                   <span className="text-sm font-medium text-gray-700">
-                    {product.rating.toFixed(1)} ({product.reviews} avaliações)
+                    {selectedProduct!.rating.toFixed(1)} ({selectedProduct!.reviews} avaliações)
                   </span>
                 </div>
 
                 {/* Descrição */}
                 <p className="text-gray-600 leading-relaxed pt-2">{selectedProduct!.description}</p>
 
-                {/* Seção de Variantes (mantida) */}
-                {product.variants && product.variants.length > 0 && (
-                  <div className="pt-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Variantes</h3>
-                    <div className="flex space-x-3">
-                      {product.variants.map((variant, index) => (
-                        <Card
-                          key={variant.id}
-                          className={`cursor-pointer transition-all ${selectedVariant === index ? 'border-navy-primary ring-2 ring-navy-primary' : 'border-gray-200'}`}
-                          onClick={() => setSelectedVariant(index)}
-                        >
-                          <CardContent className="p-3 text-center">
-                            <p className="text-sm font-medium">{variant.name}</p>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {/* Especificações Técnicas (Campos da API Java) */}
                 <div className="pt-4 border-t border-gray-100">
                     <h3 className="text-lg font-semibold text-gray-800 mb-3">Especificações</h3>
                     <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
-                        {product.weight && (
+                        {selectedProduct!.weight && (
                             <div className="flex items-center space-x-2">
                                 <Scale className="h-4 w-4 text-navy-primary" />
-                                <span>Peso: {product.weight} kg</span>
+                                <span>Peso: {selectedProduct!.weight} kg</span>
                             </div>
                         )}
-                        {product.height && product.width && product.length && (
+                        {selectedProduct!.height && selectedProduct!.width && selectedProduct!.length && (
                             <div className="flex items-center space-x-2">
                                 <Ruler className="h-4 w-4 text-navy-primary" />
-                                <span>Dimensões: {product.length}x{product.width}x{product.height} cm</span>
+                                <span>Dimensões: {selectedProduct!.length}x{selectedProduct!.width}x{selectedProduct!.height} cm</span>
                             </div>
                         )}
                         <div className="flex items-center space-x-2">
                             <Package className="h-4 w-4 text-navy-primary" />
-                            <span>Código: {product.id}</span>
+                            <span>Código: {selectedProduct!.id}</span>
                         </div>
                     </div>
                 </div>
@@ -282,7 +279,7 @@ const ProdutoDetalhesPage = () => {
                 <div className="pt-4 border-t border-gray-100">
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">Características</h3>
                   <div className="grid grid-cols-2 gap-3">
-                    {product.features.map((feature, index) => (
+                    {selectedProduct!.features.map((feature, index) => (
                       <div key={index} className="flex items-center space-x-2">
                         <span className="text-navy-primary">✓</span>
                         <span className="text-muted-foreground">{feature}</span>
@@ -293,12 +290,12 @@ const ProdutoDetalhesPage = () => {
 
                 {/* Stock Status */}
                 <div className="mb-6">
-                  {product.inStock ? (
+                  {selectedProduct!.inStock ? (
                     <div className="flex items-center space-x-2 text-green-600">
                       <div className="w-3 h-3 bg-green-600 rounded-full"></div>
                       <span className="font-medium">
                         Em estoque
-                        {product.qtd !== undefined && ` - ${product.qtd} unidade${product.qtd !== 1 ? 's' : ''} disponível${product.qtd !== 1 ? 'is' : ''}`}
+                        {selectedProduct!.qtd !== undefined && ` - ${selectedProduct!.qtd} unidade${selectedProduct!.qtd !== 1 ? 's' : ''} disponível${selectedProduct!.qtd !== 1 ? 'is' : ''}`}
                       </span>
                     </div>
                   ) : (
@@ -314,11 +311,11 @@ const ProdutoDetalhesPage = () => {
                   variant="archery"
                   size="lg"
                   className="w-full"
-                  onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  onClick={() => selectedProduct!.inStock && addItem(selectedProduct as Product)}
+                  disabled={!selectedProduct!.inStock}
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
-                  {product.inStock ? "Adicionar ao Carrinho" : "Indisponível"}
+                  {selectedProduct!.inStock ? "Adicionar ao Carrinho" : "Indisponível"}
                 </Button>
               </div>
             </div>
