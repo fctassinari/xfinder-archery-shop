@@ -50,7 +50,7 @@ const Footer = () => {
             </nav>
           </div>
 
-          {/* Categories */}
+          {/* Categories 
           <div>
             <h4 className="font-semibold text-lg mb-6">Categorias</h4>
             <nav className="space-y-3">
@@ -73,7 +73,7 @@ const Footer = () => {
           </div>
 
           {/* Newsletter */}
-          <div>
+          {/*<div>
             <h4 className="font-semibold text-lg mb-6">Newsletter</h4>
             <p className="text-white/80 mb-4">
               Receba novidades e ofertas exclusivas
@@ -89,7 +89,7 @@ const Footer = () => {
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>
-          </div>
+          </div>*/}
         </div>
 
         {/* Contact Info */}

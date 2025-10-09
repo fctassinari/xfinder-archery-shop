@@ -6,10 +6,18 @@ import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/types/cart";
 import { productService, ProductDetails } from "@/services/productService";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+// Interface para o produto estendido com variants
+interface ExtendedProduct extends Product {
+  variants?: any[];
+  inStock?: boolean;
+}
 
 const Products = () => {
   const { addItem } = useCart();
-  const [products, setProducts] = useState<Product[]>([]);
+  const navigate = useNavigate();
+  const [products, setProducts] = useState<ExtendedProduct[]>([]);
   const [productDetails, setProductDetails] = useState<ProductDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,10 +29,12 @@ const Products = () => {
 
         const apiProducts = await productService.getAllProducts();
 
-        // Converter produtos da API para o formato do frontend
-        const convertedProducts = apiProducts.map(apiProduct =>
-          productService.convertToProduct(apiProduct)
-        );
+        // Converter produtos da API para o formato do frontend com campos extras
+        const convertedProducts: ExtendedProduct[] = apiProducts.map(apiProduct => ({
+          ...productService.convertToProduct(apiProduct),
+          variants: apiProduct.variants,
+          inStock: apiProduct.qtd !== undefined ? apiProduct.qtd > 0 : true
+        }));
 
         // Extrair detalhes adicionais
         const details = apiProducts.map(apiProduct =>
@@ -39,7 +49,7 @@ const Products = () => {
         console.error('Erro ao buscar produtos:', err);
 
         // Dados fallback
-        const fallbackProducts: Product[] = [
+        const fallbackProducts: ExtendedProduct[] = [
           {
             id: "1",
             name: "Arco Recurvo Profissional X-Elite",
@@ -50,7 +60,8 @@ const Products = () => {
             height: 15,
             width: 5,
             length: 10,
-            qtd: 15
+            qtd: 15,
+            inStock: true
           },
           {
             id: "2",
@@ -62,7 +73,8 @@ const Products = () => {
             height: 20,
             width: 30,
             length: 70,
-            qtd: 8
+            qtd: 8,
+            inStock: true
           },
           {
             id: "3",
@@ -74,7 +86,8 @@ const Products = () => {
             height: 5,
             width: 5,
             length: 80,
-            qtd: 25
+            qtd: 25,
+            inStock: true
           },
           {
             id: "4",
@@ -86,7 +99,8 @@ const Products = () => {
             height: 10,
             width: 10,
             length: 10,
-            qtd: 0
+            qtd: 0,
+            inStock: false
           }
         ];
 
@@ -158,6 +172,17 @@ const Products = () => {
     return null;
   };
 
+  // Função para adicionar ao carrinho com validação de variants
+  const handleAddToCart = (product: ExtendedProduct) => {
+    if (product.variants && product.variants.length > 0) {
+      // Se o produto tem variants, redirecionar para a página de detalhes
+      navigate(`/produto?id=${product.id}`);
+    } else {
+      // Se não tem variants, adicionar diretamente ao carrinho
+      addItem(product);
+    }
+  };
+
   if (loading) {
     return (
       <section id="products" className="py-20 bg-muted/30">
@@ -211,6 +236,11 @@ const Products = () => {
                           Oferta
                         </Badge>
                       )}
+                      {!product.inStock && (
+                        <Badge variant="secondary">
+                          Fora de Estoque
+                        </Badge>
+                      )}
                     </div>
                     <div className="absolute top-4 right-4">
                       <Button size="icon" variant="secondary" className="h-8 w-8">
@@ -224,7 +254,7 @@ const Products = () => {
                   <div className="flex items-center justify-between mb-2">
                     <Badge variant="secondary">{details?.category || "Produto"}</Badge>
                     <div className="flex items-center space-x-1">
-                      <Star className="h-4 w-4 fill-coral-accent text-coral-accent" />
+                      <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                       <span className="text-sm font-medium">{details?.rating || 5.0}</span>
                       <span className="text-sm text-muted-foreground">({details?.reviews || 0})</span>
                     </div>
@@ -287,14 +317,15 @@ const Products = () => {
 
                 <CardFooter className="pt-0 space-x-2">
                   <Button 
-                    variant="archery" 
+                    variant={product.inStock ? "archery" : "outline"}
                     className="flex-1"
-                    onClick={() => addItem(product)}
+                    onClick={() => product.inStock && handleAddToCart(product)}
+                    disabled={!product.inStock}
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
-                    Comprar
+                    {product.inStock ? "Adicionar ao Carrinho" : "Indisponível"}
                   </Button>
-                  <Button variant="outline" size="icon" onClick={() => window.location.href = `/produto?id=${product.id}`}>
+                  <Button variant="outline" size="icon" onClick={() => navigate(`/produto?id=${product.id}`)}>
                     <Eye className="h-4 w-4" />
                   </Button>
                 </CardFooter>

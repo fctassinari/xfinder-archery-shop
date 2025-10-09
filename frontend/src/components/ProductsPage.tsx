@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,13 +30,15 @@ interface ApiProduct {
   width?: number;
   length?: number;
   qtd?: number;
+  variants?: ApiProduct[];
 }
 
 const ProductsPage = () => {
   const { addItem } = useCart();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
+  const [sortBy, setSortBy] = useState("id");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Estados para carregamento dinâmico
@@ -46,7 +49,8 @@ const ProductsPage = () => {
   const [initialLoad, setInitialLoad] = useState(true);
   const [apiError, setApiError] = useState(false);
 
-  const categories = ["all", "Arcos", "Flechas", "Acessórios", "Kits", "Proteções", "Alvos"];
+  // Extrair categorias únicas dos produtos
+  const categories = ["all", ...Array.from(new Set(products.map(p => p.category))).sort()];
 
   // Produtos hardcoded como fallback
   const hardcodedProducts: ApiProduct[] = [
@@ -210,7 +214,8 @@ const ProductsPage = () => {
         height: product.height,
         width: product.width,
         length: product.length,
-        qtd: product.qtd
+        qtd: product.qtd,
+        variants: product.variants
       }));
 
       if (reset) {
@@ -304,8 +309,10 @@ const ProductsPage = () => {
       case "rating":
         return b.rating - a.rating;
       case "name":
-      default:
         return a.name.localeCompare(b.name);
+      case "id":
+      default:
+        return a.id.localeCompare(b.id);
     }
   });
 
@@ -340,6 +347,17 @@ const ProductsPage = () => {
     fetchProducts(1, true);
   };
 
+  // Função para adicionar ao carrinho com validação de variants
+  const handleAddToCart = (product: ApiProduct) => {
+    if (product.variants && product.variants.length > 0) {
+      // Se o produto tem variants, redirecionar para a página de detalhes
+      navigate(`/produto?id=${product.id}`);
+    } else {
+      // Se não tem variants, adicionar diretamente ao carrinho
+      addItem(product);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
       {/* Hero Section */}
@@ -348,7 +366,7 @@ const ProductsPage = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center animate-fade-in">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Loja de Produtos
+              Produtos
             </h1>
             <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
               Equipamentos profissionais para arqueiros de todos os níveis
@@ -391,6 +409,7 @@ const ProductsPage = () => {
                   <SelectValue placeholder="Ordenar por" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="id">Código</SelectItem>
                   <SelectItem value="name">Nome</SelectItem>
                   <SelectItem value="price-low">Menor Preço</SelectItem>
                   <SelectItem value="price-high">Maior Preço</SelectItem>
@@ -494,7 +513,7 @@ const ProductsPage = () => {
                         <div className="flex items-center justify-between mb-2">
                           <Badge variant="secondary">{product.category}</Badge>
                           <div className="flex items-center space-x-1">
-                            <Star className="h-4 w-4 fill-coral-accent text-coral-accent" />
+                            <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                             <span className="text-sm font-medium">{product.rating}</span>
                             <span className="text-sm text-muted-foreground">({product.reviews})</span>
                           </div>
@@ -559,13 +578,13 @@ const ProductsPage = () => {
                         <Button
                           variant={product.inStock ? "archery" : "outline"}
                           className="flex-1"
-                          onClick={() => product.inStock && addItem(product)}
+                          onClick={() => product.inStock && handleAddToCart(product)}
                           disabled={!product.inStock}
                         >
                           <ShoppingCart className="mr-2 h-4 w-4" />
                           {product.inStock ? "Adicionar ao Carrinho" : "Indisponível"}
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => window.location.href = `/produto?id=${product.id}`}>
+                        <Button variant="outline" size="icon" onClick={() => navigate(`/produto?id=${product.id}`)}>
                           <Eye className="h-4 w-4" />
                         </Button>
                       </CardFooter>

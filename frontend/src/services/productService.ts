@@ -23,6 +23,7 @@ export interface ApiProduct extends Omit<Product, 'image'> {
   features: string[];
   image?: string; // pode ser só nome do arquivo
   qtd?: number; // quantidade em estoque
+  variants?: ApiProduct[]; // variantes do produto
 }
 
 class ProductService {
