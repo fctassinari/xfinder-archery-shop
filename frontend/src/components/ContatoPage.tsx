@@ -4,12 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import GoogleMap from "@/components/GoogleMap";
+import heroImage from "@/assets/nocks.jpeg";
 
 const ContatoPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-r from-navy-primary to-navy-primary/80 text-white">
+      <section className="relative py-20 bg-cover bg-fixed bg-center text-white" style={{ backgroundImage: `url(${heroImage})` }}>
+      {/*<section className="relative py-20 bg-gradient-to-r from-navy-primary to-navy-primary/80 text-white">*/}
         <div className="container mx-auto px-4">
           <div className="text-center animate-fade-in">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
@@ -102,7 +104,7 @@ const ContatoPage = () => {
                       <Mail className="h-8 w-8 text-coral-accent" />
                     </div>
                     <h3 className="font-semibold text-navy-primary mb-2">E-mail</h3>
-                    <p className="text-muted-foreground text-sm">contato@xfinderarchery.com.br</p>
+                    <p className="text-muted-foreground text-sm">contato.xfinder@gmail.com.br</p>
                     <p className="text-sm text-muted-foreground">Resposta em 24h</p>
                   </CardContent>
                 </Card>

@@ -6,13 +6,13 @@
 
 
 
-curl --request POST -v --url https://sandbox.superfrete.com/api/v0/calculator --header 'Authorization: Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NTgxMzIwMzUsInN1YiI6IktsQnlIY0ZhRWJSZWE5anJyS1lxM25KQWV4SjMifQ.jdNXV3ab5USutPy35Kob4z99jl_Iqvhec6Y2gM0W4xY}' --header 'User-Agent: XFinder (contato@xfinderarchery.com.br)' --header 'accept: application/json' --header 'content-type: application/json'
+curl --request POST -v --url https://sandbox.superfrete.com/api/v0/calculator --header 'Authorization: Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NTgxMzIwMzUsInN1YiI6IktsQnlIY0ZhRWJSZWE5anJyS1lxM25KQWV4SjMifQ.jdNXV3ab5USutPy35Kob4z99jl_Iqvhec6Y2gM0W4xY}' --header 'User-Agent: XFinder (contato.xfinder@gmail.com.br)' --header 'accept: application/json' --header 'content-type: application/json'
                                                                                                                eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NTgxMzIwMzUsInN1YiI6IktsQnlIY0ZhRWJSZWE5anJyS1lxM25KQWV4SjMifQ.jdNXV3ab5USutPy35Kob4z99jl_Iqvhec6Y2gM0W4xY
 
 curl --request POST --url https://sandbox.superfrete.com/api/v0/calculator --header 'Authorization: Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NTc4NjczNTcsInN1YiI6IktsQnlIY0ZhRWJSZWE5anJyS1lxM25KQWV4SjMifQ.Jky9cvTKy0bU6xdn7sMh_hVgFf7mVJCQx06XMjONtMs}' --header 'User-Agent: Superfrete (integracao@superfrete.com)' --header 'accept: application/json' --header 'content-type: application/json'
 
 
-curl --request POST -v --url https://web.superfrete.com/api/v0/calculator --header 'Authorization: Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NTc4NjQyNjQsInN1YiI6IklQNkhyUURzQXJVUjJVY29vOUpRZFdYU1B0NjMifQ.1Ej63bA6fKx7yMJLZbD9s4EO6n4dMCTsalryi8h3QOU}' --header 'User-Agent: XFinder (contato@xfinderarchery.com.br)' --header 'accept: application/json' --header 'content-type: application/json'
+curl --request POST -v --url https://web.superfrete.com/api/v0/calculator --header 'Authorization: Bearer {eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NTc4NjQyNjQsInN1YiI6IklQNkhyUURzQXJVUjJVY29vOUpRZFdYU1B0NjMifQ.1Ej63bA6fKx7yMJLZbD9s4EO6n4dMCTsalryi8h3QOU}' --header 'User-Agent: XFinder (contato.xfinder@gmail.com.br)' --header 'accept: application/json' --header 'content-type: application/json'
 
 ## 1. Autenticação
 

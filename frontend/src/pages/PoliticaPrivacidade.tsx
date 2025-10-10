@@ -108,7 +108,7 @@ const PoliticaPrivacidade = () => {
                 <li>Solicitar portabilidade dos dados</li>
               </ul>
               <p className="mt-4">
-                Para exercer seus direitos, entre em contato através de: contato@xfinderarchery.com
+                Para exercer seus direitos, entre em contato através de: contato.xfinder@gmail.com
               </p>
             </section>
 
@@ -142,7 +142,7 @@ const PoliticaPrivacidade = () => {
               <p className="mb-2">Para questões sobre esta Política de Privacidade, entre em contato:</p>
               <div className="bg-muted p-4 rounded-lg">
                 <p><strong>XFinder Archery</strong></p>
-                <p>E-mail: contato@xfinderarchery.com</p>
+                <p>E-mail: contato.xfinder@gmail.com</p>
                 <p>Telefone: (11) 99999-9999</p>
                 <p>Endereço: São Paulo, SP</p>
               </div>

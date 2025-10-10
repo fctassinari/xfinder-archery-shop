@@ -95,7 +95,7 @@ const Contact = () => {
                     <Mail className="h-8 w-8 text-coral-accent" />
                   </div>
                   <h3 className="font-semibold text-navy-primary mb-2">E-mail</h3>
-                  <p className="text-muted-foreground text-sm">contato@xfinderarchery.com.br</p>
+                  <p className="text-muted-foreground text-sm">contato.xfinder@gmail.com.br</p>
                   <p className="text-sm text-muted-foreground">Resposta em 24h</p>
                 </CardContent>
               </Card>

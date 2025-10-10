@@ -19,15 +19,17 @@ const Footer = () => {
             </div>
             
             <div className="flex space-x-4">
-              <Button variant="ghost" size="icon" className="hover:bg-white/10 text-white hover:text-coral-accent">
+              {/*<Button variant="ghost" size="icon" className="hover:bg-white/10 text-white hover:text-coral-accent">
                 <Facebook className="h-5 w-5" />
-              </Button>
+              </Button>*/}
               <Button variant="ghost" size="icon" className="hover:bg-white/10 text-white hover:text-coral-accent">
-                <Instagram className="h-5 w-5" />
+                <a href="https://www.instagram.com/xfa.archery?utm_source=qr&igsh=Y3dtcGJsbDRzdnVp" target="_blank" rel="noopener noreferrer">
+                    <Instagram className="h-5 w-5" />
+                </a>
               </Button>
-              <Button variant="ghost" size="icon" className="hover:bg-white/10 text-white hover:text-coral-accent">
+              {/*<Button variant="ghost" size="icon" className="hover:bg-white/10 text-white hover:text-coral-accent">
                 <Youtube className="h-5 w-5" />
-              </Button>
+              </Button>*/}
             </div>
           </div>
 
@@ -111,7 +113,7 @@ const Footer = () => {
               </div>
               <div>
                 <p className="font-semibold">E-mail</p>
-                <p className="text-white/80">contato@xfinderarchery.com</p>
+                <p className="text-white/80">contato.xfinder@gmail.com</p>
               </div>
             </div>
             

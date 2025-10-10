@@ -29,7 +29,7 @@ public class SuperfreteService {
     @ConfigProperty(name = "superfrete.store.postal-code", defaultValue = "01153000")
     String storePostalCode;
 
-    @ConfigProperty(name = "superfrete.store.email", defaultValue = "contato@xfinderarchery.com.br")
+    @ConfigProperty(name = "superfrete.store.email", defaultValue = "contato.xfinder@gmail.com.br")
     String storeEmail;
 
     public Response calculateFreight(FreightCalculationRequest request) {

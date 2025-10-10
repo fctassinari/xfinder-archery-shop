@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Award, Users, Zap, CheckCircle, ArrowRight } from "lucide-react";
-import hwrap from "@/assets/heroWrap.jpg";
+import hwrap from "@/assets/flechasnock.png";
 
 const About = () => {
   const stats = [
     { label: "Anos de Experiência", value: "10+", icon: Award },
-    { label: "Arqueiros Satisfeitos", value: "150+", icon: Users },
+    { label: "Arqueiros Satisfeitos", value: "400+", icon: Users },
     { label: "Produtos Vendidos", value: "1.000+", icon: Target },
     { label: "Competições com atletas utilizando nossos produtos", value: "500+", icon: Zap }
   ];

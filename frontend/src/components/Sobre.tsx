@@ -7,7 +7,7 @@ import heroImage from "@/assets/nocks.jpeg";
 const Sobre = () => {
   {/*}const stats = [
     { label: "Anos de Experiência", value: "10+", icon: Award },
-    { label: "Arqueiros Satisfeitos", value: "150+", icon: Users },
+    { label: "Arqueiros Satisfeitos", value: "400+", icon: Users },
     { label: "Produtos Vendidos", value: "1.000+", icon: Target },
     { label: "Competições", value: "100+", icon: Zap }
   ];

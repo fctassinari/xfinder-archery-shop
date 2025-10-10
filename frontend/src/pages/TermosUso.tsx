@@ -188,7 +188,7 @@ const TermosUso = () => {
               <p className="mb-2">Para questões sobre estes Termos de Uso, entre em contato:</p>
               <div className="bg-muted p-4 rounded-lg">
                 <p><strong>XFinder Archery</strong></p>
-                <p>E-mail: contato@xfinderarchery.com</p>
+                <p>E-mail: contato.xfinder@gmail.com</p>
                 <p>Telefone: (11) 99999-9999</p>
                 <p>Endereço: São Paulo, SP</p>
               </div>

@@ -45,7 +45,7 @@ Cria uma etiqueta de envio para o pedido.
   "from": {
     "name": "XFinder Archery",
     "phone": "(11) 99999-9999",
-    "email": "contato@xfinderarchery.com.br",
+    "email": "contato.xfinder@gmail.com.br",
     "postal_code": "01153000",
     "address": "Rua das Flores, 123",
     "city": "São Paulo",
@@ -85,7 +85,7 @@ Configure as seguintes variáveis de ambiente ou edite o arquivo `application.pr
 ```bash
 export SUPERFRETE_API_TOKEN="seu_token_superfrete"
 export STORE_POSTAL_CODE="01153000"
-export STORE_EMAIL="contato@xfinderarchery.com.br"
+export STORE_EMAIL="contato.xfinder@gmail.com.br"
 ```
 
 ### Executando em modo de desenvolvimento
@@ -124,7 +124,7 @@ superfrete.api.token=YOUR_SUPERFRETE_API_TOKEN
 superfrete.store.postal-code=01153000
 
 # Email de contato
-superfrete.store.email=contato@xfinderarchery.com.br
+superfrete.store.email=contato.xfinder@gmail.com.br
 ```
 
 ## Integração com Frontend
