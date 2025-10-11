@@ -2,11 +2,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import GoogleMap from "@/components/GoogleMap";
 import heroImage from "@/assets/nocks.jpeg";
 
 const ContatoPage = () => {
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [assunto, setAssunto] = useState("");
+  const [mensagem, setMensagem] = useState("");
+
+  const handleSendMessage = () => {
+    const phoneNumber = "5511991318744"; // Número de WhatsApp para contato
+    const fullMessage = `Olá! Meu nome é ${nome}, meu telefone é ${telefone} e meu e-mail é ${email}.\n\nAssunto: ${assunto}\n\nMensagem: ${mensagem}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(fullMessage)}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
       {/* Hero Section */}
@@ -18,7 +32,7 @@ const ContatoPage = () => {
               Entre em Contato
             </h1>
             <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-              Nossa equipe de especialistas está pronta para ajudar você a encontrar 
+              Nossa equipe de especialistas está pronta para ajudar você a encontrar
               o equipamento perfeito para suas necessidades.
             </p>
           </div>
@@ -42,41 +56,43 @@ const ContatoPage = () => {
                     <label className="text-sm font-medium text-foreground mb-2 block">
                       Nome *
                     </label>
-                    <Input placeholder="Seu nome completo" />
+                    <Input placeholder="Seu nome completo" value={nome} onChange={(e) => setNome(e.target.value)} />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">
                       E-mail *
                     </label>
-                    <Input type="email" placeholder="seu@email.com" />
+                    <Input type="email" placeholder="seu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     Telefone
                   </label>
-                  <Input placeholder="(11) 99999-9999" />
+                  <Input placeholder="(11) 99999-9999" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     Assunto
                   </label>
-                  <Input placeholder="Como podemos ajudar?" />
+                  <Input placeholder="Como podemos ajudar?" value={assunto} onChange={(e) => setAssunto(e.target.value)} />
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     Mensagem *
                   </label>
-                  <Textarea 
-                    placeholder="Descreva sua necessidade ou dúvida..." 
+                  <Textarea
+                    placeholder="Descreva sua necessidade ou dúvida..."
                     rows={5}
+                    value={mensagem}
+                    onChange={(e) => setMensagem(e.target.value)}
                   />
                 </div>
 
-                <Button variant="archery" size="lg" className="w-full group">
+                <Button variant="archery" size="lg" className="w-full group" onClick={handleSendMessage}>
                   <Send className="mr-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   Enviar Mensagem
                 </Button>
