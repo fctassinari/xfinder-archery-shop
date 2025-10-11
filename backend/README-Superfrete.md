@@ -44,7 +44,7 @@ Cria uma etiqueta de envio para o pedido.
 {
   "from": {
     "name": "XFinder Archery",
-    "phone": "(11) 99999-9999",
+    "phone": "(11) 99131-8744",
     "email": "contato.xfinder@gmail.com.br",
     "postal_code": "01153000",
     "address": "Rua das Flores, 123",

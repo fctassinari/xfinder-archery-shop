@@ -17,12 +17,20 @@ const Footer = () => {
                 Qualidade, precisão e performance em cada produto.
               </p>
             </div>
-            
+          </div>
+
+          {/* Siga-nos */}
+          <div className="space-y-6">
+            <div>
+              <h3 className="font-semibold text-lg mb-6">Siga-nos</h3>
+            </div>
+
             <div className="flex space-x-4">
               {/*<Button variant="ghost" size="icon" className="hover:bg-white/10 text-white hover:text-coral-accent">
                 <Facebook className="h-5 w-5" />
               </Button>*/}
-              <Button variant="ghost" size="icon" className="hover:bg-white/10 text-white hover:text-coral-accent">
+
+              <Button variant="ghost"  className="hover:bg-white/20 text-white hover:text-coral-accent">
                 <a href="https://www.instagram.com/xfa.archery?utm_source=qr&igsh=Y3dtcGJsbDRzdnVp" target="_blank" rel="noopener noreferrer">
                     <Instagram className="h-5 w-5" />
                 </a>
@@ -75,7 +83,7 @@ const Footer = () => {
           </div>
 
           {/* Newsletter */}
-          {/*<div>
+          <div>
             <h4 className="font-semibold text-lg mb-6">Newsletter</h4>
             <p className="text-white/80 mb-4">
               Receba novidades e ofertas exclusivas
@@ -91,7 +99,8 @@ const Footer = () => {
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>
-          </div>*/}
+          </div>
+
         </div>
 
         {/* Contact Info */}
@@ -103,7 +112,7 @@ const Footer = () => {
               </div>
               <div>
                 <p className="font-semibold">Telefone</p>
-                <p className="text-white/80">(11) 99999-9999</p>
+                <p className="text-white/80">(11) 99131-8744</p>
               </div>
             </div>
             

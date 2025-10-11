@@ -143,7 +143,7 @@ const PoliticaPrivacidade = () => {
               <div className="bg-muted p-4 rounded-lg">
                 <p><strong>XFinder Archery</strong></p>
                 <p>E-mail: contato.xfinder@gmail.com</p>
-                <p>Telefone: (11) 99999-9999</p>
+                <p>Telefone: (11) 99131-8744</p>
                 <p>Endereço: São Paulo, SP</p>
               </div>
             </section>

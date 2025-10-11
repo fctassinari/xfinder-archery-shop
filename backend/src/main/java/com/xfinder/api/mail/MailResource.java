@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class MailResource {
 
 // Teste
-// curl -X POST http://localhost:8081/mail/contact -H "Content-Type: application/json" -d '{"nome": "João Silva","email": "joao@example.com","telefone": "(11) 99999-9999","assunto": "Dúvida sobre o produto","mensagem": "Gostaria de mais informações sobre o produto X."}'
+// curl -X POST http://localhost:8081/mail/contact -H "Content-Type: application/json" -d '{"nome": "João Silva","email": "joao@example.com","telefone": "(11) 99131-8744","assunto": "Dúvida sobre o produto","mensagem": "Gostaria de mais informações sobre o produto X."}'
 
 
     @Inject

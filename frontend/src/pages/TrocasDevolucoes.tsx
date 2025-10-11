@@ -87,8 +87,8 @@ const TrocasDevolucoes = () => {
                     <strong>Entre em contato:</strong>
                     <ul className="list-disc pl-6 mt-2 space-y-1">
                       <li>E-mail: contato.xfinder@gmail.com</li>
-                      <li>WhatsApp: (11) 99999-9999</li>
-                      <li>Telefone: (11) 99999-9999</li>
+                      <li>WhatsApp: (11) 99131-8744</li>
+                      <li>Telefone: (11) 99131-8744</li>
                     </ul>
                   </li>
                   <li>
@@ -218,8 +218,8 @@ const TrocasDevolucoes = () => {
               <div className="bg-muted p-6 rounded-lg">
                 <p><strong>XFinder Archery - Atendimento ao Cliente</strong></p>
                 <p className="mt-2">📧 E-mail: contato.xfinder@gmail.com</p>
-                <p>📱 WhatsApp: (11) 99999-9999</p>
-                <p>📞 Telefone: (11) 99999-9999</p>
+                <p>📱 WhatsApp: (11) 99131-8744</p>
+                <p>📞 Telefone: (11) 99131-8744</p>
                 <p className="mt-2">⏰ Horário de atendimento:</p>
                 <p>Segunda a Sexta: 9h às 18h</p>
                 <p>Sábado: 9h às 13h</p>

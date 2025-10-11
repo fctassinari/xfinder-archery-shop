@@ -47,7 +47,7 @@ const Contact = () => {
                 <label className="text-sm font-medium text-foreground mb-2 block">
                   Telefone
                 </label>
-                <Input placeholder="(11) 99999-9999" />
+                <Input placeholder="(11) 99131-8744" />
               </div>
               
               <div>
@@ -84,7 +84,7 @@ const Contact = () => {
                     <Phone className="h-8 w-8 text-coral-accent" />
                   </div>
                   <h3 className="font-semibold text-navy-primary mb-2">Telefone</h3>
-                  <p className="text-muted-foreground">(11) 99999-9999</p>
+                  <p className="text-muted-foreground">(11) 99131-8744</p>
                   <p className="text-sm text-muted-foreground">Seg-Sex: 9h às 18h</p>
                 </CardContent>
               </Card>
