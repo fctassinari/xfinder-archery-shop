@@ -82,14 +82,13 @@ const Cart = () => {
           const price = Number(
             opt.price ?? opt.final_price ?? opt.total ?? opt.value ?? opt.amount ?? 0
           );
-          const deliveryTime = Number(
+          const deliveryTime =
             opt.delivery_time ??
               opt.delivery_days ??
               opt.delivery_range?.max ??
               opt.delivery_range?.min ??
               opt.delivery?.days ??
-              0
-          );
+              "0";
           const serviceCode = opt.service_code || opt.service?.code || name;
           const pkg = opt.package || opt.volume || opt.box || null;
           const pkgNorm = pkg
@@ -157,13 +156,25 @@ const Cart = () => {
       quantity: item.quantity,
     }));
 
-    // Adiciona o frete como item separado se houver frete selecionado
+    // Adiciona o frete como item separado se houver frete selecionado E valor > 0
     if (selectedFreight) {
-      items.push({
-        name: `Frete - ${selectedFreight.name} (${selectedFreight.company_name || ''})`,
-        price: Math.round(selectedFreight.price * 100),
-        quantity: 1,
-      });
+      console.log('🔍 Frete selecionado:', selectedFreight);
+      console.log('🔍 Tipo do preço:', typeof selectedFreight.price);
+      console.log('🔍 Valor do preço:', selectedFreight.price);
+
+      const freightPrice = Number(selectedFreight.price);
+      console.log('🔍 Preço convertido:', freightPrice);
+
+      if (!isNaN(freightPrice) && freightPrice > 0) {
+        console.log('✅ Adicionando frete ao carrinho');
+        items.push({
+          name: `Frete - ${selectedFreight.name} (${selectedFreight.company_name || ''})`,
+          price: Math.round(freightPrice * 100),
+          quantity: 1,
+        });
+      } else {
+        console.log('❌ Frete não adicionado - preço inválido ou zero');
+      }
     }
 
     const redirectUrl = encodeURIComponent("https://xfinderarchery.com.br/compra");
@@ -301,7 +312,8 @@ const Cart = () => {
                         <div>
                           <p className="font-semibold text-base">{option.company_name || option.company?.name}</p>
                           <p className="font-medium text-sm mt-1">{option.name}</p>
-                          <p className="text-sm text-muted-foreground">Prazo: {option.delivery_time} dias úteis</p>
+                          <p className="text-sm text-muted-foreground">Prazo: {option.delivery_time}{option.delivery_time !== "A combinar" ? " dias úteis" : ""}</p>
+
                         </div>
                         <span className="font-bold">{formatPrice(option.price)}</span>
                       </div>
@@ -315,7 +327,7 @@ const Cart = () => {
                     <div className="bg-gray-50 p-3 rounded-md text-sm space-y-1">
                       <p><strong>Serviço:</strong> {selectedFreight.name}</p>
                       <p><strong>Preço do Frete:</strong> {formatPrice(selectedFreight.price)}</p>
-                      <p><strong>Prazo:</strong> {selectedFreight.delivery_time} dias úteis</p>
+                      <p><strong>Prazo:</strong> {selectedFreight.delivery_time}{selectedFreight.delivery_time !== "A combinar" ? " dias úteis" : ""}</p>
                       {superfreteLabelInfo && (
                         <div>
                           <p><strong>Dimensões da Caixa Ideal:</strong></p>

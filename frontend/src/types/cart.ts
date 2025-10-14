@@ -8,7 +8,7 @@ export interface Product {
   height?: number;
   width?: number;
   length?: number;
-  qtd?: number;
+  quantity?: number;
 }
 
 export interface CartItem {

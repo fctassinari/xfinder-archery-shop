@@ -30,7 +30,7 @@ const Footer = () => {
                 <Facebook className="h-5 w-5" />
               </Button>*/}
 
-              <Button variant="ghost"  className="hover:bg-white/20 text-white hover:text-coral-accent">
+              <Button variant="ghost"  className="hover:bg-white/10 text-white hover:text-coral-accent">
                 <a href="https://www.instagram.com/xfa.archery?utm_source=qr&igsh=Y3dtcGJsbDRzdnVp" target="_blank" rel="noopener noreferrer">
                     <Instagram className="h-5 w-5" />
                 </a>

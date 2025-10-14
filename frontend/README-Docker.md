@@ -8,6 +8,7 @@
 podman machine start
 ```
 
+
 ## Opção 1: Build e execução manual
 
 ### Passo 1: Build da imagem

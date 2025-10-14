@@ -9,23 +9,18 @@ import { Product } from "@/types/cart";
 
 // Re-define a interface ApiProduct baseada na estrutura da API Java
 interface ApiProduct extends Product {
-  // Campos obrigatórios da Product.java
   category: string;
-  rating: number; // Mapeado para Double do Java
-  reviews: number; // Mapeado para Integer do Java
+  rating: number;
+  reviews: number;
   features: string[];
   inStock: boolean;
-
-  // Campos opcionais da Product.java
-  originalPrice?: number; // Mapeado para Double do Java
-  isNew?: boolean; // Mapeado para Boolean do Java
-  weight?: number; // Mapeado para Double do Java
-  height?: number; // Mapeado para Double do Java
-  width?: number; // Mapeado para Double do Java
-  length?: number; // Mapeado para Double do Java
-  qtd?: number; // Quantidade em estoque
-
-  // variants agora são produtos completos
+  originalPrice?: number;
+  isNew?: boolean;
+  weight?: number;
+  height?: number;
+  width?: number;
+  length?: number;
+  qtd?: number;
   variants?: ApiProduct[];
 }
 
@@ -35,13 +30,33 @@ const ProdutoDetalhesPage = () => {
   const navigate = useNavigate();
   const [selectedVariant, setSelectedVariant] = useState(0);
 
-  // Estados para buscar dados dinâmicos
   const [product, setProduct] = useState<ApiProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Obtém o 'id' da URL
   const productId = searchParams.get('id');
+
+  // Função para garantir dados seguros
+  const safeProduct = (productData: any): ApiProduct => ({
+    id: String(productData?.id || ''),
+    name: productData?.name || 'Produto sem nome',
+    price: productData?.price || 0,
+    image: productData?.image || 'https://via.placeholder.com/400x400?text=Imagem+Indisponível',
+    description: productData?.description || 'Descrição não disponível',
+    category: productData?.category || 'Geral',
+    rating: productData?.rating || 0,
+    reviews: productData?.reviews || 0,
+    features: productData?.features || [],
+    originalPrice: productData?.originalPrice,
+    isNew: productData?.isNew || false,
+    inStock: productData?.inStock !== undefined ? productData.inStock : true,
+    weight: productData?.weight,
+    height: productData?.height,
+    width: productData?.width,
+    length: productData?.length,
+    qtd: productData?.qtd,
+    variants: productData?.variants?.filter((v: any) => v !== undefined && v !== null).map((v: any) => safeProduct(v)) || []
+  });
 
   useEffect(() => {
     if (!productId) {
@@ -51,10 +66,7 @@ const ProdutoDetalhesPage = () => {
     }
 
     const BASE_API_URL = import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
-
-    // Constrói a URL completa para o produto específico
     const apiUrl = `${BASE_API_URL}/${productId}`;
-
 
     const fetchProductDetails = async () => {
       setLoading(true);
@@ -62,29 +74,31 @@ const ProdutoDetalhesPage = () => {
       setProduct(null);
 
       try {
-        // Usa a URL ABSOLUTA construída
         const response = await fetch(apiUrl);
         let data: ApiProduct;
 
         if (!response.ok) {
-          // Trata status de erro (404, 500, etc.)
           if (response.status === 404) {
              throw new Error(`Produto com ID '${productId}' não foi encontrado.`);
           }
-          // Para outros erros (ex: 500, servidor indisponível)
           throw new Error(`Erro de rede ou servidor: Código ${response.status}.`);
         }
 
         try {
-            // Tenta ler o JSON: O erro "<!DOCTYPE" não deve mais ocorrer!
             data = await response.json();
         } catch (jsonError) {
-            // Se o erro de parsing ocorrer (e não deveria mais), avisa o usuário
             console.error("Erro ao analisar JSON. Resposta pode não ser JSON:", jsonError);
             throw new Error("Resposta inesperada do servidor. O formato de dados está incorreto (esperado JSON).");
         }
 
-        setProduct(data);
+        console.log('🔍 Produto carregado:', data);
+        console.log('🔍 Variantes:', data?.variants);
+
+        // Usa safeProduct para garantir dados consistentes
+        const safeProductData = safeProduct(data);
+        console.log('🔍 Produto seguro:', safeProductData);
+
+        setProduct(safeProductData);
 
       } catch (err: any) {
         console.error("Erro ao buscar detalhes do produto:", err);
@@ -97,9 +111,6 @@ const ProdutoDetalhesPage = () => {
     fetchProductDetails();
   }, [productId]);
 
-  // Lógica de manipulação de estados (loading, error, product) e renderização...
-
-  // Função para formatar preços
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -107,11 +118,40 @@ const ProdutoDetalhesPage = () => {
     }).format(price);
   };
 
+  // CORREÇÃO: Função segura para obter produto selecionado
+  const getSelectedProduct = (): ApiProduct | null => {
+    if (!product) return null;
 
-  // Seleciona o produto/variante a ser exibido
-  const selectedProduct = product && product.variants ? product.variants[selectedVariant] : product;
+    // Se tem variantes e selectedVariant é válido, retorna a variante
+    if (product.variants && product.variants.length > 0) {
+      const variant = product.variants[selectedVariant];
+      if (variant) {
+        return variant;
+      }
+      // Fallback para primeira variante válida
+      const firstValidVariant = product.variants.find(v => v !== undefined);
+      return firstValidVariant || product;
+    }
 
-  // Lógica para lidar com o loading
+    // Se não tem variantes, retorna o produto principal
+    return product;
+  };
+
+  const selectedProduct = getSelectedProduct();
+
+  // CORREÇÃO: Função para obter variantes válidas
+  const getValidVariants = () => {
+    if (!product?.variants) return [];
+    return product.variants.filter(variant =>
+      variant !== undefined &&
+      variant !== null &&
+      variant.image !== undefined
+    );
+  };
+
+  const validVariants = getValidVariants();
+  const hasValidVariants = validVariants.length > 0;
+
   if (loading) {
     return (
         <div className="flex items-center justify-center min-h-[400px] flex-col">
@@ -121,7 +161,6 @@ const ProdutoDetalhesPage = () => {
     );
   }
 
-  // Lógica para lidar com erros
   if (error) {
     return (
         <div className="flex items-center justify-center min-h-[400px] flex-col p-6 text-center">
@@ -135,8 +174,7 @@ const ProdutoDetalhesPage = () => {
     );
   }
 
-  // Fallback seguro caso 'product' seja null
-  if (!product) {
+  if (!product || !selectedProduct) {
     return (
         <div className="flex items-center justify-center min-h-[400px] flex-col p-6 text-center">
             <AlertTriangle className="h-10 w-10 text-yellow-500" />
@@ -149,7 +187,6 @@ const ProdutoDetalhesPage = () => {
     );
   }
 
-  // Início da renderização do produto...
   return (
     <div className="pt-20 pb-12 bg-gray-50/50">
       <section className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -162,40 +199,50 @@ const ProdutoDetalhesPage = () => {
           Voltar para a Lista de Produtos
         </Button>
 
-        {/* Detalhes do Produto */}
         <div className="bg-white shadow-lg rounded-xl p-6 lg:p-10">
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Imagem do Produto */}
             <div className="lg:w-1/2">
               <div className="flex justify-center items-center">
                 <img
-                  src={selectedProduct!.image}
-                  alt={selectedProduct!.name}
+                  src={selectedProduct.image}
+                  alt={selectedProduct.name}
                   className="rounded-lg shadow-md max-h-[500px] object-contain w-full"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/400x400?text=Imagem+Indisponível';
+                  }}
                 />
               </div>
 
-              {/* Seção de Variantes - Miniaturas */}
-              {product.variants && product.variants.length > 0 && (
+              {/* CORREÇÃO: Usa apenas variantes válidas */}
+              {hasValidVariants && (
                 <div className="mt-6">
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">Variantes Disponíveis</h3>
                   <div className="flex flex-wrap gap-3">
-                    {product.variants.map((variant, index) => (
+                    {validVariants.map((variant, index) => (
                       <Card
-                        key={variant.id}
+                        key={variant.id || index}
                         className={`cursor-pointer transition-all hover:shadow-lg ${
-                          selectedVariant === index 
-                            ? 'border-navy-primary ring-2 ring-navy-primary' 
+                          selectedVariant === index
+                            ? 'border-navy-primary ring-2 ring-navy-primary'
                             : 'border-gray-200 hover:border-navy-secondary'
                         }`}
                         onClick={() => setSelectedVariant(index)}
                       >
-                        <CardContent className="p-2">
-                          <img
-                            src={variant.image}
-                            alt={variant.name}
-                            className="w-20 h-20 object-contain rounded"
-                          />
+                        <CardContent className="p-2 flex flex-col items-center">
+                          <div className="w-20 h-20 flex items-center justify-center bg-gray-100 rounded border">
+                            <img
+                              src={variant.image}
+                              alt={variant.name}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                e.currentTarget.src = 'https://via.placeholder.com/80x80?text=Imagem';
+                                e.currentTarget.className = 'w-16 h-16 object-contain opacity-50';
+                              }}
+                            />
+                          </div>
+                          <span className="text-xs mt-1 text-center font-medium text-gray-700 max-w-20 truncate">
+                            {variant.name}
+                          </span>
                         </CardContent>
                       </Card>
                     ))}
@@ -204,82 +251,78 @@ const ProdutoDetalhesPage = () => {
               )}
             </div>
 
-            {/* Informações do Produto */}
             <div className="lg:w-1/2">
               <div className="space-y-4">
-                {/* Cabeçalho */}
-                <h1 className="text-4xl font-extrabold text-gray-900">{selectedProduct!.name}</h1>
+                <h1 className="text-4xl font-extrabold text-gray-900">{selectedProduct.name}</h1>
 
                 <div className="flex items-center space-x-3">
                   <Badge variant="secondary" className="bg-orange-100 text-orange-600 font-medium">
-                    {selectedProduct!.category}
+                    {selectedProduct.category}
                   </Badge>
-                  {selectedProduct!.isNew && (
+                  {selectedProduct.isNew && (
                     <Badge variant="default" className="bg-teal-500 hover:bg-teal-600">
                       Novo
                     </Badge>
                   )}
                 </div>
 
-                {/* Preço */}
                 <div className="flex items-baseline space-x-3">
-                    {selectedProduct!.originalPrice && (
-                        <span className="text-xl text-gray-500 line-through">
-                            {formatPrice(selectedProduct!.originalPrice)}
-                        </span>
-                    )}
-                    <span className="text-4xl font-bold text-navy-primary">
-                        {formatPrice(selectedProduct!.price)}
+                  {selectedProduct.originalPrice && (
+                    <span className="text-xl text-gray-500 line-through">
+                      {formatPrice(selectedProduct.originalPrice)}
                     </span>
+                  )}
+                  <span className="text-4xl font-bold text-navy-primary">
+                    {formatPrice(selectedProduct.price)}
+                  </span>
                 </div>
 
-                {/* Avaliação */}
                 <div className="flex items-center space-x-2">
                   <div className="flex">
                     {Array.from({ length: 5 }).map((_, index) => (
                       <Star
                         key={index}
-                        className={`h-5 w-5 ${index < selectedProduct!.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                        className={`h-5 w-5 ${
+                          index < Math.floor(selectedProduct.rating)
+                            ? 'text-yellow-400 fill-yellow-400'
+                            : 'text-gray-300'
+                        }`}
                       />
                     ))}
                   </div>
                   <span className="text-sm font-medium text-gray-700">
-                    {selectedProduct!.rating.toFixed(1)} ({selectedProduct!.reviews} avaliações)
+                    {selectedProduct.rating.toFixed(1)} ({selectedProduct.reviews} avaliações)
                   </span>
                 </div>
 
-                {/* Descrição */}
-                <p className="text-gray-600 leading-relaxed pt-2">{selectedProduct!.description}</p>
+                <p className="text-gray-600 leading-relaxed pt-2">{selectedProduct.description}</p>
 
-                {/* Especificações Técnicas (Campos da API Java) */}
                 <div className="pt-4 border-t border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Especificações</h3>
-                    <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
-                        {selectedProduct!.weight && (
-                            <div className="flex items-center space-x-2">
-                                <Scale className="h-4 w-4 text-navy-primary" />
-                                <span>Peso: {selectedProduct!.weight} kg</span>
-                            </div>
-                        )}
-                        {selectedProduct!.height && selectedProduct!.width && selectedProduct!.length && (
-                            <div className="flex items-center space-x-2">
-                                <Ruler className="h-4 w-4 text-navy-primary" />
-                                <span>Dimensões: {selectedProduct!.length}x{selectedProduct!.width}x{selectedProduct!.height} cm</span>
-                            </div>
-                        )}
-                        <div className="flex items-center space-x-2">
-                            <Package className="h-4 w-4 text-navy-primary" />
-                            <span>Código: {selectedProduct!.id}</span>
-                        </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Especificações</h3>
+                  <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
+                    {selectedProduct.weight && (
+                      <div className="flex items-center space-x-2">
+                        <Scale className="h-4 w-4 text-navy-primary" />
+                        <span>Peso: {selectedProduct.weight} kg</span>
+                      </div>
+                    )}
+                    {selectedProduct.height && selectedProduct.width && selectedProduct.length && (
+                      <div className="flex items-center space-x-2">
+                        <Ruler className="h-4 w-4 text-navy-primary" />
+                        <span>Dimensões: {selectedProduct.length}x{selectedProduct.width}x{selectedProduct.height} cm</span>
+                      </div>
+                    )}
+                    <div className="flex items-center space-x-2">
+                      <Package className="h-4 w-4 text-navy-primary" />
+                      <span>Código: {selectedProduct.id}</span>
                     </div>
+                  </div>
                 </div>
 
-
-                {/* Características Principais */}
                 <div className="pt-4 border-t border-gray-100">
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">Características</h3>
                   <div className="grid grid-cols-2 gap-3">
-                    {selectedProduct!.features.map((feature, index) => (
+                    {selectedProduct.features.map((feature, index) => (
                       <div key={index} className="flex items-center space-x-2">
                         <span className="text-navy-primary">✓</span>
                         <span className="text-muted-foreground">{feature}</span>
@@ -288,14 +331,13 @@ const ProdutoDetalhesPage = () => {
                   </div>
                 </div>
 
-                {/* Stock Status */}
                 <div className="mb-6">
-                  {selectedProduct!.inStock ? (
+                  {selectedProduct.inStock ? (
                     <div className="flex items-center space-x-2 text-green-600">
                       <div className="w-3 h-3 bg-green-600 rounded-full"></div>
                       <span className="font-medium">
                         Em estoque
-                        {selectedProduct!.qtd !== undefined && ` - ${selectedProduct!.qtd} unidade${selectedProduct!.qtd !== 1 ? 's' : ''} disponível${selectedProduct!.qtd !== 1 ? 'is' : ''}`}
+                        {selectedProduct.qtd !== undefined && ` - ${selectedProduct.qtd} unidade${selectedProduct.qtd !== 1 ? 's' : ''} disponível${selectedProduct.qtd !== 1 ? 'is' : ''}`}
                       </span>
                     </div>
                   ) : (
@@ -306,16 +348,15 @@ const ProdutoDetalhesPage = () => {
                   )}
                 </div>
 
-                {/* Add to Cart Button */}
                 <Button
                   variant="archery"
                   size="lg"
                   className="w-full"
-                  onClick={() => selectedProduct!.inStock && addItem(selectedProduct as Product)}
-                  disabled={!selectedProduct!.inStock}
+                  onClick={() => selectedProduct.inStock && addItem(selectedProduct as Product)}
+                  disabled={!selectedProduct.inStock}
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
-                  {selectedProduct!.inStock ? "Adicionar ao Carrinho" : "Indisponível"}
+                  {selectedProduct.inStock ? "Adicionar ao Carrinho" : "Indisponível"}
                 </Button>
               </div>
             </div>

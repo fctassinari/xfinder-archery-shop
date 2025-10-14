@@ -12,7 +12,7 @@ import heroImage from "@/assets/heroWrap.jpg";
 
 // Interface para o produto da API
 interface ApiProduct {
-  id: string;
+  id: string | number; // Agora aceita string OU number
   name: string;
   price: number;
   image: string;
@@ -29,7 +29,7 @@ interface ApiProduct {
   height?: number;
   width?: number;
   length?: number;
-  qtd?: number;
+  quantity?: number;
   variants?: ApiProduct[];
 }
 
@@ -197,7 +197,7 @@ const ProductsPage = () => {
 
       // Converter produtos da API para o formato esperado
       const formattedProducts: ApiProduct[] = apiProducts.map((product: any) => ({
-        id: product.id,
+        id: String(product.id), // Converte para string
         name: product.name,
         price: product.price,
         image: product.image,
@@ -214,8 +214,11 @@ const ProductsPage = () => {
         height: product.height,
         width: product.width,
         length: product.length,
-        qtd: product.qtd,
-        variants: product.variants
+        quantity: product.quantity,
+        variants: product.variants ? product.variants.map((variant: any) => ({
+          ...variant,
+          id: String(variant.id) // Converte variantes também
+        })) : undefined
       }));
 
       if (reset) {
@@ -300,21 +303,25 @@ const ProductsPage = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "rating":
-        return b.rating - a.rating;
-      case "name":
-        return a.name.localeCompare(b.name);
-      case "id":
-      default:
-        return a.id.localeCompare(b.id);
-    }
-  });
+
+    const sortedProducts = [...filteredProducts].sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          return b.rating - a.rating;
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "id":
+        default:
+          // Usa parseInt para garantir números inteiros
+          const idA = parseInt(a.id, 10) || 0;
+          const idB = parseInt(b.id, 10) || 0;
+          return idA - idB;
+      }
+    });
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -347,11 +354,10 @@ const ProductsPage = () => {
     fetchProducts(1, true);
   };
 
-  // Função para adicionar ao carrinho com validação de variants
   const handleAddToCart = (product: ApiProduct) => {
     if (product.variants && product.variants.length > 0) {
       // Se o produto tem variants, redirecionar para a página de detalhes
-      navigate(`/produto?id=${product.id}`);
+      navigate(`/produto?id=${String(product.id)}`); // Converte para string
     } else {
       // Se não tem variants, adicionar diretamente ao carrinho
       addItem(product);
@@ -547,10 +553,10 @@ const ProductsPage = () => {
                         )}
 
                         {/* Quantidade em Estoque */}
-                        {product.qtd !== undefined && (
+                        {product.quantity !== undefined && (
                           <div className="mb-3 text-sm">
-                            <span className={`font-medium ${product.qtd > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {product.qtd > 0 ? `${product.qtd} em estoque` : 'Fora de estoque'}
+                            <span className={`font-medium ${product.quantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {product.quantity > 0 ? `${product.quantity} em estoque` : 'Fora de estoque'}
                             </span>
                           </div>
                         )}
@@ -584,8 +590,8 @@ const ProductsPage = () => {
                           <ShoppingCart className="mr-2 h-4 w-4" />
                           {product.inStock ? "Adicionar ao Carrinho" : "Indisponível"}
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => navigate(`/produto?id=${product.id}`)}>
-                          <Eye className="h-4 w-4" />
+                        <Button variant="outline" size="icon" onClick={() => navigate(`/produto?id=${String(product.id)}`)}>
+                            <Eye className="h-4 w-4" />
                         </Button>
                       </CardFooter>
                     </div>

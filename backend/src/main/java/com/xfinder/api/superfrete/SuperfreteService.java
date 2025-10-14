@@ -8,10 +8,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.ObjectMapper; // Importar ObjectMapper
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @ApplicationScoped
 public class SuperfreteService {
@@ -81,7 +84,13 @@ public class SuperfreteService {
 //            System.out.println("JSON da Resposta Superfrete: " + responseBody);
 
             if (response.getStatus() == 200) {
-                return Response.ok(response.readEntity(String.class)).build();
+                String responseBody = response.readEntity(String.class);
+
+                // Adicionar a opção "Em Mãos" à resposta
+                String modifiedResponse = addHandDeliveryOption(responseBody);
+
+                return Response.ok(modifiedResponse).build();
+                //return Response.ok(response.readEntity(String.class)).build();
             } else {
                 String errorBody = response.readEntity(String.class);
                 return Response.status(response.getStatus())
@@ -94,6 +103,45 @@ public class SuperfreteService {
                     .entity("{\"error\": \"" + e.getMessage() + "\"}")
                     .build();
         }
+    }
+
+    /**
+     * Adiciona a opção "Em Mãos" ao array de respostas de frete
+     */
+    private String addHandDeliveryOption(String originalResponse) throws JsonProcessingException {
+        // Converter a resposta original para um array de JsonNode
+        JsonNode[] shippingOptions = objectMapper.readValue(originalResponse, JsonNode[].class);
+
+        // Criar a opção "Em Mãos"
+        String handDeliveryJson = """
+        {
+            "id": 99,
+            "name": "Em Mãos",
+            "error": "444",
+            "delivery_time": "A combinar",
+            "company": {
+                "id": 99,
+                "name": "XFinder",
+                "picture": "https://xfinder-archery.com.br"
+            }
+        }
+        """;
+
+        JsonNode handDeliveryNode = objectMapper.readTree(handDeliveryJson);
+
+        // Criar uma nova lista combinando as opções originais com a nova opção
+        List<JsonNode> allOptions = new ArrayList<>();
+
+        // Adicionar primeiro a opção "Em Mãos"
+        allOptions.add(handDeliveryNode);
+
+        // Adicionar todas as opções originais
+        for (JsonNode option : shippingOptions) {
+            allOptions.add(option);
+        }
+
+        // Converter de volta para JSON string
+        return objectMapper.writeValueAsString(allOptions);
     }
 
     public Response createLabel(LabelCreationRequest request) {

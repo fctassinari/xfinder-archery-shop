@@ -1,7 +1,8 @@
 package com.xfinder.api.produtos;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import java.util.Arrays;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -9,68 +10,241 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class ProductService {
 
-    private final List<Product> products;
-    List<Product> tapVariants = Arrays.asList(
-            new Product("15a","X-Tap - Cavalete"     ,   2.0, "x-tap-cavalete.jpg","Adesivos temáticos",0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados"},true,2,null),
-            new Product("15b","X-Tap - Arqueira"     ,   2.0, "x-tap-arqueira.jpg","Adesivos temáticos",0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados"},true,4,null),
-            new Product("15c","X-Tap - Arco"         ,   2.0, "x-tap-arco.jpg","Adesivos temáticos"    ,0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados"},true,5,null),
-            new Product("15d","X-Tap - Alvo"         ,   2.0, "x-tap-alvo.jpg","Adesivos temáticos"    ,0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados"},true,5,null)
-    );
+    // Listar produtos com paginação - EXCLUINDO produtos que são variantes
+    public List<ProductDTO> getProductsPaginated(int page, int limit) {
+        int offset = (page - 1) * limit;
 
-    public ProductService() {
-        this.products = Arrays.asList(
-                new Product("1", "X-Puller"             ,  70.0, "x-puller.png","Puxadores de Flechas de alta qualidade, projetados para oferecer máximo conforto e edifiência.",0.06, 1.5, 8.0, 8.0,  "Acess. Flechas",        4.9, 127, null, false,new String[]{"Grip antideslizante", "Material durável", "Design ergonômico"},true,30,null),
-                new Product("2", "X-Lube"               ,  70.0, "x-lube.jpg","Silicone para diminuir o esfroço de extrair a flecha do fardo."                                  ,0.07, 3.0, 3.0, 13.0, "Acess. Flechas",        4.8,  89, null, false,new String[]{"Alta Viscosidade", "Fácil Utilização", "Rende mais tiros entre utilização"},true,20,null),
-                new Product("3", "X-Nock Adapter - 3 mm",  80.0, "x-na-protour.jpg","Adaptador de Nock para um perfeito encaixe dos nocks com o tubo de flecha"                 ,0.01, 3.0, 3.0, 13.0, "Acess. Flechas",        4.8,  89, null, false,new String[]{"Feito em Alumínio", "Adequado para felchas Protour / X10", "Ou em tubos com 3 mm de diâmetro interno", "12 unidades"},true,10,null),
-                new Product("4", "X-Nock Adapter - 5 mm",  80.0, "x-na-ace.jpg","Adaptador de Nock para um perfeito encaixe dos nocks com o tubo de flecha"                     ,0.01, 3.0, 3.0, 13.0, "Acess. Flechas",        4.8,  89, null, false,new String[]{"Feito em Alumínio", "Adequado para felchas ACE", "Ou em tubos com 5 mm de diâmetro interno", "12 unidades"},true,10,null),
-                new Product("5", "X-Nock Adapter - 7 mm",  80.0, "x-na-x7.jpg","Adaptador de Nock para um perfeito encaixe dos nocks com o tubo de flecha"                      ,0.01, 3.0, 3.0, 13.0, "Acess. Flechas",        4.8,  89, null, false,new String[]{"Feito em Alumínio", "Adequado para felchas X7 2314", "Ou em tubos com 5 mm de diâmetro interno", "12 unidades"},true,10,null),
-                new Product("6", "X-Nock Adapter - 8 mm",  80.0, "x-na-x23.jpg","Adaptador de Nock para um perfeito encaixe dos nocks com o tubo de flecha"                     ,0.01, 3.0, 3.0, 13.0, "Acess. Flechas",        4.8,  89, null, false,new String[]{"Feito em Alumínio", "Adequado para felchas X23 2314 / 2315", "Ou em tubos com 5 mm de diâmetro interno", "12 unidades"},true,10,null),
-                new Product("7", "Chave Allen"          ,  80.0, "x-allen.jpg","Jogo de chaves Allen canivete com 7 medidas em milímetros e 7 medidas em polegadas"             ,0.01, 3.0, 3.0, 13.0, "Ferramentas",           4.8,  89, null, false,new String[]{"1 mm", "2 mm", "3 mm", "4 mm", "5 mm", "6 mm", "7 mm", "1 pol", "2 pol", "3 pol", "4 pol", "5 pol", "6 pol", "7 pol"},true,10,null),
-                new Product("8", "X-Dumper Sight"       , 120.0, "x-dumper-sight.jpg","Dumper para eliminar a vibração na haste da mira"                                        ,0.01, 3.0, 3.0, 13.0, "Acess. Mira",           4.8,  89, null, false,new String[]{"Corpo de Borracha", "Peso em aço inox", "Vendido em pares"},true,3,null),
-                new Product("9", "X-VBar"               , 130.0, "x-vbar.jpg","VBar em alumínio para estabilizadores"                                                           ,0.01, 3.0, 3.0, 13.0, "Acess. Estabilização",  4.8,  89, null, false,new String[]{"Em Alumínio", "Leve", "Resistente"},true,2,null),
-                new Product("10","X-Pin Branco"         ,   5.0, "x-pin-branco.jpg","Grampo para fixação de alvo"                                                               ,0.01, 3.0, 3.0, 13.0, "Acess. Alvo",           4.8,  89, null, false,new String[]{"Resistente", "Não destroi a flecha"},true,16,null),
-                new Product("11","X-Pin Amarelo"        ,   5.0, "x-pin-amarelo.jpg","Grampo para fixação de alvo"                                                              ,0.01, 3.0, 3.0, 13.0, "Acess. Alvo",           4.8,  89, null, false,new String[]{"Resistente", "Não destroi a flecha"},true,22,null),
-                new Product("12","X-Pin Cinza"          ,   5.0, "x-pin-cinza.jpg","Grampo para fixação de alvo"                                                                ,0.01, 3.0, 3.0, 13.0, "Acess. Alvo",           4.8,  89, null, false,new String[]{"Resistente", "Não destroi a flecha"},true,115,null),
-                new Product("13","X-Pin Azul"           ,   5.0, "x-pin-azul.jpg","Grampo para fixação de alvo"                                                                 ,0.01, 3.0, 3.0, 13.0, "Acess. Alvo",           4.8,  89, null, false,new String[]{"Resistente", "Não destroi a flecha"},true,78,null),
-                new Product("14","X-Pin Hard Core"      ,   8.0, "x-pin-hc.jpg","Grampo para fixação de alvo"                                                                   ,0.01, 3.0, 3.0, 13.0, "Acess. Alvo",           4.8,  89, null, false,new String[]{"Resistente", "Não destroi a flecha"},true,78,null),
-                new Product("15","X-Tap"                ,   2.0, "x-tap.jpg","Adesivos temáticos"                                                                               ,0.01, 3.0, 3.0, 13.0, "Adesivos",              4.8,  89, null, false,new String[]{"Lindos", "Variados","Colecionáveis"},true,16,tapVariants)
-        );
-    }
+        // CORREÇÃO: Usando LEFT JOIN para excluir produtos que são variantes
+        List<Product> products = Product.find(
+                        "SELECT p FROM Product p LEFT JOIN ProductVariant pv ON p.id = pv.variantProduct.id " +
+                                "WHERE pv.variantProduct.id IS NULL ORDER BY p.id"
+                )
+                .range(offset, offset + limit - 1)
+                .list();
 
-
-
-
-    public List<Product> getAllProducts() {
-        return products;
-    }
-
-    public Optional<Product> getProductById(String id) {
         return products.stream()
-                .filter(product -> product.getId().equals(id))
-                .findFirst();
-    }
-
-    public List<Product> getProductsByCategory(String category) {
-        return products.stream()
-                .filter(product -> product.getCategory().equalsIgnoreCase(category))
+                .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<Product> getFeaturedProducts() {
+    // Método opcional: buscar produtos COM variantes
+    public List<ProductDTO> getProductsWithVariantsPaginated(int page, int limit) {
+        int offset = (page - 1) * limit;
+
+        List<Product> products = Product.find("variants IS NOT EMPTY ORDER BY id")
+                .range(offset, offset + limit - 1)
+                .list();
+
         return products.stream()
-                .filter(product -> product.getIsNew() != null && product.getIsNew())
+                .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<Product> getProductsPaginated(int page, int limit) {
-        if (page < 1) page = 1;
-        if (limit < 1) limit = 6;
 
-        int skip = (page - 1) * limit;
+
+
+
+
+    // Buscar produto por ID
+    public Optional<ProductDTO> getProductById(Long id) {
+        Product product = Product.findById(id);
+        if (product == null) {
+            return Optional.empty();
+        }
+        return Optional.of(toDTO(product));
+    }
+
+    // Buscar produtos por categoria
+    public List<ProductDTO> getProductsByCategory(String category) {
+        List<Product> products = Product.find("category", category).list();
+        return products.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Produtos em destaque (produtos com maior rating e em stock)
+    public List<ProductDTO> getFeaturedProducts() {
+        List<Product> products = Product.find("rating >= ?1 AND inStock = ?2 ORDER BY rating DESC", 4.5, true)
+                .range(0, 5) // Limita a 5 produtos em destaque
+                .list();
 
         return products.stream()
-                .skip(skip)
-                .limit(limit)
+                .map(this::toDTO)
                 .collect(Collectors.toList());
+    }
+
+//    public List<com.xfinder.api.produtosold.Product> getFeaturedProducts() {
+//        return products.stream()
+//                .filter(product -> product.getIsNew() != null && product.getIsNew())
+//                .collect(Collectors.toList());
+//    }
+
+
+
+
+
+    // Criar produto
+    @Transactional
+    public ProductDTO createProduct(ProductDTO productDTO) {
+        Product product = fromDTO(productDTO);
+        product.persist();
+
+        // Salvar features
+        if (productDTO.features != null) {
+            for (String feature : productDTO.features) {
+                ProductFeature productFeature = new ProductFeature(product, feature);
+                productFeature.persist();
+            }
+        }
+
+        // CORREÇÃO: Salvar variantes
+        if (productDTO.variants != null) {
+            for (ProductVariantDTO variantDTO : productDTO.variants) {
+                // Buscar o produto variante pelo ID
+                Product variantProduct = Product.findById(variantDTO.id);
+                if (variantProduct != null) {
+                    ProductVariant productVariant = new ProductVariant(product, variantProduct);
+                    productVariant.persist();
+                }
+            }
+        }
+
+        return toDTO(product);
+    }
+
+    // Atualizar produto
+    @Transactional
+    public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
+        Product product = Product.findById(id);
+        if (product == null) {
+            throw new NotFoundException("Produto não encontrado");
+        }
+
+        updateFromDTO(product, productDTO);
+
+        // Atualizar features
+        if (productDTO.features != null) {
+            // Remover features antigas
+            ProductFeature.delete("product", product);
+
+            // Adicionar novas features
+            for (String feature : productDTO.features) {
+                ProductFeature productFeature = new ProductFeature(product, feature);
+                productFeature.persist();
+            }
+        }
+
+        // CORREÇÃO: Atualizar variantes
+        if (productDTO.variants != null) {
+            // Remover variantes antigas
+            ProductVariant.delete("parentProduct", product);
+
+            // Adicionar novas variantes
+            for (ProductVariantDTO variantDTO : productDTO.variants) {
+                // Buscar o produto variante pelo ID
+                Product variantProduct = Product.findById(variantDTO.id);
+                if (variantProduct != null) {
+                    ProductVariant productVariant = new ProductVariant(product, variantProduct);
+                    productVariant.persist();
+                }
+            }
+        }
+
+        return toDTO(product);
+    }
+
+    // Deletar produto
+    @Transactional
+    public void deleteProduct(Long id) {
+        Product product = Product.findById(id);
+        if (product == null) {
+            throw new NotFoundException("Produto não encontrado");
+        }
+
+        product.delete();
+    }
+
+    // Métodos auxiliares para conversão DTO <-> Entity
+    private ProductDTO toDTO(Product product) {
+        ProductDTO dto = new ProductDTO();
+        dto.id = product.id;
+        dto.name = product.name;
+        dto.price = product.price;
+        dto.image = product.image;
+        dto.description = product.description;
+        dto.weight = product.weight;
+        dto.height = product.height;
+        dto.width = product.width;
+        dto.length = product.length;
+        dto.category = product.category;
+        dto.rating = product.rating;
+        dto.reviews = product.reviews;
+        dto.originalPrice = product.originalPrice;
+        dto.isNew = product.isNew;
+        dto.inStock = product.inStock;
+        dto.quantity = product.quantity;
+
+        // Features
+        dto.features = product.features.stream()
+                .map(pf -> pf.feature)
+                .collect(Collectors.toList());
+
+        // CORREÇÃO: Variantes com todos os dados completos
+        dto.variants = product.variants.stream()
+                .map(pv -> {
+                    Product variantProduct = pv.variantProduct;
+                    ProductVariantDTO variantDTO = new ProductVariantDTO();
+                    variantDTO.id = variantProduct.id;
+                    variantDTO.name = variantProduct.name;
+                    variantDTO.price = variantProduct.price;
+                    variantDTO.image = variantProduct.image;
+                    variantDTO.description = variantProduct.description;
+                    variantDTO.weight = variantProduct.weight;
+                    variantDTO.height = variantProduct.height;
+                    variantDTO.width = variantProduct.width;
+                    variantDTO.length = variantProduct.length;
+                    variantDTO.category = variantProduct.category;
+                    variantDTO.rating = variantProduct.rating;
+                    variantDTO.reviews = variantProduct.reviews;
+                    variantDTO.originalPrice = variantProduct.originalPrice;
+                    variantDTO.isNew = variantProduct.isNew;
+                    variantDTO.inStock = variantProduct.inStock;
+                    variantDTO.quantity = variantProduct.quantity;
+
+                    // Features da variante
+                    variantDTO.features = variantProduct.features.stream()
+                            .map(pf -> pf.feature)
+                            .collect(Collectors.toList());
+
+                    return variantDTO;
+                })
+                .collect(Collectors.toList());
+
+        return dto;
+    }
+
+    private Product fromDTO(ProductDTO dto) {
+        Product product = new Product();
+        updateFromDTO(product, dto);
+        return product;
+    }
+
+    private void updateFromDTO(Product product, ProductDTO dto) {
+        product.name = dto.name;
+        product.price = dto.price;
+        product.image = dto.image;
+        product.description = dto.description;
+        product.weight = dto.weight;
+        product.height = dto.height;
+        product.width = dto.width;
+        product.length = dto.length;
+        product.category = dto.category;
+        product.rating = dto.rating;
+        product.reviews = dto.reviews;
+        product.originalPrice = dto.originalPrice;
+        product.isNew = dto.isNew;
+        product.inStock = dto.inStock;
+        product.quantity = dto.quantity;
+        // Nota: As variantes são tratadas separadamente no updateProduct
     }
 }

@@ -33,7 +33,7 @@ const Products = () => {
         const convertedProducts: ExtendedProduct[] = apiProducts.map(apiProduct => ({
           ...productService.convertToProduct(apiProduct),
           variants: apiProduct.variants,
-          inStock: apiProduct.qtd !== undefined ? apiProduct.qtd > 0 : true
+          inStock: apiProduct.quantity !== undefined ? apiProduct.quantity > 0 : true
         }));
 
         // Extrair detalhes adicionais
@@ -60,7 +60,7 @@ const Products = () => {
             height: 15,
             width: 5,
             length: 10,
-            qtd: 15,
+            quantity: 15,
             inStock: true
           },
           {
@@ -73,7 +73,7 @@ const Products = () => {
             height: 20,
             width: 30,
             length: 70,
-            qtd: 8,
+            quantity: 8,
             inStock: true
           },
           {
@@ -86,7 +86,7 @@ const Products = () => {
             height: 5,
             width: 5,
             length: 80,
-            qtd: 25,
+            quantity: 25,
             inStock: true
           },
           {
@@ -99,7 +99,7 @@ const Products = () => {
             height: 10,
             width: 10,
             length: 10,
-            qtd: 0,
+            quantity: 0,
             inStock: false
           }
         ];
@@ -288,10 +288,10 @@ const Products = () => {
                   )}
 
                   {/* Quantidade em Estoque */}
-                  {product.qtd !== undefined && (
+                  {product.quantity !== undefined && (
                     <div className="mb-3 text-sm">
-                      <span className={`font-medium ${product.qtd > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {product.qtd > 0 ? `${product.qtd} em estoque` : 'Fora de estoque'}
+                      <span className={`font-medium ${product.quantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {product.quantity > 0 ? `${product.quantity} em estoque` : 'Fora de estoque'}
                       </span>
                     </div>
                   )}

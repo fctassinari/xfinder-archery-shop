@@ -70,7 +70,7 @@ const ContatoPage = () => {
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     Telefone
                   </label>
-                  <Input placeholder="(11) 99131-8744" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
+                  <Input placeholder="(99) 9999-9999" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
                 </div>
 
                 <div>
