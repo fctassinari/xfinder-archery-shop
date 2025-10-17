@@ -1,5 +1,29 @@
 # XFinder Archery - Containerização
 
+
+https://xfinderarchery.com.br/compra?capture_method=pix&transaction_id=4a4b0955-f786-471a-9cd2-348f90bf861f&transaction_nsu=4a4b0955-f786-471a-9cd2-348f90bf861f&slug=6UkxZ23vCb&order_nsu=5c7f02e8-f18b-47ea-aa57-508fbbf5413a&receipt_url=https%3A%2F%2Frecibo.infinitepay.io%2F4a4b0955-f786-471a-9cd2-348f90bf861f
+
+
+```
+https://xfinderarchery.com.br/compra?
+capture_method=pix&
+transaction_id=4a4b0955-f786-471a-9cd2-348f90bf861f&
+transaction_nsu=4a4b0955-f786-471a-9cd2-348f90bf861f&
+slug=6UkxZ23vCb&
+order_nsu=5c7f02e8-f18b-47ea-aa57-508fbbf5413a&
+receipt_url=https%3A%2F%2Frecibo.infinitepay.io%2F4a4b0955-f786-471a-9cd2-348f90bf861f
+```
+
+http://localhost:8080/compra?capture_method=pix&transaction_id=4a4b0955-f786-471a-9cd2-348f90bf861f&transaction_nsu=4a4b0955-f786-471a-9cd2-348f90bf861f&slug=6UkxZ23vCb&order_nsu=5c7f02e8-f18b-47ea-aa57-508fbbf5413a&receipt_url=https%3A%2F%2Frecibo.infinitepay.io%2F4a4b0955-f786-471a-9cd2-348f90bf861f
+
+http://localhost:8080/compra
+
+
+https://api.infinitepay.io/invoices/public/checkout/payment_check/fctassinari?transaction_nsu=4a4b0955-f786-471a-9cd2-348f90bf861f&external_order_nsu=5c7f02e8-f18b-47ea-aa57-508fbbf5413a&slug=6UkxZ23vCb
+const response = await fetch(`https://api.infinitepay.io/invoices/public/checkout/payment_check/fctassinari?transaction_nsu=4a4b0955-f786-471a-9cd2-348f90bf861f&external_order_nsu=5c7f02e8-f18b-47ea-aa57-508fbbf5413a&slug=6UkxZ23vCb`);
+
+
+
 ## Pré-requisitos
 - Podman instalado
 - Podman Compose instalado (opcional)

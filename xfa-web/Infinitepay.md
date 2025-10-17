@@ -1,3 +1,5 @@
+[Checkout](https://www.infinitepay.io/checkout)
+
 No Carrinho de Compras, ao clicar no botao finalizar compra deve ser gerado a url de link de pagamento conforme exemplo abaixo
 https://checkout.infinitepay.io/fctassinari?items=[{"name":"X-Puller","price":7000,"quantity":1},{"name":"X-Lube","price":7000,"quantity":1}]&redirect_url=https://xfinderarchery.com.br/compra
 Note que no array de produtos, o campo price recebe o valor sem a virgula das casas decimais

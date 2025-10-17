@@ -177,7 +177,7 @@ const Cart = () => {
       }
     }
 
-    const redirectUrl = encodeURIComponent("https://xfinderarchery.com.br/compra");
+    const redirectUrl = encodeURIComponent("http://localhost:8080/compra");
     const totalWithFreight = cart.total + (selectedFreight ? selectedFreight.price : 0);
     const checkoutUrl = `https://checkout.infinitepay.io/fctassinari?items=${JSON.stringify(items)}&redirect_url=${redirectUrl}&total=${Math.round(totalWithFreight * 100)}`;
     
