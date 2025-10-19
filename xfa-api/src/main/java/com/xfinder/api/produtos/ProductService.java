@@ -79,17 +79,13 @@ public class ProductService {
 //                .collect(Collectors.toList());
 //    }
 
-
-
-
-
-    // Criar produto
     @Transactional
     public ProductDTO createProduct(ProductDTO productDTO) {
+        // 1. Criar o produto principal
         Product product = fromDTO(productDTO);
         product.persist();
 
-        // Salvar features
+        // 2. Salvar features do produto principal
         if (productDTO.features != null) {
             for (String feature : productDTO.features) {
                 ProductFeature productFeature = new ProductFeature(product, feature);
@@ -97,19 +93,50 @@ public class ProductService {
             }
         }
 
-        // CORREÇÃO: Salvar variantes
-        if (productDTO.variants != null) {
+        // CORREÇÃO: 3. Criar produtos variantes e relacionamentos
+        if (productDTO.variants != null && !productDTO.variants.isEmpty()) {
             for (ProductVariantDTO variantDTO : productDTO.variants) {
-                // Buscar o produto variante pelo ID
-                Product variantProduct = Product.findById(variantDTO.id);
-                if (variantProduct != null) {
-                    ProductVariant productVariant = new ProductVariant(product, variantProduct);
-                    productVariant.persist();
+                // Criar o produto variante
+                Product variantProduct = createVariantProduct(variantDTO);
+                variantProduct.persist();
+
+                // Salvar features da variante
+                if (variantDTO.features != null) {
+                    for (String feature : variantDTO.features) {
+                        ProductFeature variantFeature = new ProductFeature(variantProduct, feature);
+                        variantFeature.persist();
+                    }
                 }
+
+                // Criar o relacionamento na tabela product_variants
+                ProductVariant productVariant = new ProductVariant(product, variantProduct);
+                productVariant.persist();
             }
         }
 
         return toDTO(product);
+    }
+
+    // Método auxiliar para criar produto variante
+    private Product createVariantProduct(ProductVariantDTO variantDTO) {
+        Product variantProduct = new Product();
+        variantProduct.name = variantDTO.name;
+        variantProduct.price = variantDTO.price;
+        variantProduct.image = variantDTO.image;
+        variantProduct.description = variantDTO.description;
+        variantProduct.weight = variantDTO.weight;
+        variantProduct.height = variantDTO.height;
+        variantProduct.width = variantDTO.width;
+        variantProduct.length = variantDTO.length;
+        variantProduct.category = variantDTO.category;
+        variantProduct.rating = variantDTO.rating;
+        variantProduct.reviews = variantDTO.reviews;
+        variantProduct.originalPrice = variantDTO.originalPrice;
+        variantProduct.isNew = variantDTO.isNew;
+        variantProduct.inStock = variantDTO.inStock;
+        variantProduct.quantity = variantDTO.quantity;
+
+        return variantProduct;
     }
 
     // Atualizar produto
@@ -122,7 +149,7 @@ public class ProductService {
 
         updateFromDTO(product, productDTO);
 
-        // Atualizar features
+        // Atualizar features do produto principal
         if (productDTO.features != null) {
             // Remover features antigas
             ProductFeature.delete("product", product);
@@ -136,17 +163,31 @@ public class ProductService {
 
         // CORREÇÃO: Atualizar variantes
         if (productDTO.variants != null) {
-            // Remover variantes antigas
-            ProductVariant.delete("parentProduct", product);
+            // Remover variantes antigas e seus produtos
+            List<ProductVariant> existingVariants = ProductVariant.find("parentProduct", product).list();
+            for (ProductVariant existingVariant : existingVariants) {
+                // Opcional: deletar também o produto variante
+                // existingVariant.variantProduct.delete();
+                existingVariant.delete();
+            }
 
-            // Adicionar novas variantes
+            // Criar novas variantes
             for (ProductVariantDTO variantDTO : productDTO.variants) {
-                // Buscar o produto variante pelo ID
-                Product variantProduct = Product.findById(variantDTO.id);
-                if (variantProduct != null) {
-                    ProductVariant productVariant = new ProductVariant(product, variantProduct);
-                    productVariant.persist();
+                // Criar ou atualizar o produto variante
+                Product variantProduct = createVariantProduct(variantDTO);
+                variantProduct.persist();
+
+                // Salvar features da variante
+                if (variantDTO.features != null) {
+                    for (String feature : variantDTO.features) {
+                        ProductFeature variantFeature = new ProductFeature(variantProduct, feature);
+                        variantFeature.persist();
+                    }
                 }
+
+                // Criar o relacionamento
+                ProductVariant productVariant = new ProductVariant(product, variantProduct);
+                productVariant.persist();
             }
         }
 
