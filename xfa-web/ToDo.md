@@ -1,5 +1,21 @@
 # Teste de Compra
+```
+http://localhost:8080/compra?capture_method=pix&transaction_id=553ef064-8d27-4795-a47f-95b525c0b6d1&transaction_nsu=553ef064-8d27-4795-a47f-95b525c0b6d1&slug=e9TfXtJH&order_nsu=14b1545e-9008-443a-a6fd-a14c2f4d5ed4&receipt_url=https%3A%2F%2Frecibo.infinitepay.io%2F553ef064-8d27-4795-a47f-95b525c0b6d1
 
+
+
+http://localhost:8080/compra?
+capture_method=pix&
+transaction_id=553ef064-8d27-4795-a47f-95b525c0b6d1&
+transaction_nsu=553ef064-8d27-4795-a47f-95b525c0b6d1&
+slug=e9TfXtJH&
+order_nsu=14b1545e-9008-443a-a6fd-a14c2f4d5ed4&
+receipt_url=https%3A%2F%2Frecibo.infinitepay.io%2F553ef064-8d27-4795-a47f-95b525c0b6d1
+
+https://api.infinitepay.io/invoices/public/checkout/payment_check/fctassinari?transaction_nsu=553ef064-8d27-4795-a47f-95b525c0b6d1&external_order_nsu=14b1545e-9008-443a-a6fd-a14c2f4d5ed4&slug=e9TfXtJH
+
+{"success":true,"paid":true,"amount":400,"paid_amount":400,"installments":1,"capture_method":"pix"}
+```
 Chamar a url abaixo:
 
 http://localhost:8080/compra?capture_method=pix&transaction_id=553ef064-8d27-4795-a47f-95b525c0b6d1&transaction_nsu=553ef064-8d27-4795-a47f-95b525c0b6d1&slug=e9TfXtJH&order_nsu=14b1545e-9008-443a-a6fd-a14c2f4d5ed4&receipt_url=https%3A%2F%2Frecibo.infinitepay.io%2F553ef064-8d27-4795-a47f-95b525c0b6d1
@@ -59,7 +75,7 @@ location.reload();
 ```
 
 ---
-
+# TODO
 * Pagina de compras 
   * Formatar CPF
   * Formatar fone
