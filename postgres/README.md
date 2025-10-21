@@ -21,13 +21,20 @@ CREATE DATABASE xfa
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
+    
+podman exec -it xfinder-postgres psql -U postgres -c "CREATE DATABASE xfa WITH OWNER = postgres ENCODING = 'UTF8' LC_COLLATE = 'en_US.utf8' LC_CTYPE = 'en_US.utf8' LOCALE_PROVIDER = 'libc' TABLESPACE = pg_default CONNECTION LIMIT = -1 IS_TEMPLATE = False;"
+    
 ```
 
-```
-JSON para criar os produtos principais:
-1. X-Puller
-json
-{
+```bash
+#JSON para criar os produtos principais:
+#1. X-Puller
+
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Puller",
   "price": 70.0,
   "image": "x-puller.png",
@@ -44,10 +51,14 @@ json
   "inStock": true,
   "quantity": 30,
   "features": ["Grip antideslizante", "Material durável", "Design ergonômico"]
-}
-2. X-Lube
-json
-{
+}'
+#2. X-Lube
+
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Lube",
   "price": 70.0,
   "image": "x-lube.jpg",
@@ -64,10 +75,13 @@ json
   "inStock": true,
   "quantity": 20,
   "features": ["Alta Viscosidade", "Fácil Utilização", "Rende mais tiros entre utilização"]
-}
-3. X-Nock Adapter - 3 mm
-json
-{
+}'
+#3. X-Nock Adapter - 3 mm
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Nock Adapter - 3 mm",
   "price": 80.0,
   "image": "x-na-protour.jpg",
@@ -84,10 +98,13 @@ json
   "inStock": true,
   "quantity": 10,
   "features": ["Feito em Alumínio", "Adequado para flechas Protour / X10", "Ou em tubos com 3 mm de diâmetro interno", "12 unidades"]
-}
-4. X-Nock Adapter - 5 mm
-json
-{
+}'
+#4. X-Nock Adapter - 5 mm
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Nock Adapter - 4 mm",
   "price": 80.0,
   "image": "x-na-ace.jpg",
@@ -104,10 +121,13 @@ json
   "inStock": true,
   "quantity": 10,
   "features": ["Feito em Alumínio", "Adequado para flechas ACE", "Ou em tubos com 4 mm de diâmetro interno", "12 unidades"]
-}
-5. X-Nock Adapter - 7 mm
-json
-{
+}'
+#5. X-Nock Adapter - 7 mm
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Nock Adapter - 6 mm",
   "price": 80.0,
   "image": "x-na-x7.jpg",
@@ -124,10 +144,13 @@ json
   "inStock": true,
   "quantity": 10,
   "features": ["Feito em Alumínio", "Adequado para flechas X7 2314", "Ou em tubos com 6 mm de diâmetro interno", "12 unidades"]
-}
-6. X-Nock Adapter - 8 mm
-json
-{
+}'
+#6. X-Nock Adapter - 8 mm
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Nock Adapter - 8 mm",
   "price": 80.0,
   "image": "x-na-x23.jpg",
@@ -144,10 +167,13 @@ json
   "inStock": true,
   "quantity": 10,
   "features": ["Feito em Alumínio", "Adequado para flechas X23 2314 / 2315", "Ou em tubos com 8 mm de diâmetro interno", "12 unidades"]
-}
-7. Chave Allen
-json
-{
+}'
+#7. Chave Allen
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "Chave Allen",
   "price": 80.0,
   "image": "x-allen.jpg",
@@ -164,10 +190,13 @@ json
   "inStock": true,
   "quantity": 10,
   "features": ["6 mm", "5 mm", "4 mm", "3 mm", "2,5 mm", "2 mm", "1,5 mm", "1/4 pol", "3/16 pol", "5/32 pol", "1/8 pol", "3/32 pol", "5/64 pol", "1/16 pol"]
-}
-8. X-Dumper Sight
-json
-{
+}'
+#8. X-Dumper Sight
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Dumper Sight",
   "price": 120.0,
   "image": "x-dumper-sight.jpg",
@@ -184,10 +213,13 @@ json
   "inStock": true,
   "quantity": 3,
   "features": ["Corpo de Borracha", "Peso em aço inox", "Vendido em pares"]
-}
-9. X-VBar
-json
-{
+}'
+#9. X-VBar
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-VBar",
   "price": 130.0,
   "image": "x-vbar.jpg",
@@ -204,10 +236,13 @@ json
   "inStock": true,
   "quantity": 2,
   "features": ["Em Alumínio", "Leve", "Resistente"]
-}
-10. X-Pin Branco
-json
-{
+}'
+#10. X-Pin Branco
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Pin Branco",
   "price": 5.0,
   "image": "x-pin-branco.jpg",
@@ -224,10 +259,13 @@ json
   "inStock": true,
   "quantity": 16,
   "features": ["Resistente", "Não destroi a flecha"]
-}
-11. X-Pin Amarelo
-json
-{
+}'
+#11. X-Pin Amarelo
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Pin Amarelo",
   "price": 5.0,
   "image": "x-pin-amarelo.jpg",
@@ -244,10 +282,13 @@ json
   "inStock": true,
   "quantity": 22,
   "features": ["Resistente", "Não destroi a flecha"]
-}
-12. X-Pin Cinza
-json
-{
+}'
+#12. X-Pin Cinza
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Pin Cinza",
   "price": 5.0,
   "image": "x-pin-cinza.jpg",
@@ -264,10 +305,13 @@ json
   "inStock": true,
   "quantity": 115,
   "features": ["Resistente", "Não destroi a flecha"]
-}
-13. X-Pin Azul
-json
-{
+}'
+#13. X-Pin Azul
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Pin Azul Esverdeado",
   "price": 5.0,
   "image": "x-pin-azul.jpg",
@@ -284,10 +328,13 @@ json
   "inStock": true,
   "quantity": 78,
   "features": ["Resistente", "Não destroi a flecha"]
-}
-14. X-Pin Hard Core
-json
-{
+}'
+#14. X-Pin Hard Core
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Pin Hard Core",
   "price": 8.0,
   "image": "x-pin-hc.jpg",
@@ -304,10 +351,13 @@ json
   "inStock": true,
   "quantity": 78,
   "features": ["Resistente", "Não destroi a flecha"]
-}
-15. X-Tap (produto principal)
-json
-{
+}'
+#15. X-Tap (produto principal)
+curl -X 'POST' \
+  'http://localhost:8081/api/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
   "name": "X-Tap",
   "price": 2.0,
   "image": "x-tap.jpg",
@@ -398,17 +448,6 @@ json
       "features": ["Lindos", "Variados"]
     }      
   ]  
-}
-16. X-Tap - Cavalete
-json
-
-17. X-Tap - Arqueira
-json
-
-18. X-Tap - Arco
-json
-
-19. X-Tap - Alvo
-json
+}'
 
 ```

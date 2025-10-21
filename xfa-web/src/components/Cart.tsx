@@ -123,7 +123,22 @@ const Cart = () => {
             package: pkgNorm ?? undefined,
           };
         })
-        .filter((o: any) => !Number.isNaN(o.price) && o.price >= 0)
+        .filter((o: any) => {
+          // Remove fretes com preço inválido
+          if (Number.isNaN(o.price) || o.price < 0) return false;
+
+          // Mantém sempre opções da XFinder (independente do preço)
+          const isXFinder = o.company_name?.toLowerCase().includes('xfinder') ||
+                           o.company?.name?.toLowerCase().includes('xfinder');
+
+          // Mantém "Entrega em Mãos" mesmo com preço zero
+          const isEntregaEmMaos = o.name?.toLowerCase().includes('entrega em mãos') ||
+                                  o.name?.toLowerCase().includes('entrega em maos') ||
+                                  o.name?.toLowerCase().includes('retirada');
+
+          // Se for XFinder ou entrega em mãos, mantém; senão, só mantém se preço > 0
+          return isXFinder || isEntregaEmMaos || o.price > 0;
+        })
         .sort((a: any, b: any) => a.price - b.price);
 
       if (normalized.length > 0) {
@@ -175,6 +190,84 @@ const Cart = () => {
     setCustomerData(prev => ({ ...prev, [field]: value }));
   };
 
+  const formatCPF = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 11) {
+      return numbers
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+    return value;
+  };
+
+  const formatPhone = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 11) {
+      if (numbers.length <= 10) {
+        return numbers
+          .replace(/(\d{2})(\d)/, '($1) $2')
+          .replace(/(\d{4})(\d)/, '$1-$2');
+      } else {
+        return numbers
+          .replace(/(\d{2})(\d)/, '($1) $2')
+          .replace(/(\d{5})(\d)/, '$1-$2');
+      }
+    }
+    return value;
+  };
+
+  const formatCEP = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 8) {
+      return numbers.replace(/(\d{5})(\d)/, '$1-$2');
+    }
+    return value;
+  };
+
+  const validateCPF = (cpf: string) => {
+    const numbers = cpf.replace(/\D/g, '');
+    if (numbers.length !== 11) return false;
+
+    // Verifica se todos os dígitos são iguais
+    if (/^(\d)\1{10}$/.test(numbers)) return false;
+
+    // Validação do primeiro dígito verificador
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(numbers.charAt(i)) * (10 - i);
+    }
+    let digit = 11 - (sum % 11);
+    if (digit >= 10) digit = 0;
+    if (digit !== parseInt(numbers.charAt(9))) return false;
+
+    // Validação do segundo dígito verificador
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(numbers.charAt(i)) * (11 - i);
+    }
+    digit = 11 - (sum % 11);
+    if (digit >= 10) digit = 0;
+    if (digit !== parseInt(numbers.charAt(10))) return false;
+
+    return true;
+  };
+
+  const handleCPFChange = (value: string) => {
+    const formatted = formatCPF(value);
+    setCustomerData(prev => ({ ...prev, cpf: formatted }));
+  };
+
+  const handlePhoneChange = (value: string) => {
+    const formatted = formatPhone(value);
+    setCustomerData(prev => ({ ...prev, phone: formatted }));
+  };
+
+  const handleCEPChange = (value: string) => {
+    const formatted = formatCEP(value);
+    setCustomerData(prev => ({ ...prev, cep: formatted }));
+  };
+
   const validateCheckoutData = () => {
     const required = ['name', 'email', 'phone', 'cpf', 'cep', 'address', 'number', 'neighborhood', 'city', 'state'];
     for (const field of required) {
@@ -184,17 +277,27 @@ const Cart = () => {
       }
     }
 
-    if (customerData.cpf.replace(/\D/g, '').length !== 11) {
-      alert("CPF deve ter 11 dígitos");
+    // Validação de CPF
+    if (!validateCPF(customerData.cpf)) {
+      alert("CPF inválido. Por favor, verifique o número digitado.");
       return false;
     }
 
+    // Validação de telefone
+    const phoneNumbers = customerData.phone.replace(/\D/g, '');
+    if (phoneNumbers.length < 10 || phoneNumbers.length > 11) {
+      alert("Telefone inválido. Digite um número com DDD.");
+      return false;
+    }
+
+    // Validação de CEP
     if (customerData.cep.replace(/\D/g, '').length !== 8) {
       alert("CEP deve ter 8 dígitos");
       return false;
     }
 
-    if (!customerData.email.includes('@')) {
+    // Validação de e-mail
+    if (!customerData.email.includes('@') || !customerData.email.includes('.')) {
       alert("E-mail inválido");
       return false;
     }
@@ -217,39 +320,40 @@ const Cart = () => {
 
     sessionStorage.setItem('orderData', JSON.stringify(orderData));
 
-    // IMPORTANTE: InfinitePay usa "price" não "amount"
     const items = cart.items.map(item => ({
       name: item.product.name,
-      price: Math.round(item.product.price * 100),
+      amount: Math.round(item.product.price * 100),
       quantity: item.quantity,
     }));
 
-    // Adiciona o frete como item separado
     if (selectedFreight && selectedFreight.price > 0) {
       items.push({
         name: `Frete - ${selectedFreight.name} (${selectedFreight.company_name || ''})`,
-        price: Math.round(selectedFreight.price * 100),
+        amount: Math.round(selectedFreight.price * 100),
         quantity: 1,
       });
     }
 
-    // Monta a URL usando URLSearchParams para encoding correto
-    const baseUrl = "https://checkout.infinitepay.io/fctassinari";
-    const searchParams = new URLSearchParams();
+    const order_nsu = `ORDER-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem('order_nsu', order_nsu);
 
-    searchParams.append('items', JSON.stringify(items));
-    searchParams.append('redirect_url', "http://localhost:8080/compra");
-    searchParams.append('customer_name', customerData.name);
-    searchParams.append('customer_email', customerData.email);
-    searchParams.append('customer_cellphone', customerData.phone.replace(/\D/g, ''));
-    searchParams.append('address_cep', customerData.cep.replace(/\D/g, ''));
-    searchParams.append('address_complement', customerData.complement || '');
-    searchParams.append('address_number', customerData.number);
+    const redirectUrl = encodeURIComponent("http://localhost:8080/compra");
 
-    const checkoutUrl = `${baseUrl}?${searchParams.toString()}`;
+    const params = new URLSearchParams({
+      items: JSON.stringify(items),
+      order_nsu: order_nsu,
+      redirect_url: redirectUrl,
+      customer_name: customerData.name,
+      customer_email: customerData.email,
+      customer_cellphone: customerData.phone.replace(/\D/g, ''),
+      address_cep: customerData.cep.replace(/\D/g, ''),
+      address_complement: customerData.complement || '',
+      address_number: customerData.number
+    });
 
-    console.log('✅ URL checkout gerada:', checkoutUrl);
-    console.log('📦 Items:', JSON.stringify(items, null, 2));
+    const checkoutUrl = `https://checkout.infinitepay.io/fctassinari?${params.toString()}`;
+
+    console.log('Redirecionando para checkout:', checkoutUrl);
     window.location.href = checkoutUrl;
   };
 
@@ -458,7 +562,8 @@ const Cart = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       placeholder="(11) 99999-9999"
                       value={customerData.phone}
-                      onChange={(e) => handleCustomerDataChange('phone', e.target.value)}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      maxLength={15}
                     />
                   </div>
 
@@ -469,7 +574,8 @@ const Cart = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       placeholder="000.000.000-00"
                       value={customerData.cpf}
-                      onChange={(e) => handleCustomerDataChange('cpf', e.target.value)}
+                      onChange={(e) => handleCPFChange(e.target.value)}
+                      maxLength={14}
                     />
                   </div>
                 </div>
@@ -485,7 +591,8 @@ const Cart = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       placeholder="00000-000"
                       value={customerData.cep}
-                      onChange={(e) => handleCustomerDataChange('cep', e.target.value)}
+                      onChange={(e) => handleCEPChange(e.target.value)}
+                      maxLength={9}
                     />
                   </div>
 

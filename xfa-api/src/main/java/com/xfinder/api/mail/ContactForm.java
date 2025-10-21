@@ -1,3 +1,4 @@
+// Arquivo: ContactForm.java atualizado
 package com.xfinder.api.mail;
 
 public class ContactForm {
@@ -6,17 +7,19 @@ public class ContactForm {
     private String telefone;
     private String assunto;
     private String mensagem;
+    private String htmlContent; // Novo campo para conteúdo HTML
 
     // Construtores
     public ContactForm() {
     }
 
-    public ContactForm(String nome, String email, String telefone, String assunto, String mensagem) {
+    public ContactForm(String nome, String email, String telefone, String assunto, String mensagem, String htmlContent) {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
         this.assunto = assunto;
         this.mensagem = mensagem;
+        this.htmlContent = htmlContent;
     }
 
     // Getters e Setters
@@ -58,5 +61,13 @@ public class ContactForm {
 
     public void setMensagem(String mensagem) {
         this.mensagem = mensagem;
+    }
+
+    public String getHtmlContent() {
+        return htmlContent;
+    }
+
+    public void setHtmlContent(String htmlContent) {
+        this.htmlContent = htmlContent;
     }
 }

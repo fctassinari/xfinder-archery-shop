@@ -1,0 +1,8 @@
+{
+    "nome": "Katia Urano",
+    "email": "katia.urano@gmail.com",
+    "telefone": "(11) 99999-9999",
+    "assunto": "Teste de email da XFinder",
+    "mensagem": "Gostaria de mais informações sobre o produto X.",
+    "htmlContent": "<!DOCTYPE html><html><head><style>body { font-family: Arial, sans-serif; }.destaque { color: #ff0000; font-weight: bold; }</style></head><body><h1>Novo Contato</h1><p><strong>Nome:</strong> Katia Urano</p><p><strong>Email:</strong> katia.urano@gmail.com</p><p class='destaque'>Esta é uma mensagem HTML personalizada!</p></body></html>"
+}
