@@ -21,6 +21,10 @@ const Cart = () => {
   const [superfreteLabelInfo, setSuperfreteLabelInfo] = useState<any>(null);
   const [isCalculatingFreight, setIsCalculatingFreight] = useState(false);
   const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
+  const [isLoadingCustomer, setIsLoadingCustomer] = useState(false);
+  const [customerExists, setCustomerExists] = useState(false);
+  const [customerId, setCustomerId] = useState<number | null>(null);
+  const [originalCustomerData, setOriginalCustomerData] = useState<any>(null);
 
   // Dados do cliente
   const [customerData, setCustomerData] = useState({
@@ -256,6 +260,72 @@ const Cart = () => {
   const handleCPFChange = (value: string) => {
     const formatted = formatCPF(value);
     setCustomerData(prev => ({ ...prev, cpf: formatted }));
+
+    // Verificar cliente quando CPF estiver completo
+    const cleanCpf = formatted.replace(/\D/g, '');
+    if (cleanCpf.length === 11) {
+      checkExistingCustomer(cleanCpf);
+    } else {
+      setCustomerExists(false);
+    }
+  };
+
+  const checkExistingCustomer = async (cpf: string) => {
+    setIsLoadingCustomer(true);
+    try {
+      const response = await fetch(`http://localhost:8081/api/customers/cpf/${cpf}`);
+
+      if (response.ok) {
+        const customer = await response.json();
+
+        // Preenche os dados do cliente existente
+        const loadedData = {
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone,
+          cpf: formatCPF(customer.cpf),
+          cep: formatCEP(customer.cep),
+          address: customer.address,
+          number: customer.number,
+          complement: customer.complement || "",
+          neighborhood: customer.neighborhood,
+          city: customer.city,
+          state: customer.state
+        };
+
+        setCustomerData(loadedData);
+        setOriginalCustomerData(loadedData); // Guarda dados originais para comparação
+        setCustomerId(customer.id);
+        setCustomerExists(true);
+        console.log('✅ Cliente encontrado:', customer.name, '- ID:', customer.id);
+      } else {
+        // Cliente não existe, limpa os campos (exceto CPF)
+        setCustomerData(prev => ({
+          ...prev,
+          name: "",
+          email: "",
+          phone: "",
+          cep: "",
+          address: "",
+          number: "",
+          complement: "",
+          neighborhood: "",
+          city: "",
+          state: ""
+        }));
+        setOriginalCustomerData(null);
+        setCustomerId(null);
+        setCustomerExists(false);
+        console.log('ℹ️ Cliente não cadastrado, preencha os dados');
+      }
+    } catch (error) {
+      console.error('❌ Erro ao verificar cliente:', error);
+      setCustomerExists(false);
+      setOriginalCustomerData(null);
+      setCustomerId(null);
+    } finally {
+      setIsLoadingCustomer(false);
+    }
   };
 
   const handlePhoneChange = (value: string) => {
@@ -534,6 +604,29 @@ const Cart = () => {
             <div className="p-6 space-y-6">
               <div>
                 <h3 className="text-lg font-semibold mb-4">Dados Cadastrais</h3>
+
+                {/* CPF como primeiro campo */}
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">CPF *</label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="000.000.000-00"
+                    value={customerData.cpf}
+                    onChange={(e) => handleCPFChange(e.target.value)}
+                    maxLength={14}
+                  />
+                  {isLoadingCustomer && (
+                    <p className="text-sm text-blue-600 mt-2">🔍 Verificando CPF...</p>
+                  )}
+                  {customerExists && (
+                    <p className="text-sm text-green-600 mt-2">✅ Cliente encontrado! Você pode editar os dados se necessário.</p>
+                  )}
+                  {!customerExists && customerData.cpf.replace(/\D/g, '').length === 11 && !isLoadingCustomer && (
+                    <p className="text-sm text-orange-600 mt-2">ℹ️ CPF não cadastrado. Preencha os dados abaixo.</p>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
@@ -564,18 +657,6 @@ const Cart = () => {
                       value={customerData.phone}
                       onChange={(e) => handlePhoneChange(e.target.value)}
                       maxLength={15}
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">CPF *</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="000.000.000-00"
-                      value={customerData.cpf}
-                      onChange={(e) => handleCPFChange(e.target.value)}
-                      maxLength={14}
                     />
                   </div>
                 </div>

@@ -80,7 +80,7 @@ location.reload();
   * ✅ Formatar CPF
   * ✅ Formatar fone
   * ✅ Formatar cep
-  * Enviar email de confirmação ao cliente atraves de api
+  * ✅ Enviar email de confirmação ao cliente atraves de api
   * Criar tabela para gravar pedido
   * Gravar o pedido
   * ✅ Limpar carrinho
