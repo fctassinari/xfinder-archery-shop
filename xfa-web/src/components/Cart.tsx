@@ -392,38 +392,39 @@ const Cart = () => {
 
     const items = cart.items.map(item => ({
       name: item.product.name,
-      amount: Math.round(item.product.price * 100),
+      price: Math.round(item.product.price * 100),
       quantity: item.quantity,
     }));
 
+    // Adiciona o frete como item separado
     if (selectedFreight && selectedFreight.price > 0) {
       items.push({
         name: `Frete - ${selectedFreight.name} (${selectedFreight.company_name || ''})`,
-        amount: Math.round(selectedFreight.price * 100),
+        price: Math.round(selectedFreight.price * 100),
         quantity: 1,
       });
     }
 
-    const order_nsu = `ORDER-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    sessionStorage.setItem('order_nsu', order_nsu);
 
-    const redirectUrl = encodeURIComponent("http://localhost:8080/compra");
+    // Monta a URL usando URLSearchParams para encoding correto
+    const baseUrl = "https://checkout.infinitepay.io/fctassinari";
+    const searchParams = new URLSearchParams();
 
-    const params = new URLSearchParams({
-      items: JSON.stringify(items),
-      order_nsu: order_nsu,
-      redirect_url: redirectUrl,
-      customer_name: customerData.name,
-      customer_email: customerData.email,
-      customer_cellphone: customerData.phone.replace(/\D/g, ''),
-      address_cep: customerData.cep.replace(/\D/g, ''),
-      address_complement: customerData.complement || '',
-      address_number: customerData.number
-    });
+    searchParams.append('items', JSON.stringify(items));
+    searchParams.append('redirect_url', "http://localhost:8080/compra");
+    searchParams.append('customer_name', customerData.name);
+    searchParams.append('customer_email', customerData.email);
+    searchParams.append('customer_cellphone', customerData.phone.replace(/\D/g, ''));
+    searchParams.append('address_cep', customerData.cep.replace(/\D/g, ''));
+    searchParams.append('address_complement', customerData.complement || '');
+    searchParams.append('address_number', customerData.number);
 
-    const checkoutUrl = `https://checkout.infinitepay.io/fctassinari?${params.toString()}`;
+    const checkoutUrl = `${baseUrl}?${searchParams.toString()}`;
+
 
     console.log('Redirecionando para checkout:', checkoutUrl);
+    console.log('✅ URL checkout gerada:', checkoutUrl);
+    console.log('📦 Items:', JSON.stringify(items, null, 2));
     window.location.href = checkoutUrl;
   };
 
