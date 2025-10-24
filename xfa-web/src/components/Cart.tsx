@@ -186,7 +186,14 @@ const Cart = () => {
       alert("Por favor, selecione uma opção de frete antes de finalizar a compra.");
       return;
     }
+    // Pré-preenche o CEP de entrega com o CEP usado para calcular o frete
     setCustomerData(prev => ({ ...prev, cep: cep }));
+
+    // Reseta os estados quando abre o popup
+    setCustomerExists(false);
+    setCustomerId(null);
+    setOriginalCustomerData(null);
+
     setShowCheckoutPopup(true);
   };
 
@@ -375,57 +382,166 @@ const Cart = () => {
     return true;
   };
 
-  const handleConfirmCheckout = () => {
+  const hasCustomerDataChanged = () => {
+    if (!originalCustomerData) return false;
+
+    // Compara cada campo (limpando formatação para comparação justa)
+    return (
+      customerData.name !== originalCustomerData.name ||
+      customerData.email !== originalCustomerData.email ||
+      customerData.phone.replace(/\D/g, '') !== originalCustomerData.phone.replace(/\D/g, '') ||
+      customerData.cep.replace(/\D/g, '') !== originalCustomerData.cep.replace(/\D/g, '') ||
+      customerData.address !== originalCustomerData.address ||
+      customerData.number !== originalCustomerData.number ||
+      customerData.complement !== originalCustomerData.complement ||
+      customerData.neighborhood !== originalCustomerData.neighborhood ||
+      customerData.city !== originalCustomerData.city ||
+      customerData.state !== originalCustomerData.state
+    );
+  };
+
+  const handleConfirmCheckout = async () => {
     if (!validateCheckoutData()) return;
 
-    const orderData = {
-      customer: customerData,
-      items: cart.items,
-      freight: selectedFreight,
-      total: cart.total,
-      freightCost: selectedFreight.price,
-      totalWithFreight: cart.total + selectedFreight.price,
-      orderDate: new Date().toISOString()
-    };
+    try {
+      if (customerExists && customerId) {
+        // Cliente existe - verificar se houve alterações
+        if (hasCustomerDataChanged()) {
+          console.log('📝 Atualizando cadastro do cliente...');
+          const customerPayload = {
+            name: customerData.name,
+            email: customerData.email,
+            phone: customerData.phone.replace(/\D/g, ''),
+            cpf: customerData.cpf.replace(/\D/g, ''),
+            cep: customerData.cep.replace(/\D/g, ''),
+            address: customerData.address,
+            number: customerData.number,
+            complement: customerData.complement,
+            neighborhood: customerData.neighborhood,
+            city: customerData.city,
+            state: customerData.state
+          };
 
-    sessionStorage.setItem('orderData', JSON.stringify(orderData));
+          console.log('📤 Enviando atualização:', customerPayload);
 
-    const items = cart.items.map(item => ({
-      name: item.product.name,
-      price: Math.round(item.product.price * 100),
-      quantity: item.quantity,
-    }));
+          const updateResponse = await fetch(`http://localhost:8081/api/customers/${customerId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(customerPayload)
+          });
 
-    // Adiciona o frete como item separado
-    if (selectedFreight && selectedFreight.price > 0) {
-      items.push({
-        name: `Frete - ${selectedFreight.name} (${selectedFreight.company_name || ''})`,
-        price: Math.round(selectedFreight.price * 100),
-        quantity: 1,
-      });
+          if (!updateResponse.ok) {
+            const errorData = await updateResponse.json();
+            console.error('❌ Erro na resposta:', errorData);
+            alert(`Erro ao atualizar cadastro: ${errorData.error || 'Erro desconhecido'}`);
+            return;
+          }
+
+          const updatedCustomer = await updateResponse.json();
+          console.log('✅ Cadastro atualizado com sucesso! ID:', updatedCustomer.id);
+        } else {
+          console.log('ℹ️ Nenhuma alteração detectada, prosseguindo com a compra');
+        }
+      } else {
+        // Cliente não existe - criar novo cadastro
+        console.log('📝 Criando novo cadastro de cliente...');
+        console.log('🔍 customerExists:', customerExists);
+        console.log('🔍 customerId:', customerId);
+
+        const customerPayload = {
+          name: customerData.name,
+          email: customerData.email,
+          phone: customerData.phone.replace(/\D/g, ''),
+          cpf: customerData.cpf.replace(/\D/g, ''),
+          cep: customerData.cep.replace(/\D/g, ''),
+          address: customerData.address,
+          number: customerData.number,
+          complement: customerData.complement,
+          neighborhood: customerData.neighborhood,
+          city: customerData.city,
+          state: customerData.state
+        };
+
+        console.log('📤 Enviando novo cliente:', customerPayload);
+
+        const customerResponse = await fetch('http://localhost:8081/api/customers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(customerPayload)
+        });
+
+        console.log('📥 Status da resposta:', customerResponse.status);
+
+        if (!customerResponse.ok) {
+          const errorText = await customerResponse.text();
+          console.error('❌ Erro na resposta (texto):', errorText);
+          try {
+            const errorData = JSON.parse(errorText);
+            alert(`Erro ao cadastrar cliente: ${errorData.error || 'Erro desconhecido'}`);
+          } catch {
+            alert(`Erro ao cadastrar cliente: ${errorText}`);
+          }
+          return;
+        }
+
+        const createdCustomer = await customerResponse.json();
+        console.log('✅ Cliente cadastrado com sucesso!', createdCustomer);
+      }
+
+      // Continua com o fluxo de checkout
+      console.log('🛒 Prosseguindo com o checkout...');
+
+      const orderData = {
+        customer: customerData,
+        items: cart.items,
+        freight: selectedFreight,
+        total: cart.total,
+        freightCost: selectedFreight.price,
+        totalWithFreight: cart.total + selectedFreight.price,
+        orderDate: new Date().toISOString()
+      };
+
+      sessionStorage.setItem('orderData', JSON.stringify(orderData));
+
+      // IMPORTANTE: InfinitePay usa "price" não "amount"
+      const items = cart.items.map(item => ({
+        name: item.product.name,
+        price: Math.round(item.product.price * 100),
+        quantity: item.quantity,
+      }));
+
+      // Adiciona o frete como item separado
+      if (selectedFreight && selectedFreight.price > 0) {
+        items.push({
+          name: `Frete - ${selectedFreight.name} (${selectedFreight.company_name || ''})`,
+          price: Math.round(selectedFreight.price * 100),
+          quantity: 1,
+        });
+      }
+
+      // Monta a URL usando URLSearchParams para encoding correto
+      const baseUrl = "https://checkout.infinitepay.io/fctassinari";
+      const searchParams = new URLSearchParams();
+
+      searchParams.append('items', JSON.stringify(items));
+      searchParams.append('redirect_url', "http://localhost:8080/compra");
+      searchParams.append('customer_name', customerData.name);
+      searchParams.append('customer_email', customerData.email);
+      searchParams.append('customer_cellphone', customerData.phone.replace(/\D/g, ''));
+      searchParams.append('address_cep', customerData.cep.replace(/\D/g, ''));
+      searchParams.append('address_complement', customerData.complement || '');
+      searchParams.append('address_number', customerData.number);
+
+      const checkoutUrl = `${baseUrl}?${searchParams.toString()}`;
+
+      console.log('✅ URL checkout gerada:', checkoutUrl);
+      console.log('📦 Items:', JSON.stringify(items, null, 2));
+
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      console.error('❌ Erro ao processar checkout:', error);
+      alert('Erro ao processar o checkout. Tente novamente.');
     }
-
-
-    // Monta a URL usando URLSearchParams para encoding correto
-    const baseUrl = "https://checkout.infinitepay.io/fctassinari";
-    const searchParams = new URLSearchParams();
-
-    searchParams.append('items', JSON.stringify(items));
-    searchParams.append('redirect_url', "http://localhost:8080/compra");
-    searchParams.append('customer_name', customerData.name);
-    searchParams.append('customer_email', customerData.email);
-    searchParams.append('customer_cellphone', customerData.phone.replace(/\D/g, ''));
-    searchParams.append('address_cep', customerData.cep.replace(/\D/g, ''));
-    searchParams.append('address_complement', customerData.complement || '');
-    searchParams.append('address_number', customerData.number);
-
-    const checkoutUrl = `${baseUrl}?${searchParams.toString()}`;
-
-
-    console.log('Redirecionando para checkout:', checkoutUrl);
-    console.log('✅ URL checkout gerada:', checkoutUrl);
-    console.log('📦 Items:', JSON.stringify(items, null, 2));
-    window.location.href = checkoutUrl;
   };
 
   return (
@@ -602,7 +718,7 @@ const Cart = () => {
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
+<div className="p-6 space-y-6">
               <div>
                 <h3 className="text-lg font-semibold mb-4">Dados Cadastrais</h3>
 
