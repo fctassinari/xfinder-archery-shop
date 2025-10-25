@@ -41,9 +41,15 @@ const Compra = () => {
       setReceiptUrl(decodeURIComponent(receipt_url));
     }
 
-    if (transaction_nsu && order_nsu && slug) {
+    // Flag para garantir execução única
+    const isProcessed = sessionStorage.getItem('orderProcessed');
+
+    if (transaction_nsu && order_nsu && slug && !isProcessed) {
       const checkPayment = async () => {
         try {
+          // Marcar como processado IMEDIATAMENTE para evitar loop
+          sessionStorage.setItem('orderProcessed', 'true');
+
           const apiUrl = `https://api.infinitepay.io/invoices/public/checkout/payment_check/fctassinari?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
           console.log('🔍 Verificando pagamento na URL:', apiUrl);
 
@@ -59,30 +65,60 @@ const Compra = () => {
             setPaymentStatus('success');
             console.log('✅ Pagamento confirmado com sucesso!');
 
+            // Limpar carrinho
             clearCart();
             console.log('🛒 Carrinho limpo com sucesso');
 
-            // Envia e-mail de confirmação se houver dados do pedido
+            // Salvar pedido na API
             const storedData = sessionStorage.getItem('orderData');
             if (storedData) {
               const orderInfo = JSON.parse(storedData);
+
+              // Preparar dados de pagamento com valores corretos
+              const paymentData = {
+                captureMethod: capture_method || data.capture_method || 'pix',
+                transactionId: transaction_id || '',
+                transactionNsu: transaction_nsu || '',
+                slug: slug || '',
+                orderNsu: order_nsu || '',
+                receiptUrl: receipt_url || '',
+                paymentCheckUrl: apiUrl,
+                paymentSuccess: Boolean(data.success),
+                paymentPaid: Boolean(data.paid),
+                paymentAmount: data.amount ? Number(data.amount) / 100 : 0,
+                paymentPaidAmount: data.paid_amount ? Number(data.paid_amount) / 100 : 0,
+                paymentInstallments: data.installments ? Number(data.installments) : 1,
+                paymentCaptureMethod: data.capture_method || 'pix'
+              };
+
+              console.log('💰 Dados de pagamento preparados:', paymentData);
+
+              await saveOrder(orderInfo, paymentData);
+
+              // Envia e-mail de confirmação
               sendOrderEmail(orderInfo, receipt_url || '');
             }
 
             setTimeout(() => {
               sessionStorage.removeItem('orderData');
+              sessionStorage.removeItem('orderProcessed');
               console.log('🗑️ Dados do pedido removidos do sessionStorage');
             }, 300000);
           } else {
             setPaymentStatus('failure');
             console.log('❌ Pagamento não confirmado');
+            sessionStorage.removeItem('orderProcessed');
           }
         } catch (error) {
           console.error('❌ Erro ao verificar o pagamento:', error);
           setPaymentStatus('failure');
+          sessionStorage.removeItem('orderProcessed');
         }
       };
       checkPayment();
+    } else if (isProcessed) {
+      console.log('ℹ️ Pedido já foi processado, não processar novamente');
+      setPaymentStatus('success');
     } else {
       setPaymentStatus('failure');
     }
@@ -266,6 +302,7 @@ const Compra = () => {
                             <h3 style="color: #1e40af; margin: 20px 0 15px 0; font-size: 16px;">📋 Próximos Passos:</h3>
                             <ul style="color: #1e3a8a; font-size: 14px; line-height: 1.8; margin: 0; padding-left: 20px;">
                                 <li>Você receberá atualizações sobre seu pedido neste e-mail</li>
+                                <li>Acompanhe o status através do link do comprovante</li>
                                 <li>Em caso de dúvidas, entre em contato pelo WhatsApp</li>
                                 <li>Seu pedido será enviado para o endereço informado</li>
                             </ul>
@@ -305,7 +342,7 @@ const Compra = () => {
 
       console.log('📧 Enviando e-mail de confirmação...');
 
-      const response = await fetch('http://localhost:8081/mail/html', {
+      const response = await fetch('http://localhost:8081/api/mail/html', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -320,6 +357,83 @@ const Compra = () => {
       }
     } catch (error) {
       console.error('❌ Erro ao enviar e-mail:', error);
+    }
+  };
+
+  const saveOrder = async (orderData: any, paymentData: any) => {
+    try {
+      console.log('💾 Salvando pedido na API...');
+
+      // Buscar ID do cliente pelo CPF
+      const customerCpf = orderData.customer.cpf.replace(/\D/g, '');
+      const customerResponse = await fetch(`http://localhost:8081/api/customers/cpf/${customerCpf}`);
+
+      if (!customerResponse.ok) {
+        console.error('❌ Cliente não encontrado');
+        return;
+      }
+
+      const customer = await customerResponse.json();
+      console.log('✅ Cliente encontrado - ID:', customer.id);
+
+      // Preparar dados do frete para observação
+      const freightInfo = {
+        name: orderData.freight.name,
+        company: orderData.freight.company_name,
+        price: orderData.freight.price,
+        deliveryTime: orderData.freight.delivery_time
+      };
+
+      // Preparar itens do pedido
+      const items = orderData.items.map((item: any) => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        productPrice: item.product.price,
+        quantity: item.quantity
+      }));
+
+      // Criar pedido
+      const orderPayload = {
+        customerId: customer.id,
+        totalAmount: orderData.totalWithFreight,
+        freightObservation: JSON.stringify(freightInfo),
+        captureMethod: paymentData.captureMethod,
+        transactionId: paymentData.transactionId,
+        transactionNsu: paymentData.transactionNsu,
+        slug: paymentData.slug,
+        orderNsu: paymentData.orderNsu,
+        receiptUrl: paymentData.receiptUrl,
+        paymentCheckUrl: paymentData.paymentCheckUrl,
+        paymentSuccess: paymentData.paymentSuccess,
+        paymentPaid: paymentData.paymentPaid,
+        paymentAmount: paymentData.paymentAmount,
+        paymentPaidAmount: paymentData.paymentPaidAmount,
+        paymentInstallments: paymentData.paymentInstallments,
+        paymentCaptureMethod: paymentData.paymentCaptureMethod,
+        orderStatus: 'PAID',
+        items: items
+      };
+
+      console.log('📤 Payload do pedido:', orderPayload);
+
+      const orderResponse = await fetch('http://localhost:8081/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderPayload)
+      });
+
+      if (orderResponse.ok) {
+        const savedOrder = await orderResponse.json();
+        console.log('✅ Pedido salvo com sucesso! ID:', savedOrder.id);
+        console.log('📦 Estoque atualizado automaticamente');
+      } else {
+        const errorText = await orderResponse.text();
+        console.error('❌ Erro ao salvar pedido:', errorText);
+      }
+    } catch (error) {
+      console.error('❌ Erro ao salvar pedido:', error);
     }
   };
 
@@ -485,6 +599,7 @@ const Compra = () => {
                     <h4 className="font-bold text-blue-900 mb-2">Próximos Passos:</h4>
                     <ul className="list-disc list-inside space-y-1 text-sm text-blue-800">
                       <li>Você receberá um e-mail de confirmação em {orderData.customer.email}</li>
+                      <li>Acompanhe o status do seu pedido pelo e-mail cadastrado</li>
                       <li>Em caso de dúvidas, entre em contato pelo WhatsApp</li>
                       <li>Seu pedido será enviado para o endereço informado</li>
                     </ul>

@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.regex.Pattern;
 
-@Path("/mail")
+@Path("/api/mail")
 public class MailResource {
 
     @Inject
