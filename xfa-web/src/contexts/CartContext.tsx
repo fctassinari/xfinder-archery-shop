@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 import { Cart, CartItem, Product } from '@/types/cart';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,7 +23,7 @@ const cartReducer = (state: Cart, action: CartAction): Cart => {
   switch (action.type) {
     case 'ADD_ITEM': {
       const existingItem = state.items.find(item => item.product.id === action.payload.id);
-      
+
       if (existingItem) {
         const updatedItems = state.items.map(item =>
           item.product.id === action.payload.id
@@ -32,31 +32,31 @@ const cartReducer = (state: Cart, action: CartAction): Cart => {
         );
         const total = updatedItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
         const itemCount = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
-        
+
         return { items: updatedItems, total, itemCount };
       } else {
         const newItem: CartItem = { product: action.payload, quantity: 1 };
         const updatedItems = [...state.items, newItem];
         const total = updatedItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
         const itemCount = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
-        
+
         return { items: updatedItems, total, itemCount };
       }
     }
-    
+
     case 'REMOVE_ITEM': {
       const updatedItems = state.items.filter(item => item.product.id !== action.payload);
       const total = updatedItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
       const itemCount = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
-      
+
       return { items: updatedItems, total, itemCount };
     }
-    
+
     case 'UPDATE_QUANTITY': {
       if (action.payload.quantity <= 0) {
         return cartReducer(state, { type: 'REMOVE_ITEM', payload: action.payload.id });
       }
-      
+
       const updatedItems = state.items.map(item =>
         item.product.id === action.payload.id
           ? { ...item, quantity: action.payload.quantity }
@@ -64,16 +64,16 @@ const cartReducer = (state: Cart, action: CartAction): Cart => {
       );
       const total = updatedItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
       const itemCount = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
-      
+
       return { items: updatedItems, total, itemCount };
     }
-    
+
     case 'CLEAR_CART':
       return { items: [], total: 0, itemCount: 0 };
-    
+
     case 'LOAD_CART':
       return action.payload;
-    
+
     default:
       return state;
   }
@@ -82,23 +82,32 @@ const cartReducer = (state: Cart, action: CartAction): Cart => {
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, dispatch] = useReducer(cartReducer, { items: [], total: 0, itemCount: 0 });
   const { toast } = useToast();
+  const isInitialized = useRef(false);
 
-  // Carregar carrinho do localStorage ao inicializar
+  // Carregar carrinho do localStorage ao inicializar (apenas uma vez)
   useEffect(() => {
-    const savedCart = localStorage.getItem('xfinder-cart');
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        dispatch({ type: 'LOAD_CART', payload: parsedCart });
-      } catch (error) {
-        console.error('Erro ao carregar carrinho:', error);
+    if (!isInitialized.current) {
+      const savedCart = localStorage.getItem('xfinder-cart');
+      if (savedCart) {
+        try {
+          const parsedCart = JSON.parse(savedCart);
+          dispatch({ type: 'LOAD_CART', payload: parsedCart });
+          console.log('📦 Carrinho carregado do localStorage');
+        } catch (error) {
+          console.error('Erro ao carregar carrinho:', error);
+          localStorage.removeItem('xfinder-cart');
+        }
       }
+      isInitialized.current = true;
     }
   }, []);
 
   // Salvar carrinho no localStorage sempre que mudar
   useEffect(() => {
-    localStorage.setItem('xfinder-cart', JSON.stringify(cart));
+    if (isInitialized.current) {
+      localStorage.setItem('xfinder-cart', JSON.stringify(cart));
+      console.log('💾 Carrinho salvo no localStorage');
+    }
   }, [cart]);
 
   const addItem = (product: Product) => {
@@ -125,7 +134,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const clearCart = () => {
+    console.log('🧹 Iniciando limpeza do carrinho...');
+
+    // Remove do localStorage PRIMEIRO
+    localStorage.removeItem('xfinder-cart');
+    console.log('🗑️ LocalStorage limpo');
+
+    // Depois dispara a ação de limpar o estado
     dispatch({ type: 'CLEAR_CART' });
+    console.log('✅ Estado do carrinho limpo');
+
     toast({
       title: "Carrinho limpo",
       description: "Todos os itens foram removidos do carrinho",

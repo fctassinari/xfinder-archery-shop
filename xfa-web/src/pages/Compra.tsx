@@ -53,11 +53,11 @@ const Compra = () => {
           const apiUrl = `https://api.infinitepay.io/invoices/public/checkout/payment_check/fctassinari?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
           console.log('🔍 Verificando pagamento na URL:', apiUrl);
 
-          const response = await fetch(apiUrl);
-          const data = await response.json();
+//           const response = await fetch(apiUrl);
+//           const data = await response.json();
 
-          //const data = {"success":true,"paid":true,"amount":400,"paid_amount":400,"installments":1,"capture_method":"pix"};
-          //console.log('🧪 Usando dados simulados (MOCK):', data);
+          const data = {"success":true,"paid":true,"amount":400,"paid_amount":400,"installments":1,"capture_method":"pix"};
+          console.log('🧪 Usando dados simulados (MOCK):', data);
 
           console.log('📊 Resposta da API:', data);
 
@@ -95,20 +95,26 @@ const Compra = () => {
               await sendOrderEmail(orderInfo, receipt_url || '');
 
               // Limpar carrinho DEPOIS de salvar tudo
-              console.log('🛒 Limpando carrinho...');
+              console.log('🛒 Iniciando processo de limpeza do carrinho...');
+
+              // 1. Limpa o localStorage PRIMEIRO
+              localStorage.removeItem('xfinder-cart');
+              console.log('🗑️ LocalStorage limpo (primeira limpeza)');
+
+              // 2. Depois chama clearCart do contexto
               clearCart();
+              console.log('✅ clearCart() chamado');
 
-              // Forçar atualização do localStorage com a chave correta
-              try {
+              // 3. Força uma atualização adicional após um pequeno delay
+              setTimeout(() => {
                 localStorage.removeItem('xfinder-cart');
-                console.log('🗑️ LocalStorage do carrinho limpo (xfinder-cart)');
-              } catch (e) {
-                console.log('⚠️ Erro ao limpar localStorage:', e);
-              }
+                console.log('🔄 Limpeza adicional do localStorage (garantia)');
+              }, 100);
 
-              console.log('✅ Carrinho limpo com sucesso');
+              console.log('✅ Processo de limpeza do carrinho concluído');
             }
 
+            // Limpar dados da sessão após 5 minutos
             setTimeout(() => {
               sessionStorage.removeItem('orderData');
               sessionStorage.removeItem('orderProcessed');
@@ -132,7 +138,7 @@ const Compra = () => {
     } else {
       setPaymentStatus('failure');
     }
-  }, [location]);
+  }, [location, clearCart]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {

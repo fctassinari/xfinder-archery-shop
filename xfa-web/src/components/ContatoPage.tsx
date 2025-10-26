@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import GoogleMap from "@/components/GoogleMap";
-import heroImage from "@/assets/nocks.jpeg";
+import heroImage from "@/assets/wraps.png";
 
 const ContatoPage = () => {
   const [nome, setNome] = useState("");
