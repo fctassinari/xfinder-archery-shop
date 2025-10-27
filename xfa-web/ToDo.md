@@ -85,8 +85,8 @@ location.reload();
   * ✅ Formatar fone
   * ✅ Formatar cep
   * ✅ Enviar email de confirmação ao cliente atraves de api
-  * Criar tabela para gravar pedido
-  * Gravar o pedido
+  * ✅ Criar tabela para gravar pedido
+  * ✅ Gravar o pedido
   * ✅ Limpar carrinho
 
 * Carrinho de compras
@@ -99,17 +99,4 @@ location.reload();
   * ✅ Criar tabela de cadastro de cliente
   * ✅ Gravar cadastro/atualizar cadastro
   * ✅ Ao digitar cpf carregar cadastro
-
-
-🎯 Fluxo completo:
-
-Cliente finaliza compra ✅<br>
-InfinitePay redireciona para página de confirmação ✅<br>
-Verifica pagamento (MOCK em dev) ✅<br>
-Se pago com sucesso:<br>
-<br>
-Exibe mensagem de sucesso ✅<br>
-Mostra todos os dados do pedido ✅<br>
-Limpa o carrinho ✅<br>
-Agenda limpeza do sessionStorage ✅<br>
 

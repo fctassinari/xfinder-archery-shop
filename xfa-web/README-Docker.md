@@ -2,7 +2,7 @@
 
 
 https://xfinderarchery.com.br/compra?capture_method=pix&transaction_id=4a4b0955-f786-471a-9cd2-348f90bf861f&transaction_nsu=4a4b0955-f786-471a-9cd2-348f90bf861f&slug=6UkxZ23vCb&order_nsu=5c7f02e8-f18b-47ea-aa57-508fbbf5413a&receipt_url=https%3A%2F%2Frecibo.infinitepay.io%2F4a4b0955-f786-471a-9cd2-348f90bf861f
-
+https://checkout.infinitepay.io/fctassinari?items=[{"name":"X-Puller","price":100,"quantity":1}]&redirect_url=https://xfinder-archery.com.br/compra
 
 ```
 https://xfinderarchery.com.br/compra?
