@@ -100,3 +100,8 @@ location.reload();
   * ✅ Gravar cadastro/atualizar cadastro
   * ✅ Ao digitar cpf carregar cadastro
 
+* Geral
+  * Cadastrar wraps
+  * Cadastrar pins
+  * Ajustar imagens hero
+  * Ver o que fazer com a newsletter

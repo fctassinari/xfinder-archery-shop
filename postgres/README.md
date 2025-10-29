@@ -27,6 +27,20 @@ podman exec -it xfinder-postgres psql -U postgres -c "CREATE DATABASE xfa WITH O
 ```
 
 ```bash
+jq -c '.[]' product.json | while read produto; do
+  nome=$(echo "$produto" | jq -r '.name')
+  echo "Enviando produto: $nome..."
+  curl -s -X POST "http://localhost:8081/api/products" \
+    -H "Content-Type: application/json" \
+    -d "$produto"
+  echo -e "\n---"
+done
+```
+
+
+
+
+```bash
 #JSON para criar os produtos principais:
 #1. X-Puller
 
@@ -52,6 +66,7 @@ curl -X 'POST' \
   "quantity": 30,
   "features": ["Grip antideslizante", "Material durável", "Design ergonômico"]
 }'
+
 #2. X-Lube
 
 curl -X 'POST' \
@@ -363,7 +378,7 @@ curl -X 'POST' \
   "image": "x-tap.jpg",
   "description": "Adesivos temáticos",
   "weight": 0.006,
-  "height": 0.1,
+  "height": 0.3,
   "width": 3.0,
   "length": 3.0,
   "category": "Adesivos",
@@ -381,7 +396,7 @@ curl -X 'POST' \
       "image": "x-tap-cavalete.jpg",
       "description": "Adesivos temáticos",
       "weight": 0.006,
-      "height": 0.1,
+      "height": 0.3,
       "width": 3.0,
       "length": 3.0,
       "category": "Adesivos",
@@ -399,7 +414,7 @@ curl -X 'POST' \
       "image": "x-tap-arqueira.jpg",
       "description": "Adesivos temáticos",
       "weight": 0.006,
-      "height": 0.1,
+      "height": 0.3,
       "width": 3.0,
       "length": 3.0,
       "category": "Adesivos",
@@ -417,7 +432,7 @@ curl -X 'POST' \
       "image": "x-tap-arco.jpg",
       "description": "Adesivos temáticos",
       "weight": 0.006,
-      "height": 0.1,
+      "height": 0.3,
       "width": 3.0,
       "length": 3.0,
       "category": "Adesivos",
@@ -435,7 +450,7 @@ curl -X 'POST' \
       "image": "x-tap-alvo.jpg",
       "description": "Adesivos temáticos",
       "weight": 0.006,
-      "height": 0.1,
+      "height": 0.3,
       "width": 3.0,
       "length": 3.0,
       "category": "Adesivos",

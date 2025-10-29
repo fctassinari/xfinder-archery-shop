@@ -41,20 +41,15 @@ const Compra = () => {
       setReceiptUrl(decodeURIComponent(receipt_url));
     }
 
-    // Flag para garantir execução única
     const isProcessed = sessionStorage.getItem('orderProcessed');
 
     if (transaction_nsu && order_nsu && slug && !isProcessed) {
       const checkPayment = async () => {
         try {
-          // Marcar como processado IMEDIATAMENTE para evitar loop
           sessionStorage.setItem('orderProcessed', 'true');
 
           const apiUrl = `https://api.infinitepay.io/invoices/public/checkout/payment_check/fctassinari?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
           console.log('🔍 Verificando pagamento na URL:', apiUrl);
-
-//           const response = await fetch(apiUrl);
-//           const data = await response.json();
 
           const data = {"success":true,"paid":true,"amount":400,"paid_amount":400,"installments":1,"capture_method":"pix"};
           console.log('🧪 Usando dados simulados (MOCK):', data);
@@ -65,12 +60,10 @@ const Compra = () => {
             setPaymentStatus('success');
             console.log('✅ Pagamento confirmado com sucesso!');
 
-            // Salvar pedido na API ANTES de limpar o carrinho
             const storedData = sessionStorage.getItem('orderData');
             if (storedData) {
               const orderInfo = JSON.parse(storedData);
 
-              // Preparar dados de pagamento com valores corretos
               const paymentData = {
                 captureMethod: capture_method || data.capture_method || 'pix',
                 transactionId: transaction_id || '',
@@ -90,22 +83,14 @@ const Compra = () => {
               console.log('💰 Dados de pagamento preparados:', paymentData);
 
               await saveOrder(orderInfo, paymentData);
+              await sendOrderEmail(orderInfo, receipt_url || '', order_nsu || '');
 
-              // Envia e-mail de confirmação
-              await sendOrderEmail(orderInfo, receipt_url || '');
-
-              // Limpar carrinho DEPOIS de salvar tudo
               console.log('🛒 Iniciando processo de limpeza do carrinho...');
-
-              // 1. Limpa o localStorage PRIMEIRO
               localStorage.removeItem('xfinder-cart');
               console.log('🗑️ LocalStorage limpo (primeira limpeza)');
-
-              // 2. Depois chama clearCart do contexto
               clearCart();
               console.log('✅ clearCart() chamado');
 
-              // 3. Força uma atualização adicional após um pequeno delay
               setTimeout(() => {
                 localStorage.removeItem('xfinder-cart');
                 console.log('🔄 Limpeza adicional do localStorage (garantia)');
@@ -114,7 +99,6 @@ const Compra = () => {
               console.log('✅ Processo de limpeza do carrinho concluído');
             }
 
-            // Limpar dados da sessão após 5 minutos
             setTimeout(() => {
               sessionStorage.removeItem('orderData');
               sessionStorage.removeItem('orderProcessed');
@@ -177,7 +161,7 @@ const Compra = () => {
     return numbers.replace(/(\d{5})(\d{3})/, '$1-$2');
   };
 
-  const buildOrderEmailHtml = (orderData: any, receiptUrl: string) => {
+  const buildOrderEmailHtml = (orderData: any, receiptUrl: string, ordernsu: string) => {
     const itemsHtml = orderData.items.map((item: any) => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #e0e0e0;">
@@ -203,8 +187,6 @@ const Compra = () => {
         <tr>
             <td align="center">
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-
-                    <!-- Header -->
                     <tr>
                         <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
                             <img src="http://localhost:8080/logo.png" alt="XFinder Logo" style="max-width: 150px; height: auto; margin-bottom: 20px;" />
@@ -212,8 +194,6 @@ const Compra = () => {
                             <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">Obrigado por sua compra!</p>
                         </td>
                     </tr>
-
-                    <!-- Dados do Cliente -->
                     <tr>
                         <td style="padding: 30px;">
                             <h2 style="color: #333; margin: 0 0 20px 0; font-size: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
@@ -240,11 +220,15 @@ const Compra = () => {
                                     <td style="color: #666; font-size: 14px;"><strong>Data:</strong></td>
                                     <td style="color: #333; font-size: 14px;">${formatDate(orderData.orderDate)}</td>
                                 </tr>
+                                ${ordernsu ? `
+                                <tr>
+                                    <td style="color: #666; font-size: 14px;"><strong>ID da Transação:</strong></td>
+                                    <td style="color: #333; font-size: 14px; font-family: monospace;">${ordernsu}</td>
+                                </tr>
+                                ` : ''}
                             </table>
                         </td>
                     </tr>
-
-                    <!-- Endereço de Entrega -->
                     <tr>
                         <td style="padding: 0 30px 30px 30px;">
                             <h2 style="color: #333; margin: 0 0 20px 0; font-size: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
@@ -258,8 +242,6 @@ const Compra = () => {
                             </p>
                         </td>
                     </tr>
-
-                    <!-- Itens do Pedido -->
                     <tr>
                         <td style="padding: 0 30px 30px 30px;">
                             <h2 style="color: #333; margin: 0 0 20px 0; font-size: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
@@ -270,8 +252,6 @@ const Compra = () => {
                             </table>
                         </td>
                     </tr>
-
-                    <!-- Resumo Financeiro -->
                     <tr>
                         <td style="padding: 0 30px 30px 30px;">
                             <h2 style="color: #333; margin: 0 0 20px 0; font-size: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
@@ -299,9 +279,7 @@ const Compra = () => {
                             </table>
                         </td>
                     </tr>
-
                     ${receiptUrl ? `
-                    <!-- Comprovante -->
                     <tr>
                         <td style="padding: 0 30px 30px 30px; text-align: center;">
                             <a href="${receiptUrl}"
@@ -311,8 +289,6 @@ const Compra = () => {
                         </td>
                     </tr>
                     ` : ''}
-
-                    <!-- Próximos Passos -->
                     <tr>
                         <td style="padding: 0 30px 30px 30px; background-color: #f0f9ff; border-radius: 6px; margin: 0 30px;">
                             <h3 style="color: #1e40af; margin: 20px 0 15px 0; font-size: 16px;">📋 Próximos Passos:</h3>
@@ -324,8 +300,6 @@ const Compra = () => {
                             </ul>
                         </td>
                     </tr>
-
-                    <!-- Footer -->
                     <tr>
                         <td style="padding: 30px; text-align: center; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
                             <p style="color: #6b7280; font-size: 12px; margin: 0;">
@@ -334,7 +308,6 @@ const Compra = () => {
                             </p>
                         </td>
                     </tr>
-
                 </table>
             </td>
         </tr>
@@ -344,15 +317,15 @@ const Compra = () => {
     `.trim();
   };
 
-  const sendOrderEmail = async (orderData: any, receiptUrl: string) => {
+  const sendOrderEmail = async (orderData: any, receiptUrl: string, ordernsu: string = '') => {
     try {
-      const htmlContent = buildOrderEmailHtml(orderData, receiptUrl);
+      const htmlContent = buildOrderEmailHtml(orderData, receiptUrl, ordernsu);
 
       const emailData = {
         nome: orderData.customer.name,
         email: orderData.customer.email,
         assunto: `Confirmação de Pedido - ${formatDate(orderData.orderDate)}`,
-        mensagem: `Pedido confirmado com sucesso! Total: ${formatPrice(orderData.totalWithFreight)}`,
+        mensagem: `Pedido confirmado com sucesso! Total: ${formatPrice(orderData.totalWithFreight)}${ordernsu ? ` - ID: ${ordernsu}` : ''}`,
         htmlContent: htmlContent
       };
 
@@ -380,7 +353,6 @@ const Compra = () => {
     try {
       console.log('💾 Salvando pedido na API...');
 
-      // Buscar ID do cliente pelo CPF
       const customerCpf = orderData.customer.cpf.replace(/\D/g, '');
       const customerResponse = await fetch(`http://localhost:8081/api/customers/cpf/${customerCpf}`);
 
@@ -392,7 +364,6 @@ const Compra = () => {
       const customer = await customerResponse.json();
       console.log('✅ Cliente encontrado - ID:', customer.id);
 
-      // Preparar dados do frete para observação
       const freightInfo = {
         name: orderData.freight.name,
         company: orderData.freight.company_name,
@@ -400,7 +371,6 @@ const Compra = () => {
         deliveryTime: orderData.freight.delivery_time
       };
 
-      // Preparar itens do pedido
       const items = orderData.items.map((item: any) => ({
         productId: item.product.id,
         productName: item.product.name,
@@ -408,7 +378,6 @@ const Compra = () => {
         quantity: item.quantity
       }));
 
-      // Criar pedido
       const orderPayload = {
         customerId: customer.id,
         totalAmount: orderData.totalWithFreight,
@@ -599,7 +568,6 @@ const Compra = () => {
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-600">Prazo de Entrega:</span>
                           <span className="font-semibold">
-                            {orderData.freight.delivery_time}
                             {orderData.freight.delivery_time !== "A combinar" ? " dias úteis" : ""}
                           </span>
                         </div>

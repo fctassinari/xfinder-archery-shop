@@ -32,6 +32,7 @@ const response = await fetch(`https://api.infinitepay.io/invoices/public/checkou
 podman machine start
 ```
 
+lsof -i :8080
 
 ## Opção 1: Build e execução manual
 
