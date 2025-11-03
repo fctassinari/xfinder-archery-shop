@@ -49,7 +49,9 @@ const Cart = () => {
     return v || fallback;
   };
 
-  const SUPERFRETE_API_URL = cleanUrl(import.meta.env.VITE_SUPERFRETE_API_URL, "http://localhost:8081/api/superfrete/calculate-freight");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
+  const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL || "http://localhost:8080";
+  const SUPERFRETE_API_URL = cleanUrl(import.meta.env.VITE_SUPERFRETE_API_URL, `${API_BASE_URL}/api/superfrete/calculate-freight`);
 
   const calculateFreight = async () => {
     const sanitizedCep = cep.replace(/\D/g, "");
@@ -281,7 +283,8 @@ const Cart = () => {
   const checkExistingCustomer = async (cpf: string) => {
     setIsLoadingCustomer(true);
     try {
-      const response = await fetch(`http://localhost:8081/api/customers/cpf/${cpf}`);
+      const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+      const response = await fetch(`${customersApiUrl}/cpf/${cpf}`);
 
       if (response.ok) {
         const customer = await response.json();
@@ -425,7 +428,8 @@ const Cart = () => {
 
           console.log('📤 Enviando atualização:', customerPayload);
 
-          const updateResponse = await fetch(`http://localhost:8081/api/customers/${customerId}`, {
+          const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+          const updateResponse = await fetch(`${customersApiUrl}/${customerId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(customerPayload)
@@ -465,7 +469,8 @@ const Cart = () => {
 
         console.log('📤 Enviando novo cliente:', customerPayload);
 
-        const customerResponse = await fetch('http://localhost:8081/api/customers', {
+        const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+        const customerResponse = await fetch(customersApiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(customerPayload)
@@ -521,11 +526,11 @@ const Cart = () => {
       }
 
       // Monta a URL usando URLSearchParams para encoding correto
-      const baseUrl = "https://checkout.infinitepay.io/fctassinari";
+      const baseUrl = import.meta.env.VITE_CHECKOUT_BASE_URL || "https://checkout.infinitepay.io/fctassinari";
       const searchParams = new URLSearchParams();
 
       searchParams.append('items', JSON.stringify(items));
-      searchParams.append('redirect_url', "http://localhost:8080/compra");
+      searchParams.append('redirect_url', `${APP_BASE_URL}/compra`);
       searchParams.append('customer_name', customerData.name);
       searchParams.append('customer_email', customerData.email);
       searchParams.append('customer_cellphone', customerData.phone.replace(/\D/g, ''));

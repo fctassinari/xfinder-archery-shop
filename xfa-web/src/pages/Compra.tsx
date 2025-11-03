@@ -48,7 +48,7 @@ const Compra = () => {
         try {
           sessionStorage.setItem('orderProcessed', 'true');
 
-          const apiUrl = `https://api.infinitepay.io/invoices/public/checkout/payment_check/fctassinari?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
+          const apiUrl = `${import.meta.env.VITE_PAYMENT_CHECK_URL}?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
           console.log('🔍 Verificando pagamento na URL:', apiUrl);
 
           const data = {"success":true,"paid":true,"amount":400,"paid_amount":400,"installments":1,"capture_method":"pix"};
@@ -189,7 +189,7 @@ const Compra = () => {
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <tr>
                         <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
-                            <img src="http://localhost:8080/logo.png" alt="XFinder Logo" style="max-width: 150px; height: auto; margin-bottom: 20px;" />
+                            <img src="${import.meta.env.VITE_APP_BASE_URL || 'http://localhost:8080'}/logo.png" alt="XFinder Logo" style="max-width: 150px; height: auto; margin-bottom: 20px;" />
                             <h1 style="color: #ffffff; margin: 0; font-size: 28px;">✅ Pedido Confirmado!</h1>
                             <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">Obrigado por sua compra!</p>
                         </td>
@@ -331,7 +331,8 @@ const Compra = () => {
 
       console.log('📧 Enviando e-mail de confirmação...');
 
-      const response = await fetch('http://localhost:8081/api/mail/html', {
+      const mailApiUrl = import.meta.env.VITE_MAIL_API_URL || 'http://localhost:8081/api/mail';
+      const response = await fetch(`${mailApiUrl}/html`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -353,8 +354,9 @@ const Compra = () => {
     try {
       console.log('💾 Salvando pedido na API...');
 
+      const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || 'http://localhost:8081/api/customers';
       const customerCpf = orderData.customer.cpf.replace(/\D/g, '');
-      const customerResponse = await fetch(`http://localhost:8081/api/customers/cpf/${customerCpf}`);
+      const customerResponse = await fetch(`${customersApiUrl}/cpf/${customerCpf}`);
 
       if (!customerResponse.ok) {
         console.error('❌ Cliente não encontrado');
@@ -401,7 +403,8 @@ const Compra = () => {
 
       console.log('📤 Payload do pedido:', orderPayload);
 
-      const orderResponse = await fetch('http://localhost:8081/api/orders', {
+      const ordersApiUrl = import.meta.env.VITE_ORDERS_API_URL || 'http://localhost:8081/api/orders';
+      const orderResponse = await fetch(ordersApiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

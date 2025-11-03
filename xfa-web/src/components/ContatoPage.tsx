@@ -3,22 +3,96 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, AlertCircle } from "lucide-react";
 import GoogleMap from "@/components/GoogleMap";
 import heroImage from "@/assets/wraps.png";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+
+// Schema de validação com Zod
+const contactSchema = z.object({
+  nome: z.string()
+    .trim()
+    .min(2, { message: "Nome deve ter pelo menos 2 caracteres" })
+    .max(100, { message: "Nome deve ter no máximo 100 caracteres" }),
+  email: z.string()
+    .trim()
+    .email({ message: "E-mail inválido" })
+    .max(255, { message: "E-mail deve ter no máximo 255 caracteres" }),
+  telefone: z.string()
+    .trim()
+    .max(20, { message: "Telefone deve ter no máximo 20 caracteres" })
+    .optional(),
+  assunto: z.string()
+    .trim()
+    .max(200, { message: "Assunto deve ter no máximo 200 caracteres" })
+    .optional(),
+  mensagem: z.string()
+    .trim()
+    .min(10, { message: "Mensagem deve ter pelo menos 10 caracteres" })
+    .max(1000, { message: "Mensagem deve ter no máximo 1000 caracteres" })
+});
 
 const ContatoPage = () => {
+  const { toast } = useToast();
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [assunto, setAssunto] = useState("");
   const [mensagem, setMensagem] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSendMessage = () => {
-    const phoneNumber = "5511991318744"; // Número de WhatsApp para contato
-    const fullMessage = `Olá! Meu nome é ${nome}, meu telefone é ${telefone} e meu e-mail é ${email}.\n\nAssunto: ${assunto}\n\nMensagem: ${mensagem}`;
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(fullMessage)}`;
-    window.open(whatsappUrl, "_blank");
+    // Limpar erros anteriores
+    setErrors({});
+
+    // Validar dados do formulário
+    try {
+      const validatedData = contactSchema.parse({
+        nome,
+        email,
+        telefone: telefone || undefined,
+        assunto: assunto || undefined,
+        mensagem
+      });
+
+      // Se validação passou, enviar para WhatsApp
+      const phoneNumber = "5511991318744";
+      const fullMessage = `Olá! Meu nome é ${validatedData.nome}, meu telefone é ${validatedData.telefone || 'Não informado'} e meu e-mail é ${validatedData.email}.\n\nAssunto: ${validatedData.assunto || 'Não informado'}\n\nMensagem: ${validatedData.mensagem}`;
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(fullMessage)}`;
+      
+      window.open(whatsappUrl, "_blank");
+      
+      // Limpar formulário após envio
+      setNome("");
+      setEmail("");
+      setTelefone("");
+      setAssunto("");
+      setMensagem("");
+
+      toast({
+        title: "Mensagem enviada!",
+        description: "Você será redirecionado para o WhatsApp.",
+      });
+
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Mapear erros de validação
+        const fieldErrors: Record<string, string> = {};
+        error.issues.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+
+        toast({
+          variant: "destructive",
+          title: "Erro na validação",
+          description: "Por favor, corrija os campos destacados.",
+        });
+      }
+    }
   };
 
   return (
@@ -56,13 +130,38 @@ const ContatoPage = () => {
                     <label className="text-sm font-medium text-foreground mb-2 block">
                       Nome *
                     </label>
-                    <Input placeholder="Seu nome completo" value={nome} onChange={(e) => setNome(e.target.value)} />
+                    <Input 
+                      placeholder="Seu nome completo" 
+                      value={nome} 
+                      onChange={(e) => setNome(e.target.value)}
+                      className={errors.nome ? "border-red-500" : ""}
+                      maxLength={100}
+                    />
+                    {errors.nome && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.nome}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">
                       E-mail *
                     </label>
-                    <Input type="email" placeholder="seu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <Input 
+                      type="email" 
+                      placeholder="seu@email.com" 
+                      value={email} 
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={errors.email ? "border-red-500" : ""}
+                      maxLength={255}
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.email}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -70,14 +169,38 @@ const ContatoPage = () => {
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     Telefone
                   </label>
-                  <Input placeholder="(99) 9999-9999" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
+                  <Input 
+                    placeholder="(99) 9999-9999" 
+                    value={telefone} 
+                    onChange={(e) => setTelefone(e.target.value)}
+                    className={errors.telefone ? "border-red-500" : ""}
+                    maxLength={20}
+                  />
+                  {errors.telefone && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {errors.telefone}
+                    </p>
+                  )}
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     Assunto
                   </label>
-                  <Input placeholder="Como podemos ajudar?" value={assunto} onChange={(e) => setAssunto(e.target.value)} />
+                  <Input 
+                    placeholder="Como podemos ajudar?" 
+                    value={assunto} 
+                    onChange={(e) => setAssunto(e.target.value)}
+                    className={errors.assunto ? "border-red-500" : ""}
+                    maxLength={200}
+                  />
+                  {errors.assunto && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {errors.assunto}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -89,7 +212,18 @@ const ContatoPage = () => {
                     rows={5}
                     value={mensagem}
                     onChange={(e) => setMensagem(e.target.value)}
+                    className={errors.mensagem ? "border-red-500" : ""}
+                    maxLength={1000}
                   />
+                  {errors.mensagem && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {errors.mensagem}
+                    </p>
+                  )}
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {mensagem.length}/1000 caracteres
+                  </p>
                 </div>
 
                 <Button variant="archery" size="lg" className="w-full group" onClick={handleSendMessage}>
