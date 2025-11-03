@@ -41,7 +41,7 @@ const ProdutoDetalhesPage = () => {
     id: String(productData?.id || ''),
     name: productData?.name || 'Produto sem nome',
     price: productData?.price || 0,
-    image: productData?.image || 'https://via.placeholder.com/400x400?text=Imagem+Indisponível',
+    image: productData?.image || '/placeholder.svg',
     description: productData?.description || 'Descrição não disponível',
     category: productData?.category || 'Geral',
     rating: productData?.rating || 0,
@@ -208,7 +208,7 @@ const ProdutoDetalhesPage = () => {
                   alt={selectedProduct.name}
                   className="rounded-lg shadow-md max-h-[500px] object-contain w-full"
                   onError={(e) => {
-                    e.currentTarget.src = 'https://via.placeholder.com/400x400?text=Imagem+Indisponível';
+                    e.currentTarget.src = '/placeholder.svg';
                   }}
                 />
               </div>
