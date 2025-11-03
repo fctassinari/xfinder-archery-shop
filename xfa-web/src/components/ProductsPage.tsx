@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Star, ShoppingCart, Heart, Search, Filter, Grid3X3, List, Eye, Ruler, Package } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/types/cart";
-import heroImage from "@/assets/heroWrap.jpg";
+import heroImage from "@/assets/nocks.jpeg";
 
 // Interface para o produto da API
 interface ApiProduct {
@@ -368,7 +368,7 @@ const ProductsPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
       {/* Hero Section */}
       <section className="relative py-20 bg-cover bg-fixed bg-center text-white" style={{ backgroundImage: `url(${heroImage})` }}>
-        <div className="absolute inset-0 bg-black/50"></div>
+        {/*<div className="absolute inset-0 bg-black/50"></div>*/}
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center animate-fade-in">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">

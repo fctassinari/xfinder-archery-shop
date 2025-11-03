@@ -1,7 +1,7 @@
 # Teste de Compra
 ```
 
-https://checkout.infinitepay.io/fctassinari?items=%5B%7B%22name%22%3A%22X-Tap+-+Cavalete%22%2C%22price%22%3A200%2C%22quantity%22%3A1%7D%2C%7B%22name%22%3A%22X-Tap+-+Arqueira%22%2C%22price%22%3A200%2C%22quantity%22%3A1%7D%2C%7B%22name%22%3A%22X-Tap+-+Arco%22%2C%22price%22%3A200%2C%22quantity%22%3A1%7D%5D&redirect_url=http%3A%2F%2Flocalhost%3A8080%2Fcompra&customer_name=Katia+Teresa+Pinheiro+Urano+Gon%C3%A7alves&customer_email=katia.urano%40gmail.com&customer_cellphone=11992022239& address_cep=03311020&address_complement=apto+101&address_number=173
+https://checkout.infinitepay.io/fctassinari?items=%5B%7B%22name%22%3A%22X-Badge+-+Cavalete%22%2C%22price%22%3A200%2C%22quantity%22%3A1%7D%2C%7B%22name%22%3A%22X-Badge+-+Arqueira%22%2C%22price%22%3A200%2C%22quantity%22%3A1%7D%2C%7B%22name%22%3A%22X-Badge+-+Arco%22%2C%22price%22%3A200%2C%22quantity%22%3A1%7D%5D&redirect_url=http%3A%2F%2Flocalhost%3A8080%2Fcompra&customer_name=Katia+Teresa+Pinheiro+Urano+Gon%C3%A7alves&customer_email=katia.urano%40gmail.com&customer_cellphone=11992022239& address_cep=03311020&address_complement=apto+101&address_number=173
 
 
 http://localhost:8080/compra?capture_method=pix&transaction_id=553ef064-8d27-4795-a47f-95b525c0b6d1&transaction_nsu=553ef064-8d27-4795-a47f-95b525c0b6d1&slug=e9TfXtJH&order_nsu=14b1545e-9008-443a-a6fd-a14c2f4d5ed4&receipt_url=https%3A%2F%2Frecibo.infinitepay.io%2F553ef064-8d27-4795-a47f-95b525c0b6d1
@@ -46,7 +46,7 @@ sessionStorage.setItem('orderData', JSON.stringify({
     {
       product: {
         id: 1,
-        name: "X-Tap - Cavalete",
+        name: "X-Badge - Cavalete",
         price: 2.00,
         image: "https://via.placeholder.com/150"
       },
@@ -55,7 +55,7 @@ sessionStorage.setItem('orderData', JSON.stringify({
     {
       product: {
         id: 2,
-        name: "X-Tap - Arco",
+        name: "X-Badge - Arco",
         price: 2.00,
         image: "https://via.placeholder.com/150"
       },
@@ -101,7 +101,7 @@ location.reload();
   * ✅ Ao digitar cpf carregar cadastro
 
 * Geral
-  * Cadastrar wraps
-  * Cadastrar pins
+  * ✅ Cadastrar wraps
+  * ✅ Cadastrar pins
   * Ajustar imagens hero
   * Ver o que fazer com a newsletter

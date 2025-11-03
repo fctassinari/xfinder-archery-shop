@@ -34,9 +34,11 @@ const Hero = () => {
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </a>
               </Button>
+              <a href="/sobre" >
               <Button variant="outline" size="xl" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
-                Saiba Mais
+                    Saiba Mais
               </Button>
+                </a>
             </div>
 
             {/* Features */}

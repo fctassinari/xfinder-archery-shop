@@ -86,22 +86,37 @@ public class SuperfreteService {
             if (response.getStatus() == 200) {
                 String responseBody = response.readEntity(String.class);
 
-                // Adicionar a opção "Em Mãos" à resposta
+                // 1. Verificar se a lista de fretes está vazia
+                JsonNode rootNode = objectMapper.readTree(responseBody);
+//                System.out.println("rootNode.isArray()="+rootNode.isArray());
+//                System.out.println("rootNode.size()="+rootNode.size());
+                if (rootNode.isArray() && rootNode.size() == 0) {
+                    // Se a lista estiver vazia, adicionar "Em Mãos" e "Correios"
+                    String fallbackResponse = addHandDeliveryAndCorreiosOption("[]");
+                    return Response.ok(fallbackResponse).build();
+                }
+
+                // 2. Se a lista não estiver vazia, adicionar apenas a opção "Em Mãos"
                 String modifiedResponse = addHandDeliveryOption(responseBody);
 
                 return Response.ok(modifiedResponse).build();
                 //return Response.ok(response.readEntity(String.class)).build();
             } else {
-                String errorBody = response.readEntity(String.class);
-                return Response.status(response.getStatus())
-                        .entity("{\"error\": \"Erro ao calcular frete\", \"details\": \"" + errorBody + "\"}")
-                        .build();
+                // Em caso de erro na API (status != 200), retornar "Em Mãos" e "Correios"
+                String fallbackResponse = addHandDeliveryAndCorreiosOption("[]");
+                return Response.ok(fallbackResponse).build();
             }
 
         } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
-                    .build();
+            // Em caso de exceção, retornar "Em Mãos" e "Correios"
+            try {
+                String fallbackResponse = addHandDeliveryAndCorreiosOption("[]");
+                return Response.ok(fallbackResponse).build();
+            } catch (JsonProcessingException ex) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("{\"error\": \"" + ex.getMessage() + "\"}")
+                        .build();
+            }
         }
     }
 
@@ -112,20 +127,22 @@ public class SuperfreteService {
         // Converter a resposta original para um array de JsonNode
         JsonNode[] shippingOptions = objectMapper.readValue(originalResponse, JsonNode[].class);
 
+//        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(shippingOptions));
+
         // Criar a opção "Em Mãos"
         String handDeliveryJson = """
-        {
-            "id": 99,
-            "name": "Em Mãos",
-            "error": "444",
-            "delivery_time": "A combinar",
-            "company": {
-                "id": 99,
-                "name": "XFinder",
-                "picture": "https://xfinder-archery.com.br"
-            }
-        }
-        """;
+	        {
+	            "id": 99,
+	            "name": "Em Mãos",
+	            "price": "0.0",
+	            "delivery_time": "A combinar",
+	            "company": {
+	                "id": 99,
+	                "name": "XFinder",
+	                "picture": "https://xfinder-archery.com.br"
+	            }
+	        }
+	        """;
 
         JsonNode handDeliveryNode = objectMapper.readTree(handDeliveryJson);
 
@@ -137,8 +154,80 @@ public class SuperfreteService {
 
         // Adicionar todas as opções originais
         for (JsonNode option : shippingOptions) {
-            allOptions.add(option);
+            if (!option.has("error")) {  // verifica se o campo "error" não existe
+                allOptions.add(option);
+            }
         }
+//        System.out.println("allOptions.size()=" + allOptions.size());
+        if(allOptions.size() == 1){
+            // Criar a opção "Correios" (fallback)
+            String correiosFallbackJson = """
+	        {
+	            "id": 999,
+	            "name": "Correios",
+	            "price": "10.0",
+	            "delivery_time": "3",
+	            "company": {
+	                "id": 999,
+	                "name": "Correios",
+	                "picture":  "https://storage.googleapis.com/sandbox-api-superfrete.appspot.com/logos/correios.png"
+	            }
+	        }
+	        """;
+            JsonNode correiosFallbackNode = objectMapper.readTree(correiosFallbackJson);
+            allOptions.add(correiosFallbackNode);
+        }
+
+
+        // Converter de volta para JSON string
+        return objectMapper.writeValueAsString(allOptions);
+    }
+
+    /**
+     * Adiciona a opção "Em Mãos" e a opção "Correios" (fallback) ao array de respostas de frete
+     */
+    private String addHandDeliveryAndCorreiosOption(String originalResponse) throws JsonProcessingException {
+        // Criar a opção "Em Mãos"
+        String handDeliveryJson = """
+	        {
+	            "id": 99,
+	            "name": "Em Mãos",
+	            "price": "0.0",
+	            "delivery_time": "A combinar",
+	            "company": {
+	                "id": 99,
+	                "name": "XFinder",
+	                "picture": "https://xfinder-archery.com.br"
+	            }
+	        }
+	        """;
+
+        // Criar a opção "Correios" (fallback)
+        String correiosFallbackJson = """
+	        {
+	            "id": 999,
+	            "name": "Correios",
+	            "price": "10.0",
+	            "delivery_time": "3",
+	            "company": {
+	                "id": 999,
+	                "name": "Correios",
+	                "picture":  "https://storage.googleapis.com/sandbox-api-superfrete.appspot.com/logos/correios.png"
+	            }
+	        }
+	        """;
+
+        JsonNode handDeliveryNode = objectMapper.readTree(handDeliveryJson);
+        JsonNode correiosFallbackNode = objectMapper.readTree(correiosFallbackJson);
+
+        // Criar uma nova lista com as duas opções
+        List<JsonNode> allOptions = new ArrayList<>();
+
+        // Adicionar primeiro a opção "Em Mãos"
+        allOptions.add(handDeliveryNode);
+
+        // Adicionar a opção "Correios"
+        allOptions.add(correiosFallbackNode);
 
         // Converter de volta para JSON string
         return objectMapper.writeValueAsString(allOptions);
@@ -171,10 +260,18 @@ public class SuperfreteService {
             }
 
         } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
-                    .build();
+            // Em caso de exceção, retornar "Em Mãos" e "Correios"
+            try {
+                String fallbackResponse = addHandDeliveryAndCorreiosOption("[]");
+                return Response.ok(fallbackResponse).build();
+            } catch (JsonProcessingException ex) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("{\"error\": \"" + ex.getMessage() + "\"}")
+                        .build();
+            }
         }
     }
 }
+
+
 

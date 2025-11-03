@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Award, Users, Zap, CheckCircle, ArrowRight, Heart } from "lucide-react";
 import historyImage from "@/assets/wraping.jpg";
-import heroImage from "@/assets/nocks.jpeg";
+import heroImage from "@/assets/heroWrap.jpg";
 
 const Sobre = () => {
   {/*}const stats = [

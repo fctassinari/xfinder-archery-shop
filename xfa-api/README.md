@@ -17,7 +17,7 @@ podman start xfinder-postgres
 ```
 
 ```shell script
-./mvnw quarkus:dev
+./mvnw quarkus:dev -DskipTests=true
 ```
 
 > **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
@@ -27,7 +27,7 @@ podman start xfinder-postgres
 The application can be packaged using:
 
 ```shell script
-./mvnw clean package
+./mvnw clean package -DskipTests=true
 ```
 
 It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
