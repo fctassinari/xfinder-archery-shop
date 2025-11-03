@@ -195,6 +195,7 @@ const Cart = () => {
     setOriginalCustomerData(null);
 
     setShowCheckoutPopup(true);
+    setIsOpen(false); // Fecha o sheet do carrinho
   };
 
   const handleCustomerDataChange = (field: string, value: string) => {

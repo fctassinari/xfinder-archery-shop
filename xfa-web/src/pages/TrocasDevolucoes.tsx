@@ -39,7 +39,7 @@ const TrocasDevolucoes = () => {
 
 
   {/* Responsividade: imagem vira cover no mobile */}
-  <style jsx>{`
+  <style>{`
     @media (max-width: 768px) {
       section {
         background-size: cover;

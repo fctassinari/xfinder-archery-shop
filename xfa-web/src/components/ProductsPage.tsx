@@ -317,8 +317,8 @@ const ProductsPage = () => {
         case "id":
         default:
           // Usa parseInt para garantir números inteiros
-          const idA = parseInt(a.id, 10) || 0;
-          const idB = parseInt(b.id, 10) || 0;
+          const idA = typeof a.id === 'string' ? parseInt(a.id, 10) : a.id || 0;
+          const idB = typeof b.id === 'string' ? parseInt(b.id, 10) : b.id || 0;
           return idA - idB;
       }
     });
@@ -357,10 +357,14 @@ const ProductsPage = () => {
   const handleAddToCart = (product: ApiProduct) => {
     if (product.variants && product.variants.length > 0) {
       // Se o produto tem variants, redirecionar para a página de detalhes
-      navigate(`/produto?id=${String(product.id)}`); // Converte para string
+      navigate(`/produto?id=${String(product.id)}`);
     } else {
       // Se não tem variants, adicionar diretamente ao carrinho
-      addItem(product);
+      const productForCart = {
+        ...product,
+        id: String(product.id) // Garantir que id é string
+      };
+      addItem(productForCart as Product);
     }
   };
 
