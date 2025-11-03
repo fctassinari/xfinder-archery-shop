@@ -108,6 +108,7 @@ public class SuperfreteService {
             }
 
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             // Em caso de exceção, retornar "Em Mãos" e "Correios"
             try {
                 String fallbackResponse = addHandDeliveryAndCorreiosOption("[]");

@@ -19,14 +19,17 @@
 ```
 ---
 **Subir modo dev da API**
-```shell script
+
+```bash
   cd xfa-api 
 ```
-```shell script
-  ./mvnw quarkus:dev -DskipTests=true
+```bash
+  ./xfa-api/mvnw quarkus:dev -DskipTests=true
 ```
+
 **Criar somente o pacote da API**
-```shell script
+
+```bash
   cd xfa-api 
 ```
 ```shell script
