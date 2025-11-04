@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, ArrowRight } from "lucide-react";
+import { Mail, Phone, MapPin, Instagram } from "lucide-react";
+import logoBlanco from "@/assets/xfinder_Logo_nome-branco.png";
 
 const Footer = () => {
   return (
@@ -82,23 +82,13 @@ const Footer = () => {
             </nav>
           </div>
 
-          {/* Newsletter */}
-          <div>
-            <h4 className="font-semibold text-lg mb-6">Newsletter</h4>
-            <p className="text-white/80 mb-4">
-              Receba novidades e ofertas exclusivas
-            </p>
-            <div className="space-y-3">
-              <Input 
-                type="email" 
-                placeholder="Seu e-mail"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
-              />
-              <Button variant="accent" size="sm" className="w-full group">
-                Inscrever-se
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
+          {/* Logo */}
+          <div className="flex items-center justify-center md:justify-start">
+            <img 
+              src={logoBlanco}
+              alt="XFinder Archery Logo" 
+              className="w-full max-w-[200px] h-auto object-contain"
+            />
           </div>
 
         </div>

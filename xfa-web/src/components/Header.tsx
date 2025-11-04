@@ -9,8 +9,8 @@ const Header = () => {
 
   return (
     <>
-      {/* Logo Flutuante */}
-      <div className="fixed top-6 left-6 z-50">
+      {/* Logo Flutuante - Desktop apenas */}
+      <div className="hidden md:block fixed top-6 left-6 z-50">
         <a href="/">
           <img
             src={logo}
@@ -22,9 +22,19 @@ const Header = () => {
 
       <header className="bg-background border-b border-border sticky top-0 z-40">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 ml-20">
-            {/* Espaço vazio onde estava o logo */}
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-between h-16 md:ml-20">
+            {/* Logo Mobile */}
+            <div className="flex items-center space-x-2 md:hidden">
+              <a href="/">
+                <img
+                  src={logo}
+                  alt="XFinder Archery"
+                  className="h-12 w-auto"
+                />
+              </a>
+            </div>
+            {/* Espaço vazio em desktop */}
+            <div className="hidden md:flex items-center space-x-2">
             </div>
 
           {/* Desktop Navigation */}
