@@ -166,12 +166,8 @@ const TermosUso = () => {
                 <section>
                   <h2 className="text-2xl font-semibold mb-4">9. Garantias e Isenções</h2>
                   <p className="mb-4">
-                    Os materiais no site são fornecidos "como estão". A XFinder Archery não oferece garantias,
-                    expressas ou implícitas, e por este meio isenta e nega todas as outras garantias.
-                  </p>
-                  <p>
-                    Produtos esportivos vendidos por nós podem estar sujeitos a garantias de fabricantes.
-                    Consulte a documentação do produto para detalhes específicos.
+                    Os produtos da X-Finder passam por um processo rigoroso de qualidade para evitar qualquer tipo de transtorno ao cliente.
+                    Mas se por ventura algum produto apresentar problemas de fabricação, todos possuem garantia de 3 meses a contar da data da compra e que não tenha sido utilizado.
                   </p>
                 </section>
 

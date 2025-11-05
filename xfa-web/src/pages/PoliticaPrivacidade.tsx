@@ -78,22 +78,20 @@ const PoliticaPrivacidade = () => {
 
                 <section>
                   <h2 className="text-2xl font-semibold mb-4">3. Compartilhamento de Informações</h2>
-                  <p className="mb-4">Compartilhamos suas informações apenas quando necessário:</p>
+                  <p className="mb-4">Compartilhamos suas informações somente no caso abaixo:</p>
                   <ul className="list-disc pl-6 space-y-2">
-                    <li><strong>Prestadores de serviços:</strong> transportadoras, processadores de pagamento, plataformas de e-mail</li>
-                    <li><strong>Parceiros comerciais:</strong> apenas com seu consentimento explícito</li>
                     <li><strong>Autoridades legais:</strong> quando exigido por lei ou para proteger nossos direitos</li>
                   </ul>
                   <p className="mt-4">
-                    Nunca vendemos suas informações pessoais para terceiros.
+                    Nunca vendemos suas informações à terceiros.
                   </p>
                 </section>
 
                 <section>
                   <h2 className="text-2xl font-semibold mb-4">4. Cookies</h2>
                   <p className="mb-4">
-                    Utilizamos cookies para melhorar sua experiência. Você pode gerenciar preferências de cookies
-                    através das configurações do seu navegador. Tipos de cookies que usamos:
+                    Utilizamos cookies para melhorar sua experiência e extritamente para o funcionamento do site.
+                    Você pode gerenciar preferências de cookies através das configurações do seu navegador.
                   </p>
                   <ul className="list-disc pl-6 space-y-2">
                     <li><strong>Essenciais:</strong> necessários para o funcionamento do site</li>
