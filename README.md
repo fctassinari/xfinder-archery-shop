@@ -4,6 +4,10 @@
 ```bash
   podman machine start
 ```
+**Criar rede xfinder**
+```bash
+  podman network create nt-xfinder
+```
 ---
 **Criar volume postgres**
 ```bash
@@ -11,7 +15,7 @@
 ```
 **Criar container postres**
 ```bash
-  podman run --name xfinder-postgres -p 5432:5432 -e POSTGRES_PASSWORD=XFA@2025 --volume vl-xfinder-postgres:/var/lib/postgresql -d postgres:18.0
+  podman run --name xfinder-postgres --network nt-xfinder -p 5432:5432 -e POSTGRES_PASSWORD=XFA@2025 --volume vl-xfinder-postgres:/var/lib/postgresql -d postgres:18.0
 ```
 **Criar Data Base**
 ```bash
@@ -36,8 +40,8 @@
   ./mvnw clean package -DskipTests=true
 ```
 **Cadastrar Produtos**
-```shell script
-    jq -c '.[]' product.json | while read produto; do
+```bash
+    jq -c '.[]' product.json | while read produto; do 
       nome=$(echo "$produto" | jq -r '.name')
       echo "Enviando produto: $nome..."
       curl -s -X POST "http://localhost:8081/api/products" \

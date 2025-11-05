@@ -38,19 +38,19 @@ lsof -i :8080
 
 ### Passo 1: Build da imagem
 ```bash
-podman build -t xfinder-archery-shop:latest .
+podman build -t xfinder-web:latest .
 ```
-
 ### Passo 2: Executar o container
 ```bash
-podman stop xfinder-archery-shop
+podman stop xfinder-web
 ```
 ```bash
-podman rm xfinder-archery-shop
+podman rm xfinder-web
 ```
 ```bash
-podman run -d --name xfinder-archery-shop -p 8080:8080 --restart unless-stopped xfinder-archery-shop:latest
+podman run -d --name xfinder-web -p 8080:8080 --restart unless-stopped xfinder-web:latest
 ```
+
 
 ### Passo 3: Acessar o site
 Abra o navegador em: http://localhost:8080
@@ -69,17 +69,17 @@ Abra o navegador em: http://localhost:8080
 
 ### Ver logs do container
 ```bash
-podman logs xfinder-archery-shop
+podman logs xfinder-web
 ```
 
 ### Parar o container
 ```bash
-podman stop xfinder-archery-shop
+podman stop xfinder-web
 ```
 
 ### Remover o container
 ```bash
-podman rm xfinder-archery-shop
+podman rm xfinder-web
 ```
 
 ### Rebuild da imagem
@@ -123,7 +123,7 @@ services:
 
 ### Container não inicia
 ```bash
-podman logs xfinder-archery-shop
+podman logs xfinder-web
 ```
 
 ### Problemas de build

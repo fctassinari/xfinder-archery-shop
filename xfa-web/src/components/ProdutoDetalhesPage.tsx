@@ -91,12 +91,12 @@ const ProdutoDetalhesPage = () => {
             throw new Error("Resposta inesperada do servidor. O formato de dados está incorreto (esperado JSON).");
         }
 
-        console.log('🔍 Produto carregado:', data);
-        console.log('🔍 Variantes:', data?.variants);
+        //console.log('🔍 Produto carregado:', data);
+        //console.log('🔍 Variantes:', data?.variants);
 
         // Usa safeProduct para garantir dados consistentes
         const safeProductData = safeProduct(data);
-        console.log('🔍 Produto seguro:', safeProductData);
+        //console.log('🔍 Produto seguro:', safeProductData);
 
         setProduct(safeProductData);
 

@@ -92,7 +92,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const parsedCart = JSON.parse(savedCart);
           dispatch({ type: 'LOAD_CART', payload: parsedCart });
-          console.log('📦 Carrinho carregado do localStorage');
+          //console.log('📦 Carrinho carregado do localStorage');
         } catch (error) {
           console.error('Erro ao carregar carrinho:', error);
           localStorage.removeItem('xfinder-cart');
@@ -106,7 +106,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (isInitialized.current) {
       localStorage.setItem('xfinder-cart', JSON.stringify(cart));
-      console.log('💾 Carrinho salvo no localStorage');
+      //console.log('💾 Carrinho salvo no localStorage');
     }
   }, [cart]);
 
@@ -134,15 +134,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const clearCart = () => {
-    console.log('🧹 Iniciando limpeza do carrinho...');
+    //console.log('🧹 Iniciando limpeza do carrinho...');
 
     // Remove do localStorage PRIMEIRO
     localStorage.removeItem('xfinder-cart');
-    console.log('🗑️ LocalStorage limpo');
+    //console.log('🗑️ LocalStorage limpo');
 
     // Depois dispara a ação de limpar o estado
     dispatch({ type: 'CLEAR_CART' });
-    console.log('✅ Estado do carrinho limpo');
+    //console.log('✅ Estado do carrinho limpo');
 
     toast({
       title: "Carrinho limpo",

@@ -9,16 +9,34 @@ If you want to learn more about Quarkus, please visit its website: <https://quar
 You can run your application in dev mode that enables live coding using:
 
 ```bash
-podman machine start
+  podman machine start
 ```
 
 ```shell script
-podman start xfinder-postgres
+  ./mvnw quarkus:dev -DskipTests=true
 ```
 
-```shell script
-./mvnw quarkus:dev -DskipTests=true
+### Passo 2: Executar o container
+```bash
+  podman stop xfinder-api
 ```
+```bash
+  podman rm xfinder-api
+```
+```shell script
+  ./mvnw package -DskipTests=true
+```
+```bash
+  podman build -f src/main/docker/Dockerfile.jvm -t xfinder-api:latest .
+```    
+```bash
+  podman run -d --name xfinder-api --network nt-xfinder -p 8081:8081 xfinder-api:latest
+```
+
+
+
+
+podman run --name xfinder-postgres -p 5432:5432 -e POSTGRES_PASSWORD=XFA@2025 --volume vl-xfinder-postgres:/var/lib/postgresql -d postgres:18.0
 
 > **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
 

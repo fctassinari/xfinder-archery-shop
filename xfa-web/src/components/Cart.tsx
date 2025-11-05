@@ -308,7 +308,7 @@ const Cart = () => {
         setOriginalCustomerData(loadedData); // Guarda dados originais para comparação
         setCustomerId(customer.id);
         setCustomerExists(true);
-        console.log('✅ Cliente encontrado:', customer.name, '- ID:', customer.id);
+        //console.log('✅ Cliente encontrado:', customer.name, '- ID:', customer.id);
       } else {
         // Cliente não existe, limpa os campos (exceto CPF)
         setCustomerData(prev => ({
@@ -327,7 +327,7 @@ const Cart = () => {
         setOriginalCustomerData(null);
         setCustomerId(null);
         setCustomerExists(false);
-        console.log('ℹ️ Cliente não cadastrado, preencha os dados');
+        //console.log('ℹ️ Cliente não cadastrado, preencha os dados');
       }
     } catch (error) {
       console.error('❌ Erro ao verificar cliente:', error);
@@ -411,7 +411,7 @@ const Cart = () => {
       if (customerExists && customerId) {
         // Cliente existe - verificar se houve alterações
         if (hasCustomerDataChanged()) {
-          console.log('📝 Atualizando cadastro do cliente...');
+          //console.log('📝 Atualizando cadastro do cliente...');
           const customerPayload = {
             name: customerData.name,
             email: customerData.email,
@@ -426,7 +426,7 @@ const Cart = () => {
             state: customerData.state
           };
 
-          console.log('📤 Enviando atualização:', customerPayload);
+          //console.log('📤 Enviando atualização:', customerPayload);
 
           const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
           const updateResponse = await fetch(`${customersApiUrl}/${customerId}`, {
@@ -443,15 +443,15 @@ const Cart = () => {
           }
 
           const updatedCustomer = await updateResponse.json();
-          console.log('✅ Cadastro atualizado com sucesso! ID:', updatedCustomer.id);
+          //console.log('✅ Cadastro atualizado com sucesso! ID:', updatedCustomer.id);
         } else {
-          console.log('ℹ️ Nenhuma alteração detectada, prosseguindo com a compra');
+          //console.log('ℹ️ Nenhuma alteração detectada, prosseguindo com a compra');
         }
       } else {
         // Cliente não existe - criar novo cadastro
-        console.log('📝 Criando novo cadastro de cliente...');
-        console.log('🔍 customerExists:', customerExists);
-        console.log('🔍 customerId:', customerId);
+        //console.log('📝 Criando novo cadastro de cliente...');
+        //console.log('🔍 customerExists:', customerExists);
+        //console.log('🔍 customerId:', customerId);
 
         const customerPayload = {
           name: customerData.name,
@@ -467,7 +467,7 @@ const Cart = () => {
           state: customerData.state
         };
 
-        console.log('📤 Enviando novo cliente:', customerPayload);
+        //console.log('📤 Enviando novo cliente:', customerPayload);
 
         const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
         const customerResponse = await fetch(customersApiUrl, {
@@ -476,7 +476,7 @@ const Cart = () => {
           body: JSON.stringify(customerPayload)
         });
 
-        console.log('📥 Status da resposta:', customerResponse.status);
+        //console.log('📥 Status da resposta:', customerResponse.status);
 
         if (!customerResponse.ok) {
           const errorText = await customerResponse.text();
@@ -491,11 +491,11 @@ const Cart = () => {
         }
 
         const createdCustomer = await customerResponse.json();
-        console.log('✅ Cliente cadastrado com sucesso!', createdCustomer);
+        //console.log('✅ Cliente cadastrado com sucesso!', createdCustomer);
       }
 
       // Continua com o fluxo de checkout
-      console.log('🛒 Prosseguindo com o checkout...');
+      //console.log('🛒 Prosseguindo com o checkout...');
 
       const orderData = {
         customer: customerData,
@@ -540,8 +540,8 @@ const Cart = () => {
 
       const checkoutUrl = `${baseUrl}?${searchParams.toString()}`;
 
-      console.log('✅ URL checkout gerada:', checkoutUrl);
-      console.log('📦 Items:', JSON.stringify(items, null, 2));
+      //console.log('✅ URL checkout gerada:', checkoutUrl);
+      //console.log('📦 Items:', JSON.stringify(items, null, 2));
 
       window.location.href = checkoutUrl;
     } catch (error) {

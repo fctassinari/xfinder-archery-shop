@@ -28,14 +28,14 @@ const Compra = () => {
     const capture_method = params.get('capture_method');
     const receipt_url = params.get('receipt_url');
 
-    console.log('✅ Parâmetros recebidos da InfinitePay:', {
-      transaction_id,
-      transaction_nsu,
-      order_nsu,
-      slug,
-      capture_method,
-      receipt_url
-    });
+    //console.log('✅ Parâmetros recebidos da InfinitePay:', {
+//       transaction_id,
+//       transaction_nsu,
+//       order_nsu,
+//       slug,
+//       capture_method,
+//       receipt_url
+//     });
 
     if (receipt_url) {
       setReceiptUrl(decodeURIComponent(receipt_url));
@@ -49,16 +49,16 @@ const Compra = () => {
           sessionStorage.setItem('orderProcessed', 'true');
 
           const apiUrl = `${import.meta.env.VITE_PAYMENT_CHECK_URL}?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
-          console.log('🔍 Verificando pagamento na URL:', apiUrl);
+          //console.log('🔍 Verificando pagamento na URL:', apiUrl);
 
           const data = {"success":true,"paid":true,"amount":400,"paid_amount":400,"installments":1,"capture_method":"pix"};
-          console.log('🧪 Usando dados simulados (MOCK):', data);
+          //console.log('🧪 Usando dados simulados (MOCK):', data);
 
-          console.log('📊 Resposta da API:', data);
+          //console.log('📊 Resposta da API:', data);
 
           if (data.success && data.paid) {
             setPaymentStatus('success');
-            console.log('✅ Pagamento confirmado com sucesso!');
+            //console.log('✅ Pagamento confirmado com sucesso!');
 
             const storedData = sessionStorage.getItem('orderData');
             if (storedData) {
@@ -80,33 +80,33 @@ const Compra = () => {
                 paymentCaptureMethod: data.capture_method || 'pix'
               };
 
-              console.log('💰 Dados de pagamento preparados:', paymentData);
+              //console.log('💰 Dados de pagamento preparados:', paymentData);
 
               await saveOrder(orderInfo, paymentData);
               await sendOrderEmail(orderInfo, receipt_url || '', order_nsu || '');
 
-              console.log('🛒 Iniciando processo de limpeza do carrinho...');
+              //console.log('🛒 Iniciando processo de limpeza do carrinho...');
               localStorage.removeItem('xfinder-cart');
-              console.log('🗑️ LocalStorage limpo (primeira limpeza)');
+              //console.log('🗑️ LocalStorage limpo (primeira limpeza)');
               clearCart();
-              console.log('✅ clearCart() chamado');
+              //console.log('✅ clearCart() chamado');
 
               setTimeout(() => {
                 localStorage.removeItem('xfinder-cart');
-                console.log('🔄 Limpeza adicional do localStorage (garantia)');
+                //console.log('🔄 Limpeza adicional do localStorage (garantia)');
               }, 100);
 
-              console.log('✅ Processo de limpeza do carrinho concluído');
+              //console.log('✅ Processo de limpeza do carrinho concluído');
             }
 
             setTimeout(() => {
               sessionStorage.removeItem('orderData');
               sessionStorage.removeItem('orderProcessed');
-              console.log('🗑️ Dados do pedido removidos do sessionStorage');
+              //console.log('🗑️ Dados do pedido removidos do sessionStorage');
             }, 300000);
           } else {
             setPaymentStatus('failure');
-            console.log('❌ Pagamento não confirmado');
+            //console.log('❌ Pagamento não confirmado');
             sessionStorage.removeItem('orderProcessed');
           }
         } catch (error) {
@@ -117,7 +117,7 @@ const Compra = () => {
       };
       checkPayment();
     } else if (isProcessed) {
-      console.log('ℹ️ Pedido já foi processado, não processar novamente');
+      //console.log('ℹ️ Pedido já foi processado, não processar novamente');
       setPaymentStatus('success');
     } else {
       setPaymentStatus('failure');
@@ -329,7 +329,7 @@ const Compra = () => {
         htmlContent: htmlContent
       };
 
-      console.log('📧 Enviando e-mail de confirmação...');
+      //console.log('📧 Enviando e-mail de confirmação...');
 
       const mailApiUrl = import.meta.env.VITE_MAIL_API_URL || 'http://localhost:8081/api/mail';
       const response = await fetch(`${mailApiUrl}/html`, {
@@ -341,7 +341,7 @@ const Compra = () => {
       });
 
       if (response.ok) {
-        console.log('✅ E-mail enviado com sucesso!');
+        //console.log('✅ E-mail enviado com sucesso!');
       } else {
         console.error('❌ Erro ao enviar e-mail:', await response.text());
       }
@@ -352,7 +352,7 @@ const Compra = () => {
 
   const saveOrder = async (orderData: any, paymentData: any) => {
     try {
-      console.log('💾 Salvando pedido na API...');
+      //console.log('💾 Salvando pedido na API...');
 
       const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || 'http://localhost:8081/api/customers';
       const customerCpf = orderData.customer.cpf.replace(/\D/g, '');
@@ -364,7 +364,7 @@ const Compra = () => {
       }
 
       const customer = await customerResponse.json();
-      console.log('✅ Cliente encontrado - ID:', customer.id);
+      //console.log('✅ Cliente encontrado - ID:', customer.id);
 
       const freightInfo = {
         name: orderData.freight.name,
@@ -401,7 +401,7 @@ const Compra = () => {
         items: items
       };
 
-      console.log('📤 Payload do pedido:', orderPayload);
+      //console.log('📤 Payload do pedido:', orderPayload);
 
       const ordersApiUrl = import.meta.env.VITE_ORDERS_API_URL || 'http://localhost:8081/api/orders';
       const orderResponse = await fetch(ordersApiUrl, {
@@ -414,8 +414,8 @@ const Compra = () => {
 
       if (orderResponse.ok) {
         const savedOrder = await orderResponse.json();
-        console.log('✅ Pedido salvo com sucesso! ID:', savedOrder.id);
-        console.log('📦 Estoque atualizado automaticamente');
+        //console.log('✅ Pedido salvo com sucesso! ID:', savedOrder.id);
+        //console.log('📦 Estoque atualizado automaticamente');
       } else {
         const errorText = await orderResponse.text();
         console.error('❌ Erro ao salvar pedido:', errorText);

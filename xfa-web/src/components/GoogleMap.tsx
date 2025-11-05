@@ -106,7 +106,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ address = "Mooca, São Paulo, SP,
 
   useEffect(() => {
     // Try to use a different API key or show fallback
-    console.log('🗺️ Attempting to load Google Maps');
+    //console.log('🗺️ Attempting to load Google Maps');
     // For development, we'll show the fallback directly
     setApiKey(''); // Set API key to empty to force fallback for demonstration
     setLoading(false);
