@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Instagram } from "lucide-react";
+import { Mail, Phone, MapPin, Instagram, Shield } from "lucide-react";
 import logoBlanco from "@/assets/xfinder_Logo_nome-branco.png";
 
 const Footer = () => {
@@ -95,7 +95,7 @@ const Footer = () => {
 
         {/* Contact Info */}
         <div className="border-t border-white/20 pt-8 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="flex items-center space-x-3">
               <div className="bg-coral-accent/20 p-3 rounded-full">
                 <Phone className="h-5 w-5 text-coral-accent" />
@@ -129,6 +129,16 @@ const Footer = () => {
                 <p className="font-semibold">Localização</p>
                 <p className="text-white/80">Mooca</p>
                 <p className="text-white/80">São Paulo / SP - Brasil</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <div className="bg-coral-accent/20 p-3 rounded-full">
+                <Shield className="h-5 w-5 text-coral-accent" />
+              </div>
+              <div>
+                <p className="font-semibold">Site Seguro</p>
+                <p className="text-white/80">Compra protegida</p>
               </div>
             </div>
           </div>

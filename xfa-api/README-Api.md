@@ -1,22 +1,9 @@
-# products-api
-
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
-
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
-
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-
-```bash
-  podman machine start
-```
-
+### Executar local
 ```shell script
   ./mvnw quarkus:dev -DskipTests=true
 ```
 
-### Passo 2: Executar o container
+### Executar em container
 ```bash
   podman stop xfinder-api
 ```
@@ -33,10 +20,20 @@ You can run your application in dev mode that enables live coding using:
   podman run -d --name xfinder-api --network nt-xfinder -p 8081:8081 xfinder-api:latest
 ```
 
+**Cadastrar Produtos**
+```bash
+    jq -c '.[]' product.json | while read produto; do 
+      nome=$(echo "$produto" | jq -r '.name')
+      echo "Enviando produto: $nome..."
+      curl -s -X POST "http://localhost:8081/api/products" \
+        -H "Content-Type: application/json" \
+        -d "$produto"
+      echo -e "\n---"
+    done
+```
 
 
 
-podman run --name xfinder-postgres -p 5432:5432 -e POSTGRES_PASSWORD=XFA@2025 --volume vl-xfinder-postgres:/var/lib/postgresql -d postgres:18.0
 
 > **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
 
