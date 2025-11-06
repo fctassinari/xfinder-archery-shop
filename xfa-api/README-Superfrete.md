@@ -121,7 +121,7 @@ quarkus.http.port=8081
 superfrete.api.token=YOUR_SUPERFRETE_API_TOKEN
 
 # CEP de origem da loja
-superfrete.store.postal-code=01153000
+superfrete.store.postal-code=03167030
 
 # Email de contato
 superfrete.store.email=contato.xfinder@gmail.com.br

@@ -29,7 +29,7 @@ public class SuperfreteService {
     @ConfigProperty(name = "superfrete.api.token")
     Optional<String> apiToken;
 
-    @ConfigProperty(name = "superfrete.store.postal-code", defaultValue = "01153000")
+    @ConfigProperty(name = "superfrete.store.postal-code", defaultValue = "03167030")
     String storePostalCode;
 
     @ConfigProperty(name = "superfrete.store.email", defaultValue = "contato.xfinder@gmail.com.br")
@@ -74,14 +74,14 @@ public class SuperfreteService {
             String userAgent = "XFinderArcheryShop/1.0 (" + storeEmail + ")";
 
             // Imprimir JSON da requisição ANTES de enviá-la
-//            System.out.println("JSON da Requisição Superfrete: " + objectMapper.writeValueAsString(superfreteRequest));
+            System.out.println("JSON da Requisição Superfrete: " + objectMapper.writeValueAsString(superfreteRequest));
 
             // Fazer requisição
             Response response = superfreteApiClient.calculateFreight(authorization, userAgent, superfreteRequest);
 
             // Ler a entidade da resposta como String para poder imprimir e retornar
-//            String responseBody = response.readEntity(String.class);
-//            System.out.println("JSON da Resposta Superfrete: " + responseBody);
+            String resp = response.readEntity(String.class);
+            System.out.println("JSON da Resposta Superfrete: " + resp);
 
             if (response.getStatus() == 200) {
                 String responseBody = response.readEntity(String.class);
@@ -261,15 +261,9 @@ public class SuperfreteService {
             }
 
         } catch (Exception e) {
-            // Em caso de exceção, retornar "Em Mãos" e "Correios"
-            try {
-                String fallbackResponse = addHandDeliveryAndCorreiosOption("[]");
-                return Response.ok(fallbackResponse).build();
-            } catch (JsonProcessingException ex) {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                        .entity("{\"error\": \"" + ex.getMessage() + "\"}")
-                        .build();
-            }
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
+                    .build();
         }
     }
 }
