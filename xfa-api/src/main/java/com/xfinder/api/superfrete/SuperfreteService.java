@@ -74,18 +74,18 @@ public class SuperfreteService {
             String userAgent = "XFinderArcheryShop/1.0 (" + storeEmail + ")";
 
             // Imprimir JSON da requisição ANTES de enviá-la
-            System.out.println("JSON da Requisição Superfrete: " + objectMapper.writeValueAsString(superfreteRequest));
+//            System.out.println("\nJSON da Requisição Superfrete: " + objectMapper.writeValueAsString(superfreteRequest));
 
             // Fazer requisição
             Response response = superfreteApiClient.calculateFreight(authorization, userAgent, superfreteRequest);
 
             // Ler a entidade da resposta como String para poder imprimir e retornar
-            String resp = response.readEntity(String.class);
-            System.out.println("JSON da Resposta Superfrete: " + resp);
+//            String resp = response.readEntity(String.class);
+//            System.out.println("\nJSON da Resposta Superfrete: " + resp);
+
 
             if (response.getStatus() == 200) {
                 String responseBody = response.readEntity(String.class);
-
                 // 1. Verificar se a lista de fretes está vazia
                 JsonNode rootNode = objectMapper.readTree(responseBody);
 //                System.out.println("rootNode.isArray()="+rootNode.isArray());
@@ -108,7 +108,7 @@ public class SuperfreteService {
             }
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println(">>>>>>>>>>>>>>>>"+e.getMessage());
             // Em caso de exceção, retornar "Em Mãos" e "Correios"
             try {
                 String fallbackResponse = addHandDeliveryAndCorreiosOption("[]");

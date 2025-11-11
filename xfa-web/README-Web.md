@@ -11,7 +11,9 @@
 ```bash
   podman run -d --name xfinder-web -p 8080:8080 --network nt-xfinder --restart unless-stopped xfinder-web:latest
 ```
-
+```bash
+  podman start xfinder-web
+```
 
 https://xfinderarchery.com.br/compra?capture_method=pix&transaction_id=4a4b0955-f786-471a-9cd2-348f90bf861f&transaction_nsu=4a4b0955-f786-471a-9cd2-348f90bf861f&slug=6UkxZ23vCb&order_nsu=5c7f02e8-f18b-47ea-aa57-508fbbf5413a&receipt_url=https%3A%2F%2Frecibo.infinitepay.io%2F4a4b0955-f786-471a-9cd2-348f90bf861f
 https://checkout.infinitepay.io/fctassinari?items=[{"name":"X-Puller","price":100,"quantity":1}]&redirect_url=https://xfinder-archery.com.br/compra
@@ -39,6 +41,29 @@ const response = await fetch(`https://api.infinitepay.io/invoices/public/checkou
 lsof -i :8080
 
 
+netstat -aon | findstr 8080
+
+taskkill /PID 26152 /F
+
+
+```
+{
+  "cep": "03311020",
+  "products": [
+    {
+      "name": "X-Nock Adapter - 3 mm",
+      "quantity": 1,
+      "unitary_value": 75,
+      "weight": 0.036,
+      "height": 2,
+      "width": 0.3,
+      "length": 3.6
+    }
+  ],
+  "insurance_value": 75,
+  "use_insurance_value": true
+}
+```
 
 
 ## Comandos úteis

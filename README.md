@@ -27,6 +27,11 @@
 ```bash
   podman exec -it xfinder-postgres psql -U postgres -d xfa
 ```
+
+**Start pod postgres**
+```bash
+  podman start xfinder-postgres 
+```
 ---
 
 [Subir API](xfa-api/README-Api.md)

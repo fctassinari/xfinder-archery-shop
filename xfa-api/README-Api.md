@@ -19,6 +19,9 @@
 ```bash
   podman run -d --name xfinder-api --network nt-xfinder -p 8081:8081 xfinder-api:latest
 ```
+```bash
+  podman start xfinder-api
+```
 
 **Cadastrar Produtos**
 ```bash
