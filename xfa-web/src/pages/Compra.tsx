@@ -13,6 +13,7 @@ const Compra = () => {
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'failure' | 'pending'>('pending');
   const [orderData, setOrderData] = useState<any>(null);
   const [receiptUrl, setReceiptUrl] = useState<string>('');
+  const [trackingCode, setTrackingCode] = useState<string | null>(null);
 
   useEffect(() => {
     const storedOrderData = sessionStorage.getItem('orderData');
@@ -51,8 +52,35 @@ const Compra = () => {
           const apiUrl = `${import.meta.env.VITE_PAYMENT_CHECK_URL}?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
           //console.log('🔍 Verificando pagamento na URL:', apiUrl);
 
-          const data = {"success":true,"paid":true,"amount":400,"paid_amount":400,"installments":1,"capture_method":"pix"};
-          //console.log('🧪 Usando dados simulados (MOCK):', data);
+          // Detectar se é um mock (parâmetros começam com MOCK-)
+          const isMock = transaction_nsu?.startsWith('MOCK-') || order_nsu?.startsWith('MOCK-');
+          
+          // Se for mock, usar dados do pedido real do sessionStorage
+          let mockAmount = 40000; // valor padrão em centavos
+          if (isMock) {
+            const storedData = sessionStorage.getItem('orderData');
+            if (storedData) {
+              try {
+                const orderInfo = JSON.parse(storedData);
+                mockAmount = Math.round((orderInfo.totalWithFreight || orderInfo.total || 400) * 100);
+              } catch (e) {
+                console.error('Erro ao ler dados do pedido para mock:', e);
+              }
+            }
+          }
+
+          const data = {
+            "success": true,
+            "paid": true,
+            "amount": mockAmount,
+            "paid_amount": mockAmount,
+            "installments": 1,
+            "capture_method": capture_method || "pix"
+          };
+          
+          if (isMock) {
+            console.log('🧪 Usando dados simulados (MOCK):', data);
+          }
 
           //console.log('📊 Resposta da API:', data);
 
@@ -82,8 +110,26 @@ const Compra = () => {
 
               //console.log('💰 Dados de pagamento preparados:', paymentData);
 
-              await saveOrder(orderInfo, paymentData);
-              await sendOrderEmail(orderInfo, receipt_url || '', order_nsu || '');
+              const savedOrder = await saveOrder(orderInfo, paymentData);
+              // Obter informações atualizadas do pedido (incluindo código de rastreio)
+              let trackingCodeValue = null;
+              if (savedOrder?.trackingCode) {
+                trackingCodeValue = savedOrder.trackingCode;
+              } else if (savedOrder?.id) {
+                // Tentar buscar o pedido salvo para obter o código de rastreio
+                try {
+                  const ordersApiUrl = import.meta.env.VITE_ORDERS_API_URL || 'http://localhost:8081/api/orders';
+                  const orderResponse = await fetch(`${ordersApiUrl}/${savedOrder.id}`);
+                  if (orderResponse.ok) {
+                    const orderData = await orderResponse.json();
+                    trackingCodeValue = orderData.trackingCode;
+                  }
+                } catch (error) {
+                  console.error('Erro ao buscar código de rastreio:', error);
+                }
+              }
+              setTrackingCode(trackingCodeValue);
+              await sendOrderEmail(orderInfo, receipt_url || '', order_nsu || '', trackingCodeValue);
 
               //console.log('🛒 Iniciando processo de limpeza do carrinho...');
               localStorage.removeItem('xfinder-cart');
@@ -161,7 +207,7 @@ const Compra = () => {
     return numbers.replace(/(\d{5})(\d{3})/, '$1-$2');
   };
 
-  const buildOrderEmailHtml = (orderData: any, receiptUrl: string, ordernsu: string) => {
+  const buildOrderEmailHtml = (orderData: any, receiptUrl: string, ordernsu: string, trackingCode: string | null = null) => {
     const itemsHtml = orderData.items.map((item: any) => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #e0e0e0;">
@@ -224,6 +270,12 @@ const Compra = () => {
                                 <tr>
                                     <td style="color: #666; font-size: 14px;"><strong>ID da Transação:</strong></td>
                                     <td style="color: #333; font-size: 14px; font-family: monospace;">${ordernsu}</td>
+                                </tr>
+                                ` : ''}
+                                ${trackingCode ? `
+                                <tr>
+                                    <td style="color: #666; font-size: 14px;"><strong>Código de Rastreio:</strong></td>
+                                    <td style="color: #333; font-size: 14px; font-family: monospace; font-weight: bold;">${trackingCode}</td>
                                 </tr>
                                 ` : ''}
                             </table>
@@ -317,9 +369,9 @@ const Compra = () => {
     `.trim();
   };
 
-  const sendOrderEmail = async (orderData: any, receiptUrl: string, ordernsu: string = '') => {
+  const sendOrderEmail = async (orderData: any, receiptUrl: string, ordernsu: string = '', trackingCode: string | null = null) => {
     try {
-      const htmlContent = buildOrderEmailHtml(orderData, receiptUrl, ordernsu);
+      const htmlContent = buildOrderEmailHtml(orderData, receiptUrl, ordernsu, trackingCode);
 
       const emailData = {
         nome: orderData.customer.name,
@@ -350,9 +402,252 @@ const Compra = () => {
     }
   };
 
+  const generateSuperfreteLabel = async (orderData: any): Promise<any> => {
+    try {
+      //console.log('📦 Gerando etiqueta na SuperFrete...');
+
+      // Verificar se o frete selecionado não é "Em Mãos" (id 99)
+      if (orderData.freight?.id === 99 || orderData.freight?.name?.toLowerCase().includes('em mãos')) {
+        //console.log('ℹ️ Frete "Em Mãos" selecionado, não gerando etiqueta');
+        return null;
+      }
+
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+      const superfreteApiUrl = `${API_BASE_URL}/api/superfrete`;
+
+      // Dados do remetente (loja) - usar valores padrão ou do env
+      const storePostalCode = import.meta.env.VITE_STORE_POSTAL_CODE || '03167030';
+      const storeEmail = import.meta.env.VITE_STORE_EMAIL || 'contato.xfinder@gmail.com.br';
+      const storeName = import.meta.env.VITE_STORE_NAME || 'Loja XFinder';
+      const storePhone = import.meta.env.VITE_STORE_PHONE || '11991318744';
+      const storeAddress = import.meta.env.VITE_STORE_ADDRESS || 'Rua Exemplo';
+      const storeNumber = import.meta.env.VITE_STORE_NUMBER || '123';
+      const storeComplement = import.meta.env.VITE_STORE_COMPLEMENT || '';
+      const storeDistrict = import.meta.env.VITE_STORE_DISTRICT || 'Centro';
+      const storeCity = import.meta.env.VITE_STORE_CITY || 'São Paulo';
+      const storeState = import.meta.env.VITE_STORE_STATE || 'SP';
+
+      // Dados do destinatário (cliente)
+      const customerCep = orderData.customer.cep.replace(/\D/g, '');
+      const customerPhone = orderData.customer.phone.replace(/\D/g, '');
+      const customerCpf = orderData.customer.cpf.replace(/\D/g, '');
+
+      // Preparar produtos para declaração de conteúdo
+      const products = orderData.items.map((item: any) => ({
+        name: item.product.name,
+        quantity: item.quantity,
+        unitary_value: item.product.price
+      }));
+
+      // Usar dimensões do pacote ideal retornado pelo cálculo de frete, ou valores padrão
+      const packageInfo = orderData.freight?.package || {
+        weight: orderData.items.reduce((sum: number, item: any) => sum + ((item.product.weight || 0.1) * item.quantity), 0),
+        height: Math.max(...orderData.items.map((item: any) => item.product.height || 10)),
+        width: Math.max(...orderData.items.map((item: any) => item.product.width || 10)),
+        length: Math.max(...orderData.items.map((item: any) => item.product.length || 10))
+      };
+
+      // Criar pedido na SuperFrete
+      const orderRequest = {
+        from: {
+          name: storeName,
+          phone: storePhone,
+          email: storeEmail,
+          postal_code: storePostalCode,
+          address: storeAddress,
+          number: storeNumber || '',
+          complement: storeComplement || '',
+          district: storeDistrict,
+          city: storeCity,
+          state_abbr: storeState
+        },
+        to: {
+          name: orderData.customer.name,
+          phone: customerPhone,
+          email: orderData.customer.email,
+          document: customerCpf,
+          postal_code: customerCep,
+          address: orderData.customer.address,
+          number: orderData.customer.number || '',
+          complement: orderData.customer.complement || '',
+          district: orderData.customer.neighborhood,
+          city: orderData.customer.city,
+          state_abbr: orderData.customer.state
+        },
+        service: String(orderData.freight?.id || orderData.freight?.service_code || 1),
+        products: products,
+        volume: {
+          height: packageInfo.height,
+          width: packageInfo.width,
+          length: packageInfo.length,
+          weight: packageInfo.weight
+        },
+        options: {
+          insurance_value: orderData.total || 0,
+          receipt: false,
+          own_hand: false,
+          non_commercial: false
+        },
+        tag: `Pedido-${Date.now()}`,
+        url: import.meta.env.VITE_APP_BASE_URL || 'http://localhost:8080',
+        platform: 'XFinder Archery Shop'
+      };
+
+      console.log('📤 Criando pedido na SuperFrete...');
+      console.log('📤 URL:', `${superfreteApiUrl}/orders`);
+      console.log('📤 Request:', JSON.stringify(orderRequest, null, 2));
+
+      // 1. Criar pedido
+      const createResponse = await fetch(`${superfreteApiUrl}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderRequest)
+      });
+
+      // Ler a resposta uma única vez
+      const contentType = createResponse.headers.get('content-type');
+      const responseText = await createResponse.text();
+
+      if (!createResponse.ok) {
+        console.error('❌ Erro ao criar pedido na SuperFrete (status:', createResponse.status, '):', responseText);
+        return null;
+      }
+
+      // Verificar se a resposta é JSON
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('❌ Resposta não é JSON. Content-Type:', contentType);
+        console.error('❌ Resposta recebida:', responseText.substring(0, 500));
+        return null;
+      }
+
+      let createdOrder;
+      try {
+        createdOrder = JSON.parse(responseText);
+      } catch (e) {
+        console.error('❌ Erro ao fazer parse do JSON:', e);
+        console.error('❌ Resposta recebida:', responseText.substring(0, 500));
+        return null;
+      }
+
+      const superfreteOrderId = createdOrder.id || createdOrder.order?.id;
+      
+      if (!superfreteOrderId) {
+        console.error('❌ ID do pedido SuperFrete não encontrado na resposta');
+        return null;
+      }
+
+      //console.log('✅ Pedido criado na SuperFrete - ID:', superfreteOrderId);
+
+      // 2. Finalizar pedido (gerar etiqueta)
+      const finishResponse = await fetch(`${superfreteApiUrl}/orders/${superfreteOrderId}/finish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const finishResponseText = await finishResponse.text();
+      
+      if (!finishResponse.ok) {
+        console.error('❌ Erro ao finalizar pedido na SuperFrete (status:', finishResponse.status, '):', finishResponseText);
+        return { superfreteOrderId };
+      }
+
+      // Verificar se a resposta é JSON
+      const finishContentType = finishResponse.headers.get('content-type');
+      if (finishContentType && finishContentType.includes('application/json')) {
+        try {
+          JSON.parse(finishResponseText);
+        } catch (e) {
+          console.warn('⚠️ Aviso: resposta de finalização não é JSON válido:', e);
+        }
+      }
+
+      //console.log('✅ Pedido finalizado na SuperFrete');
+
+      // 3. Obter link de impressão
+      const printResponse = await fetch(`${superfreteApiUrl}/orders/${superfreteOrderId}/print`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      let labelUrl = '';
+      if (printResponse.ok) {
+        const printResponseText = await printResponse.text();
+        const printContentType = printResponse.headers.get('content-type');
+        if (printContentType && printContentType.includes('application/json')) {
+          try {
+            const printData = JSON.parse(printResponseText);
+            labelUrl = printData.url || printData.label_url || printData.link || '';
+            //console.log('✅ Link de impressão obtido:', labelUrl);
+          } catch (e) {
+            console.warn('⚠️ Aviso: erro ao fazer parse do JSON de impressão:', e);
+          }
+        } else {
+          console.warn('⚠️ Aviso: resposta de impressão não é JSON. Content-Type:', printContentType);
+        }
+      }
+
+      // 4. Obter informações do pedido (incluindo código de rastreio)
+      // O código de rastreio pode não estar disponível imediatamente
+      // Tentar algumas vezes com delay
+      let trackingCode = '';
+      for (let attempt = 0; attempt < 3; attempt++) {
+        if (attempt > 0) {
+          // Aguardar 1 segundo antes de tentar novamente
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        const getOrderResponse = await fetch(`${superfreteApiUrl}/orders/${superfreteOrderId}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (getOrderResponse.ok) {
+          const orderResponseText = await getOrderResponse.text();
+          const orderContentType = getOrderResponse.headers.get('content-type');
+          if (orderContentType && orderContentType.includes('application/json')) {
+            try {
+              const orderInfo = JSON.parse(orderResponseText);
+              trackingCode = orderInfo.tracking || orderInfo.tracking_code || orderInfo.protocol || 
+                            orderInfo.protocols?.[0] || orderInfo.protocols?.[0]?.protocol || '';
+              
+              if (trackingCode) {
+                //console.log('✅ Código de rastreio obtido:', trackingCode);
+                break;
+              }
+            } catch (e) {
+              console.warn('⚠️ Aviso: erro ao fazer parse do JSON do pedido (tentativa', attempt + 1, '):', e);
+            }
+          } else {
+            console.warn('⚠️ Aviso: resposta do pedido não é JSON. Content-Type:', orderContentType);
+          }
+        }
+      }
+
+      return {
+        superfreteOrderId,
+        trackingCode,
+        labelUrl,
+        superfreteService: orderData.freight?.name || orderData.freight?.service_code || ''
+      };
+    } catch (error: any) {
+      console.error('❌ Erro ao gerar etiqueta na SuperFrete:', error);
+      if (error.message) {
+        console.error('❌ Mensagem de erro:', error.message);
+      }
+      if (error.stack) {
+        console.error('❌ Stack trace:', error.stack);
+      }
+      return null;
+    }
+  };
+
   const saveOrder = async (orderData: any, paymentData: any) => {
     try {
       //console.log('💾 Salvando pedido na API...');
+
+      // Gerar etiqueta na SuperFrete antes de salvar o pedido
+      const labelInfo = await generateSuperfreteLabel(orderData);
+      //console.log('📦 Informações da etiqueta:', labelInfo);
 
       const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || 'http://localhost:8081/api/customers';
       const customerCpf = orderData.customer.cpf.replace(/\D/g, '');
@@ -398,7 +693,12 @@ const Compra = () => {
         paymentInstallments: paymentData.paymentInstallments,
         paymentCaptureMethod: paymentData.paymentCaptureMethod,
         orderStatus: 'PAID',
-        items: items
+        items: items,
+        // Campos da SuperFrete (etiqueta)
+        superfreteOrderId: labelInfo?.superfreteOrderId || null,
+        trackingCode: labelInfo?.trackingCode || null,
+        labelUrl: labelInfo?.labelUrl || null,
+        superfreteService: labelInfo?.superfreteService || null
       };
 
       //console.log('📤 Payload do pedido:', orderPayload);
@@ -416,12 +716,15 @@ const Compra = () => {
         const savedOrder = await orderResponse.json();
         //console.log('✅ Pedido salvo com sucesso! ID:', savedOrder.id);
         //console.log('📦 Estoque atualizado automaticamente');
+        return savedOrder;
       } else {
         const errorText = await orderResponse.text();
         console.error('❌ Erro ao salvar pedido:', errorText);
+        return null;
       }
     } catch (error) {
       console.error('❌ Erro ao salvar pedido:', error);
+      return null;
     }
   };
 
@@ -571,8 +874,14 @@ const Compra = () => {
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-600">Prazo de Entrega:</span>
                           <span className="font-semibold">
-                            {orderData.freight.delivery_time !== "A combinar" ? " dias úteis" : ""}
+                            {orderData.freight.delivery_time}{orderData.freight.delivery_time !== "A combinar" ? " dias úteis" : ""}
                           </span>
+                        </div>
+                      )}
+                      {trackingCode && (
+                        <div className="flex justify-between text-sm border-t pt-2 mt-2">
+                          <span className="text-gray-600">Código de Rastreio:</span>
+                          <span className="font-semibold font-mono text-indigo-600">{trackingCode}</span>
                         </div>
                       )}
                       <div className="border-t pt-3 flex justify-between text-lg font-bold">

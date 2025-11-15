@@ -83,6 +83,12 @@ public class OrderService {
             order.orderStatus = orderDTO.orderStatus != null ? orderDTO.orderStatus : "PENDING";
         }
 
+        // Campos da SuperFrete (etiqueta)
+        order.superfreteOrderId = orderDTO.superfreteOrderId;
+        order.trackingCode = orderDTO.trackingCode;
+        order.labelUrl = orderDTO.labelUrl;
+        order.superfreteService = orderDTO.superfreteService;
+
         System.out.println("💾 Salvando pedido com dados de pagamento:");
         System.out.println("   - paymentSuccess: " + order.paymentSuccess);
         System.out.println("   - paymentPaid: " + order.paymentPaid);
@@ -148,6 +154,12 @@ public class OrderService {
         if (orderDTO.paymentPaidAmount != null) order.paymentPaidAmount = orderDTO.paymentPaidAmount;
         if (orderDTO.paymentInstallments != null) order.paymentInstallments = orderDTO.paymentInstallments;
         if (orderDTO.paymentCaptureMethod != null) order.paymentCaptureMethod = orderDTO.paymentCaptureMethod;
+
+        // Campos da SuperFrete (etiqueta)
+        if (orderDTO.superfreteOrderId != null) order.superfreteOrderId = orderDTO.superfreteOrderId;
+        if (orderDTO.trackingCode != null) order.trackingCode = orderDTO.trackingCode;
+        if (orderDTO.labelUrl != null) order.labelUrl = orderDTO.labelUrl;
+        if (orderDTO.superfreteService != null) order.superfreteService = orderDTO.superfreteService;
 
         return toDTO(order);
     }
@@ -253,6 +265,12 @@ public class OrderService {
         dto.createdAt = order.createdAt;
         dto.updatedAt = order.updatedAt;
         dto.paidAt = order.paidAt;
+
+        // Campos da SuperFrete (etiqueta)
+        dto.superfreteOrderId = order.superfreteOrderId;
+        dto.trackingCode = order.trackingCode;
+        dto.labelUrl = order.labelUrl;
+        dto.superfreteService = order.superfreteService;
 
         // Items
         dto.items = order.items.stream()

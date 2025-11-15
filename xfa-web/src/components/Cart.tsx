@@ -407,6 +407,119 @@ const Cart = () => {
   const handleConfirmCheckout = async () => {
     if (!validateCheckoutData()) return;
 
+    // ========== MOCK PARA TESTE DE ETIQUETAS ==========
+    // Para ativar o mock, defina VITE_USE_MOCK_CHECKOUT=true no .env
+    // ou altere a linha abaixo para: const USE_MOCK = true;
+    const USE_MOCK = import.meta.env.VITE_USE_MOCK_CHECKOUT === 'true' || false;
+    
+    if (USE_MOCK) {
+      console.log('🧪 MODO MOCK ATIVADO - Testando fluxo de etiquetas');
+      
+      try {
+        // Processar cliente (criar ou atualizar) - mesma lógica do original
+        if (customerExists && customerId) {
+          if (hasCustomerDataChanged()) {
+            const customerPayload = {
+              name: customerData.name,
+              email: customerData.email,
+              phone: customerData.phone.replace(/\D/g, ''),
+              cpf: customerData.cpf.replace(/\D/g, ''),
+              cep: customerData.cep.replace(/\D/g, ''),
+              address: customerData.address,
+              number: customerData.number,
+              complement: customerData.complement,
+              neighborhood: customerData.neighborhood,
+              city: customerData.city,
+              state: customerData.state
+            };
+
+            const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+            const updateResponse = await fetch(`${customersApiUrl}/${customerId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(customerPayload)
+            });
+
+            if (!updateResponse.ok) {
+              const errorData = await updateResponse.json();
+              console.error('❌ Erro na resposta:', errorData);
+              alert(`Erro ao atualizar cadastro: ${errorData.error || 'Erro desconhecido'}`);
+              return;
+            }
+          }
+        } else {
+          const customerPayload = {
+            name: customerData.name,
+            email: customerData.email,
+            phone: customerData.phone.replace(/\D/g, ''),
+            cpf: customerData.cpf.replace(/\D/g, ''),
+            cep: customerData.cep.replace(/\D/g, ''),
+            address: customerData.address,
+            number: customerData.number,
+            complement: customerData.complement,
+            neighborhood: customerData.neighborhood,
+            city: customerData.city,
+            state: customerData.state
+          };
+
+          const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+          const customerResponse = await fetch(customersApiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(customerPayload)
+          });
+
+          if (!customerResponse.ok) {
+            const errorText = await customerResponse.text();
+            console.error('❌ Erro na resposta (texto):', errorText);
+            try {
+              const errorData = JSON.parse(errorText);
+              alert(`Erro ao cadastrar cliente: ${errorData.error || 'Erro desconhecido'}`);
+            } catch {
+              alert(`Erro ao cadastrar cliente: ${errorText}`);
+            }
+            return;
+          }
+        }
+
+        // Preparar dados do pedido
+        const orderData = {
+          customer: customerData,
+          items: cart.items,
+          freight: selectedFreight,
+          total: cart.total,
+          freightCost: selectedFreight.price,
+          totalWithFreight: cart.total + selectedFreight.price,
+          orderDate: new Date().toISOString()
+        };
+
+        // Salvar dados do pedido no sessionStorage
+        sessionStorage.setItem('orderData', JSON.stringify(orderData));
+
+        // Simular dados de pagamento bem-sucedido
+        const mockPaymentParams = new URLSearchParams({
+          transaction_id: `MOCK-TX-${Date.now()}`,
+          transaction_nsu: `MOCK-NSU-${Date.now()}`,
+          order_nsu: `MOCK-ORDER-${Date.now()}`,
+          slug: 'mock-slug',
+          capture_method: 'pix',
+          receipt_url: 'https://example.com/receipt.pdf'
+        });
+
+        // Redirecionar para a página de compra com parâmetros mockados
+        const mockCheckoutUrl = `${APP_BASE_URL}/compra?${mockPaymentParams.toString()}`;
+        console.log('🧪 Redirecionando para:', mockCheckoutUrl);
+        window.location.href = mockCheckoutUrl;
+        return;
+      } catch (error) {
+        console.error('❌ Erro no mock de checkout:', error);
+        alert('Erro ao processar checkout mock. Tente novamente.');
+        return;
+      }
+    }
+    // ========== FIM DO MOCK ==========
+
+    // ========== CÓDIGO ORIGINAL (PRODUÇÃO) ==========
     try {
       if (customerExists && customerId) {
         // Cliente existe - verificar se houve alterações
@@ -548,6 +661,7 @@ const Cart = () => {
       console.error('❌ Erro ao processar checkout:', error);
       alert('Erro ao processar o checkout. Tente novamente.');
     }
+    // ========== FIM DO CÓDIGO ORIGINAL ==========
   };
 
   return (

@@ -31,6 +31,12 @@ public class OrderDTO {
     public LocalDateTime updatedAt;
     public LocalDateTime paidAt;
     
+    // Campos da SuperFrete (etiqueta)
+    public String superfreteOrderId;
+    public String trackingCode;
+    public String labelUrl;
+    public String superfreteService;
+    
     public List<OrderItemDTO> items;
 
     public OrderDTO() {}

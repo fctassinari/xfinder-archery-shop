@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface SuperfreteApiClient {
 
+    // Cálculo de Frete
     @POST
     @Path("/calculator")
     Response calculateFreight(
@@ -19,12 +20,102 @@ public interface SuperfreteApiClient {
         SuperfreteCalculationRequest request
     );
 
+    // Pedidos (Orders) - Usa /cart conforme documentação da SuperFrete
     @POST
     @Path("/cart")
-    Response createLabel(
+    Response createOrder(
         @HeaderParam("Authorization") String authorization,
         @HeaderParam("User-Agent") String userAgent,
-        LabelCreationRequest request
+        OrderRequest request
+    );
+
+    @GET
+    @Path("/orders/{orderId}")
+    Response getOrder(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent,
+        @PathParam("orderId") String orderId
+    );
+
+    @POST
+    @Path("/orders/{orderId}/finish")
+    Response finishOrder(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent,
+        @PathParam("orderId") String orderId
+    );
+
+    @POST
+    @Path("/orders/{orderId}/cancel")
+    Response cancelOrder(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent,
+        @PathParam("orderId") String orderId
+    );
+
+    @POST
+    @Path("/orders/{orderId}/print")
+    Response printOrder(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent,
+        @PathParam("orderId") String orderId
+    );
+
+    // Tracking (Rastreamento)
+    @GET
+    @Path("/tracking/{trackingCode}")
+    Response getTracking(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent,
+        @PathParam("trackingCode") String trackingCode
+    );
+
+    // Webhooks
+    @POST
+    @Path("/webhooks")
+    Response createWebhook(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent,
+        WebhookRequest request
+    );
+
+    @GET
+    @Path("/webhooks")
+    Response listWebhooks(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent
+    );
+
+    @PUT
+    @Path("/webhooks/{webhookId}")
+    Response updateWebhook(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent,
+        @PathParam("webhookId") String webhookId,
+        WebhookRequest request
+    );
+
+    @DELETE
+    @Path("/webhooks/{webhookId}")
+    Response deleteWebhook(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent,
+        @PathParam("webhookId") String webhookId
+    );
+
+    // Usuário
+    @GET
+    @Path("/user")
+    Response getUserInfo(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent
+    );
+
+    @GET
+    @Path("/user/addresses")
+    Response getUserAddresses(
+        @HeaderParam("Authorization") String authorization,
+        @HeaderParam("User-Agent") String userAgent
     );
 }
 

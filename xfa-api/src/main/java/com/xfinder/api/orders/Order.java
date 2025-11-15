@@ -72,6 +72,19 @@ public class Order extends PanacheEntity { // Já herda 'id' auto-increment
     @Column(name = "paid_at")
     public LocalDateTime paidAt;
 
+    // Campos da SuperFrete (etiqueta)
+    @Column(name = "superfrete_order_id", length = 100)
+    public String superfreteOrderId;
+
+    @Column(name = "tracking_code", length = 100)
+    public String trackingCode;
+
+    @Column(name = "label_url", length = 500)
+    public String labelUrl;
+
+    @Column(name = "superfrete_service", length = 50)
+    public String superfreteService;
+
     // Relacionamento com itens do pedido
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     public List<OrderItem> items = new ArrayList<>();
