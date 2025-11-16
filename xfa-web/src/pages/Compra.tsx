@@ -539,7 +539,7 @@ const Compra = () => {
       //console.log('✅ Pedido criado na SuperFrete - ID:', superfreteOrderId);
 
       // 2. Finalizar pedido (gerar etiqueta)
-      const finishResponse = await fetch(`${superfreteApiUrl}/orders/${superfreteOrderId}/finish`, {
+      const finishResponse = await fetch(`${superfreteApiUrl}/orders/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -564,7 +564,7 @@ const Compra = () => {
       //console.log('✅ Pedido finalizado na SuperFrete');
 
       // 3. Obter link de impressão
-      const printResponse = await fetch(`${superfreteApiUrl}/orders/${superfreteOrderId}/print`, {
+      const printResponse = await fetch(`${superfreteApiUrl}/orders/print`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
