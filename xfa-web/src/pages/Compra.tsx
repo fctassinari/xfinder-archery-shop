@@ -4,8 +4,9 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import heroImage from "@/assets/nocks.jpeg";
-import { CheckCircle, XCircle, Clock, Package, User, MapPin, CreditCard } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Package, User, MapPin, CreditCard, Loader2 } from 'lucide-react';
 import { useCart } from "@/contexts/CartContext";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const Compra = () => {
   const location = useLocation();
@@ -14,6 +15,7 @@ const Compra = () => {
   const [orderData, setOrderData] = useState<any>(null);
   const [receiptUrl, setReceiptUrl] = useState<string>('');
   const [trackingCode, setTrackingCode] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   useEffect(() => {
     const storedOrderData = sessionStorage.getItem('orderData');
@@ -38,6 +40,7 @@ const Compra = () => {
     if (transaction_nsu && order_nsu && slug && !isProcessed) {
       const checkPayment = async () => {
         try {
+          setIsProcessing(true);
           sessionStorage.setItem('orderProcessed', 'true');
 
           const apiUrl = `${import.meta.env.VITE_PAYMENT_CHECK_URL}?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
@@ -143,6 +146,8 @@ const Compra = () => {
           console.error('❌ Erro ao verificar o pagamento:', error);
           setPaymentStatus('failure');
           sessionStorage.removeItem('orderProcessed');
+        } finally {
+          setIsProcessing(false);
         }
       };
       checkPayment();
@@ -709,6 +714,25 @@ const Compra = () => {
   return (
     <div className="min-h-screen">
       <Header />
+      <WhatsAppFloat />
+      
+      <Dialog open={isProcessing}>
+        <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              Processando Venda
+            </DialogTitle>
+            <DialogDescription>
+              Aguarde enquanto processamos seu pedido e geramos as informações de envio...
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-center py-6">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          </div>
+        </DialogContent>
+      </Dialog>
+      
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
         <section className="relative py-20 bg-cover bg-fixed bg-center text-white" style={{ backgroundImage: `url(${heroImage})` }}>
           <div className="container mx-auto px-4">
