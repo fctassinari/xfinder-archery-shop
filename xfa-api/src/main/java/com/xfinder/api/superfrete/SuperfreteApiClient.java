@@ -21,6 +21,7 @@ public interface SuperfreteApiClient {
     );
 
     // Pedidos (Orders) - Usa /cart conforme documentação da SuperFrete
+    // Enviar Frete para a SuperFrete
     @POST
     @Path("/cart")
     Response createOrder(
@@ -29,8 +30,18 @@ public interface SuperfreteApiClient {
         OrderRequest request
     );
 
+    // Checkout - Finalizar múltiplos pedidos
+    @POST
+    @Path("/checkout")
+    Response checkoutOrder(
+            @HeaderParam("Authorization") String authorization,
+            @HeaderParam("User-Agent") String userAgent,
+            OrderListRequest request
+    );
+
+    // Informações do pedido
     @GET
-    @Path("/orders/{orderId}")
+    @Path("/order/info/{orderId}")
     Response getOrder(
         @HeaderParam("Authorization") String authorization,
         @HeaderParam("User-Agent") String userAgent,
@@ -38,69 +49,27 @@ public interface SuperfreteApiClient {
     );
 
     @POST
-    @Path("/orders/{orderId}/finish")
-    Response finishOrder(
-        @HeaderParam("Authorization") String authorization,
-        @HeaderParam("User-Agent") String userAgent,
-        @PathParam("orderId") String orderId
-    );
-
-    @POST
-    @Path("/orders/{orderId}/cancel")
-    Response cancelOrder(
-        @HeaderParam("Authorization") String authorization,
-        @HeaderParam("User-Agent") String userAgent,
-        @PathParam("orderId") String orderId
-    );
-
-    @POST
-    @Path("/orders/{orderId}/print")
+    @Path("/tag/print")
     Response printOrder(
-        @HeaderParam("Authorization") String authorization,
-        @HeaderParam("User-Agent") String userAgent,
-        @PathParam("orderId") String orderId
+            @HeaderParam("Authorization") String authorization,
+            @HeaderParam("User-Agent") String userAgent,
+            OrderListRequest request
     );
 
-    // Tracking (Rastreamento)
-    @GET
-    @Path("/tracking/{trackingCode}")
-    Response getTracking(
-        @HeaderParam("Authorization") String authorization,
-        @HeaderParam("User-Agent") String userAgent,
-        @PathParam("trackingCode") String trackingCode
-    );
-
-    // Webhooks
+    // Cancelar pedido com corpo JSON (nova versão)
     @POST
-    @Path("/webhooks")
-    Response createWebhook(
-        @HeaderParam("Authorization") String authorization,
-        @HeaderParam("User-Agent") String userAgent,
-        WebhookRequest request
+    @Path("/order/cancel")
+    Response cancelOrder(
+            @HeaderParam("Authorization") String authorization,
+            @HeaderParam("User-Agent") String userAgent,
+            OrderCancelRequest request
     );
 
     @GET
-    @Path("/webhooks")
-    Response listWebhooks(
+    @Path("/user/addresses")
+    Response getUserAddresses(
         @HeaderParam("Authorization") String authorization,
         @HeaderParam("User-Agent") String userAgent
-    );
-
-    @PUT
-    @Path("/webhooks/{webhookId}")
-    Response updateWebhook(
-        @HeaderParam("Authorization") String authorization,
-        @HeaderParam("User-Agent") String userAgent,
-        @PathParam("webhookId") String webhookId,
-        WebhookRequest request
-    );
-
-    @DELETE
-    @Path("/webhooks/{webhookId}")
-    Response deleteWebhook(
-        @HeaderParam("Authorization") String authorization,
-        @HeaderParam("User-Agent") String userAgent,
-        @PathParam("webhookId") String webhookId
     );
 
     // Usuário
@@ -111,11 +80,5 @@ public interface SuperfreteApiClient {
         @HeaderParam("User-Agent") String userAgent
     );
 
-    @GET
-    @Path("/user/addresses")
-    Response getUserAddresses(
-        @HeaderParam("Authorization") String authorization,
-        @HeaderParam("User-Agent") String userAgent
-    );
 }
 

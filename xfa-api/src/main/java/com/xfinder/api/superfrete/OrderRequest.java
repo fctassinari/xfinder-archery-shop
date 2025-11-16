@@ -17,7 +17,7 @@ public class OrderRequest {
     @JsonProperty("products")
     private List<ProductInfo> products;
     
-    @JsonProperty("volume")
+    @JsonProperty("volumes")
     private VolumeInfo volume;
     
     @JsonProperty("options")
@@ -68,20 +68,20 @@ public class OrderRequest {
         @JsonProperty("name")
         private String name;
         
-        @JsonProperty("phone")
-        private String phone;
+//        @JsonProperty("phone")
+//        private String phone;
         
-        @JsonProperty("email")
-        private String email;
+//        @JsonProperty("email")
+//        private String email;
         
-        @JsonProperty("document")
-        private String document;
+//        @JsonProperty("document")
+//        private String document;
         
-        @JsonProperty("company_document")
-        private String companyDocument;
+//        @JsonProperty("company_document")
+//        private String companyDocument;
         
-        @JsonProperty("state_register")
-        private String stateRegister;
+//        @JsonProperty("state_register")
+//        private String stateRegister;
         
         @JsonProperty("postal_code")
         private String postalCode;
@@ -92,8 +92,8 @@ public class OrderRequest {
         @JsonProperty("number")
         private String number;
         
-        @JsonProperty("location_number")
-        private String locationNumber;
+//        @JsonProperty("location_number")
+//        private String locationNumber;
         
         @JsonProperty("complement")
         private String complement;
@@ -107,8 +107,8 @@ public class OrderRequest {
         @JsonProperty("state_abbr")
         private String stateAbbr;
         
-        @JsonProperty("country_id")
-        private String countryId;
+//        @JsonProperty("country_id")
+//        private String countryId;
 
         public AddressInfo() {}
 
@@ -116,20 +116,20 @@ public class OrderRequest {
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
 
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
+//        public String getPhone() { return phone; }
+//        public void setPhone(String phone) { this.phone = phone; }
 
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
+//        public String getEmail() { return email; }
+//        public void setEmail(String email) { this.email = email; }
 
-        public String getDocument() { return document; }
-        public void setDocument(String document) { this.document = document; }
+//        public String getDocument() { return document; }
+//        public void setDocument(String document) { this.document = document; }
 
-        public String getCompanyDocument() { return companyDocument; }
-        public void setCompanyDocument(String companyDocument) { this.companyDocument = companyDocument; }
+//        public String getCompanyDocument() { return companyDocument; }
+//        public void setCompanyDocument(String companyDocument) { this.companyDocument = companyDocument; }
 
-        public String getStateRegister() { return stateRegister; }
-        public void setStateRegister(String stateRegister) { this.stateRegister = stateRegister; }
+//        public String getStateRegister() { return stateRegister; }
+//        public void setStateRegister(String stateRegister) { this.stateRegister = stateRegister; }
 
         public String getPostalCode() { return postalCode; }
         public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
@@ -138,19 +138,18 @@ public class OrderRequest {
         public void setAddress(String address) { this.address = address; }
 
         public String getNumber() { 
-            // Retorna location_number se number não estiver definido (compatibilidade)
-            return number != null ? number : locationNumber; 
+            return number;
         }
         public void setNumber(String number) { this.number = number; }
 
-        public String getLocationNumber() { return locationNumber; }
-        public void setLocationNumber(String locationNumber) { 
-            this.locationNumber = locationNumber;
-            // Se number não estiver definido, usa locationNumber
-            if (this.number == null) {
-                this.number = locationNumber;
-            }
-        }
+//        public String getLocationNumber() { return locationNumber; }
+//        public void setLocationNumber(String locationNumber) {
+//            this.locationNumber = locationNumber;
+//            // Se number não estiver definido, usa locationNumber
+//            if (this.number == null) {
+//                this.number = locationNumber;
+//            }
+//        }
 
         public String getComplement() { return complement; }
         public void setComplement(String complement) { this.complement = complement; }
@@ -164,8 +163,8 @@ public class OrderRequest {
         public String getStateAbbr() { return stateAbbr; }
         public void setStateAbbr(String stateAbbr) { this.stateAbbr = stateAbbr; }
 
-        public String getCountryId() { return countryId; }
-        public void setCountryId(String countryId) { this.countryId = countryId; }
+//        public String getCountryId() { return countryId; }
+//        public void setCountryId(String countryId) { this.countryId = countryId; }
     }
 
     // Classe para informações de produto

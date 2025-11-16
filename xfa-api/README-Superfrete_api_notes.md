@@ -1,7 +1,7 @@
 # Guia de Implementação da API Superfrete
 [SuperFrete](https://web.superfrete.com/)
 
-[Doc](https://superfrete.readmqe.io/reference/primeiros-passos)
+[Doc](https://superfrete.readme.io/reference/primeiros-passos)
 
 
 ## 1. Autenticação

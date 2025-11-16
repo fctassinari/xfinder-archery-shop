@@ -43,6 +43,17 @@ public class SuperfreteResource {
         return superfreteService.createOrder(request);
     }
 
+    @POST
+    @Path("orders/checkout")
+    @Operation(summary = "Finalizar checkout", description = "Finaliza o checkout de múltiplos pedidos para gerar etiquetas em lote")
+    @APIResponse(responseCode = "200", description = "Checkout finalizado com sucesso",
+            content = @Content(mediaType = "application/json"))
+    @APIResponse(responseCode = "400", description = "Dados inválidos")
+    @APIResponse(responseCode = "500", description = "Erro interno do servidor")
+    public Response checkoutOrder(OrderListRequest request) {
+        return superfreteService.checkoutOrder(request);
+    }
+
     @GET
     @Path("/orders/{orderId}")
     @Operation(summary = "Obter pedido", description = "Retorna informações detalhadas de um pedido específico")
@@ -55,104 +66,34 @@ public class SuperfreteResource {
     }
 
     @POST
-    @Path("/orders/{orderId}/finish")
-    @Operation(summary = "Finalizar pedido", description = "Finaliza o pedido e gera a etiqueta de envio")
-    @APIResponse(responseCode = "200", description = "Pedido finalizado com sucesso", 
-                 content = @Content(mediaType = "application/json"))
-    @APIResponse(responseCode = "400", description = "Erro ao finalizar pedido")
-    @APIResponse(responseCode = "500", description = "Erro interno do servidor")
-    public Response finishOrder(@PathParam("orderId") String orderId) {
-        return superfreteService.finishOrder(orderId);
-    }
-
-    @POST
-    @Path("/orders/{orderId}/cancel")
-    @Operation(summary = "Cancelar pedido", description = "Cancela um pedido que ainda não foi postado")
-    @APIResponse(responseCode = "200", description = "Pedido cancelado com sucesso", 
-                 content = @Content(mediaType = "application/json"))
-    @APIResponse(responseCode = "400", description = "Erro ao cancelar pedido")
-    @APIResponse(responseCode = "500", description = "Erro interno do servidor")
-    public Response cancelOrder(@PathParam("orderId") String orderId) {
-        return superfreteService.cancelOrder(orderId);
-    }
-
-    @POST
-    @Path("/orders/{orderId}/print")
+    @Path("/orders/print")
     @Operation(summary = "Imprimir etiqueta", description = "Obtém o link para impressão da etiqueta em PDF")
     @APIResponse(responseCode = "200", description = "Link de impressão gerado", 
                  content = @Content(mediaType = "application/json"))
     @APIResponse(responseCode = "400", description = "Erro ao gerar link de impressão")
     @APIResponse(responseCode = "500", description = "Erro interno do servidor")
-    public Response printOrder(@PathParam("orderId") String orderId) {
-        return superfreteService.printOrder(orderId);
+    public Response printOrder(OrderListRequest request) {
+        return superfreteService.printOrder(request);
     }
 
-    // ========== ENDPOINTS DE RASTREAMENTO (TRACKING) ==========
-    
-    @GET
-    @Path("/tracking/{trackingCode}")
-    @Operation(summary = "Rastrear envio", description = "Obtém informações de rastreamento de um envio pelo código de rastreio")
-    @APIResponse(responseCode = "200", description = "Informações de rastreamento encontradas", 
-                 content = @Content(mediaType = "application/json"))
-    @APIResponse(responseCode = "404", description = "Código de rastreio não encontrado")
-    @APIResponse(responseCode = "500", description = "Erro interno do servidor")
-    public Response getTracking(@PathParam("trackingCode") String trackingCode) {
-        return superfreteService.getTracking(trackingCode);
-    }
-
-    // ========== ENDPOINTS DE WEBHOOKS ==========
-    
     @POST
-    @Path("/webhooks")
-    @Operation(summary = "Criar webhook", description = "Cria um novo webhook para receber notificações de eventos")
-    @APIResponse(responseCode = "200", description = "Webhook criado com sucesso", 
-                 content = @Content(mediaType = "application/json"))
-    @APIResponse(responseCode = "400", description = "Dados inválidos")
+    @Path("/order/cancel")
+    @Operation(summary = "Cancelar pedido com descrição", description = "Cancela um pedido com descrição do motivo do cancelamento")
+    @APIResponse(responseCode = "200", description = "Pedido cancelado com sucesso",
+            content = @Content(mediaType = "application/json"))
+    @APIResponse(responseCode = "400", description = "Erro ao cancelar pedido")
     @APIResponse(responseCode = "500", description = "Erro interno do servidor")
-    public Response createWebhook(WebhookRequest request) {
-        return superfreteService.createWebhook(request);
-    }
-
-    @GET
-    @Path("/webhooks")
-    @Operation(summary = "Listar webhooks", description = "Retorna a lista de todos os webhooks cadastrados")
-    @APIResponse(responseCode = "200", description = "Lista de webhooks", 
-                 content = @Content(mediaType = "application/json"))
-    @APIResponse(responseCode = "500", description = "Erro interno do servidor")
-    public Response listWebhooks() {
-        return superfreteService.listWebhooks();
-    }
-
-    @PUT
-    @Path("/webhooks/{webhookId}")
-    @Operation(summary = "Atualizar webhook", description = "Atualiza as informações de um webhook existente")
-    @APIResponse(responseCode = "200", description = "Webhook atualizado com sucesso", 
-                 content = @Content(mediaType = "application/json"))
-    @APIResponse(responseCode = "400", description = "Dados inválidos")
-    @APIResponse(responseCode = "404", description = "Webhook não encontrado")
-    @APIResponse(responseCode = "500", description = "Erro interno do servidor")
-    public Response updateWebhook(@PathParam("webhookId") String webhookId, WebhookRequest request) {
-        return superfreteService.updateWebhook(webhookId, request);
-    }
-
-    @DELETE
-    @Path("/webhooks/{webhookId}")
-    @Operation(summary = "Deletar webhook", description = "Remove um webhook cadastrado")
-    @APIResponse(responseCode = "200", description = "Webhook deletado com sucesso", 
-                 content = @Content(mediaType = "application/json"))
-    @APIResponse(responseCode = "404", description = "Webhook não encontrado")
-    @APIResponse(responseCode = "500", description = "Erro interno do servidor")
-    public Response deleteWebhook(@PathParam("webhookId") String webhookId) {
-        return superfreteService.deleteWebhook(webhookId);
+    public Response cancelOrder(OrderCancelRequest request) {
+        return superfreteService.cancelOrder(request);
     }
 
     // ========== ENDPOINTS DE USUÁRIO ==========
-    
+
     @GET
     @Path("/user")
     @Operation(summary = "Informações do usuário", description = "Retorna informações da conta do usuário na SuperFrete")
-    @APIResponse(responseCode = "200", description = "Informações do usuário", 
-                 content = @Content(mediaType = "application/json"))
+    @APIResponse(responseCode = "200", description = "Informações do usuário",
+            content = @Content(mediaType = "application/json"))
     @APIResponse(responseCode = "500", description = "Erro interno do servidor")
     public Response getUserInfo() {
         return superfreteService.getUserInfo();
@@ -161,8 +102,8 @@ public class SuperfreteResource {
     @GET
     @Path("/user/addresses")
     @Operation(summary = "Endereços do usuário", description = "Retorna a lista de endereços cadastrados do usuário")
-    @APIResponse(responseCode = "200", description = "Lista de endereços", 
-                 content = @Content(mediaType = "application/json"))
+    @APIResponse(responseCode = "200", description = "Lista de endereços",
+            content = @Content(mediaType = "application/json"))
     @APIResponse(responseCode = "500", description = "Erro interno do servidor")
     public Response getUserAddresses() {
         return superfreteService.getUserAddresses();

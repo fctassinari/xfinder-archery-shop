@@ -250,17 +250,17 @@ public class SuperfreteService {
      */
     public Response createOrder(OrderRequest request) {
         try {
-            System.out.println("📦 Criando pedido na SuperFrete...");
-            System.out.println("📦 Request: " + objectMapper.writeValueAsString(request));
+//            System.out.println("📦 Criando pedido na SuperFrete...");
+//            System.out.println("📦 Request: " + objectMapper.writeValueAsString(request));
             
             String authorization = getAuthorizationHeader();
             String userAgent = getUserAgentHeader();
-            
+                        
             Response response = superfreteApiClient.createOrder(authorization, userAgent, request);
             String responseBody = response.readEntity(String.class);
             
-            System.out.println("📦 Response Status: " + response.getStatus());
-            System.out.println("📦 Response Body: " + responseBody.substring(0, Math.min(500, responseBody.length())));
+//            System.out.println("📦 Response Status: " + response.getStatus());
+//            System.out.println("📦 Response Body: " + responseBody.substring(0, Math.min(500, responseBody.length())));
             
             // Verificar se a resposta é HTML (erro)
             if (responseBody.trim().startsWith("<!") || responseBody.trim().startsWith("<html")) {
@@ -284,6 +284,29 @@ public class SuperfreteService {
     }
 
     /**
+     * Finalizar checkout de múltiplos pedidos
+     */
+    public Response checkoutOrder(OrderListRequest request) {
+        try {
+            String authorization = getAuthorizationHeader();
+            String userAgent = getUserAgentHeader();
+
+            Response response = superfreteApiClient.checkoutOrder(authorization, userAgent, request);
+            String responseBody = response.readEntity(String.class);
+
+            return Response.status(response.getStatus())
+                    .entity(responseBody)
+                    .build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
+                    .build();
+        }
+    }
+
+
+
+    /**
      * Obter informações de um pedido
      */
     public Response getOrder(String orderId) {
@@ -305,14 +328,14 @@ public class SuperfreteService {
     }
 
     /**
-     * Finalizar pedido e gerar etiqueta
+     * Obter link de impressão da etiqueta
      */
-    public Response finishOrder(String orderId) {
+    public Response printOrder(OrderListRequest lista) {
         try {
             String authorization = getAuthorizationHeader();
             String userAgent = getUserAgentHeader();
             
-            Response response = superfreteApiClient.finishOrder(authorization, userAgent, orderId);
+            Response response = superfreteApiClient.printOrder(authorization, userAgent, lista);
             String responseBody = response.readEntity(String.class);
             
             return Response.status(response.getStatus())
@@ -328,140 +351,14 @@ public class SuperfreteService {
     /**
      * Cancelar pedido
      */
-    public Response cancelOrder(String orderId) {
+    public Response cancelOrder(OrderCancelRequest request) {
         try {
             String authorization = getAuthorizationHeader();
             String userAgent = getUserAgentHeader();
-            
-            Response response = superfreteApiClient.cancelOrder(authorization, userAgent, orderId);
-            String responseBody = response.readEntity(String.class);
-            
-            return Response.status(response.getStatus())
-                    .entity(responseBody)
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
-                    .build();
-        }
-    }
 
-    /**
-     * Obter link de impressão da etiqueta
-     */
-    public Response printOrder(String orderId) {
-        try {
-            String authorization = getAuthorizationHeader();
-            String userAgent = getUserAgentHeader();
-            
-            Response response = superfreteApiClient.printOrder(authorization, userAgent, orderId);
+            Response response = superfreteApiClient.cancelOrder(authorization, userAgent, request);
             String responseBody = response.readEntity(String.class);
-            
-            return Response.status(response.getStatus())
-                    .entity(responseBody)
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
-                    .build();
-        }
-    }
 
-    /**
-     * Obter informações de rastreamento
-     */
-    public Response getTracking(String trackingCode) {
-        try {
-            String authorization = getAuthorizationHeader();
-            String userAgent = getUserAgentHeader();
-            
-            Response response = superfreteApiClient.getTracking(authorization, userAgent, trackingCode);
-            String responseBody = response.readEntity(String.class);
-            
-            return Response.status(response.getStatus())
-                    .entity(responseBody)
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
-                    .build();
-        }
-    }
-
-    /**
-     * Criar webhook
-     */
-    public Response createWebhook(WebhookRequest request) {
-        try {
-            String authorization = getAuthorizationHeader();
-            String userAgent = getUserAgentHeader();
-            
-            Response response = superfreteApiClient.createWebhook(authorization, userAgent, request);
-            String responseBody = response.readEntity(String.class);
-            
-            return Response.status(response.getStatus())
-                    .entity(responseBody)
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
-                    .build();
-        }
-    }
-
-    /**
-     * Listar webhooks
-     */
-    public Response listWebhooks() {
-        try {
-            String authorization = getAuthorizationHeader();
-            String userAgent = getUserAgentHeader();
-            
-            Response response = superfreteApiClient.listWebhooks(authorization, userAgent);
-            String responseBody = response.readEntity(String.class);
-            
-            return Response.status(response.getStatus())
-                    .entity(responseBody)
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
-                    .build();
-        }
-    }
-
-    /**
-     * Atualizar webhook
-     */
-    public Response updateWebhook(String webhookId, WebhookRequest request) {
-        try {
-            String authorization = getAuthorizationHeader();
-            String userAgent = getUserAgentHeader();
-            
-            Response response = superfreteApiClient.updateWebhook(authorization, userAgent, webhookId, request);
-            String responseBody = response.readEntity(String.class);
-            
-            return Response.status(response.getStatus())
-                    .entity(responseBody)
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
-                    .build();
-        }
-    }
-
-    /**
-     * Deletar webhook
-     */
-    public Response deleteWebhook(String webhookId) {
-        try {
-            String authorization = getAuthorizationHeader();
-            String userAgent = getUserAgentHeader();
-            
-            Response response = superfreteApiClient.deleteWebhook(authorization, userAgent, webhookId);
-            String responseBody = response.readEntity(String.class);
-            
             return Response.status(response.getStatus())
                     .entity(responseBody)
                     .build();
