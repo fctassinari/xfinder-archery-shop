@@ -18,7 +18,7 @@ public class OrderRequest {
     private List<ProductInfo> products;
     
     @JsonProperty("volumes")
-    private VolumeInfo volume;
+    private List<VolumeInfo> volume;
     
     @JsonProperty("options")
     private OrderOptions options;
@@ -48,8 +48,8 @@ public class OrderRequest {
     public List<ProductInfo> getProducts() { return products; }
     public void setProducts(List<ProductInfo> products) { this.products = products; }
 
-    public VolumeInfo getVolume() { return volume; }
-    public void setVolume(VolumeInfo volume) { this.volume = volume; }
+    public List<VolumeInfo> getVolume() { return volume; }
+    public void setVolume(List<VolumeInfo> volume) { this.volume = volume; }
 
     public OrderOptions getOptions() { return options; }
     public void setOptions(OrderOptions options) { this.options = options; }
@@ -67,37 +67,16 @@ public class OrderRequest {
     public static class AddressInfo {
         @JsonProperty("name")
         private String name;
-        
-//        @JsonProperty("phone")
-//        private String phone;
-        
-//        @JsonProperty("email")
-//        private String email;
-        
-//        @JsonProperty("document")
-//        private String document;
-        
-//        @JsonProperty("company_document")
-//        private String companyDocument;
-        
-//        @JsonProperty("state_register")
-//        private String stateRegister;
-        
-        @JsonProperty("postal_code")
-        private String postalCode;
-        
+
         @JsonProperty("address")
         private String address;
-        
-        @JsonProperty("number")
-        private String number;
-        
-//        @JsonProperty("location_number")
-//        private String locationNumber;
-        
+
         @JsonProperty("complement")
         private String complement;
-        
+
+        @JsonProperty("number")
+        private String number;
+
         @JsonProperty("district")
         private String district;
         
@@ -106,30 +85,15 @@ public class OrderRequest {
         
         @JsonProperty("state_abbr")
         private String stateAbbr;
-        
-//        @JsonProperty("country_id")
-//        private String countryId;
+
+        @JsonProperty("postal_code")
+        private String postalCode;
 
         public AddressInfo() {}
 
         // Getters e Setters
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
-
-//        public String getPhone() { return phone; }
-//        public void setPhone(String phone) { this.phone = phone; }
-
-//        public String getEmail() { return email; }
-//        public void setEmail(String email) { this.email = email; }
-
-//        public String getDocument() { return document; }
-//        public void setDocument(String document) { this.document = document; }
-
-//        public String getCompanyDocument() { return companyDocument; }
-//        public void setCompanyDocument(String companyDocument) { this.companyDocument = companyDocument; }
-
-//        public String getStateRegister() { return stateRegister; }
-//        public void setStateRegister(String stateRegister) { this.stateRegister = stateRegister; }
 
         public String getPostalCode() { return postalCode; }
         public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
@@ -141,15 +105,6 @@ public class OrderRequest {
             return number;
         }
         public void setNumber(String number) { this.number = number; }
-
-//        public String getLocationNumber() { return locationNumber; }
-//        public void setLocationNumber(String locationNumber) {
-//            this.locationNumber = locationNumber;
-//            // Se number não estiver definido, usa locationNumber
-//            if (this.number == null) {
-//                this.number = locationNumber;
-//            }
-//        }
 
         public String getComplement() { return complement; }
         public void setComplement(String complement) { this.complement = complement; }
@@ -163,8 +118,6 @@ public class OrderRequest {
         public String getStateAbbr() { return stateAbbr; }
         public void setStateAbbr(String stateAbbr) { this.stateAbbr = stateAbbr; }
 
-//        public String getCountryId() { return countryId; }
-//        public void setCountryId(String countryId) { this.countryId = countryId; }
     }
 
     // Classe para informações de produto
