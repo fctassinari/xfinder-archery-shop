@@ -31,10 +31,20 @@ const Compra = () => {
     const capture_method = params.get('capture_method');
     const receipt_url = params.get('receipt_url');
 
+    console.log('✅ Parâmetros recebidos da InfinitePay:', {
+      transaction_id,
+      transaction_nsu,
+      order_nsu,
+      slug,
+      capture_method,
+      receipt_url
+    });
+
     if (receipt_url) {
       setReceiptUrl(decodeURIComponent(receipt_url));
     }
 
+    // Flag para garantir execução única
     const isProcessed = sessionStorage.getItem('orderProcessed');
 
     if (transaction_nsu && order_nsu && slug && !isProcessed) {
@@ -44,13 +54,16 @@ const Compra = () => {
           sessionStorage.setItem('orderProcessed', 'true');
 
           const apiUrl = `${import.meta.env.VITE_PAYMENT_CHECK_URL}?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
+          console.log('🔍 Verificando pagamento na URL:', apiUrl);
 
-          // Detectar se é um mock (parâmetros começam com MOCK-)
-          const isMock = transaction_nsu?.startsWith('MOCK-') || order_nsu?.startsWith('MOCK-');
+          // ========== MOCK PARA TESTE DE ETIQUETAS ==========
+          // Para ativar o mock, defina VITE_USE_MOCK_CHECKOUT=true no .env
+          // ou altere a linha abaixo para: const USE_MOCK = true;
+          const isMock = import.meta.env.VITE_USE_MOCK_CHECKOUT === 'true' || false;
+          if (isMock) {
 
           // Se for mock, usar dados do pedido real do sessionStorage
-          let mockAmount = 40000; // valor padrão em centavos
-          if (isMock) {
+            let mockAmount = 40000; // valor padrão em centavos
             const storedData = sessionStorage.getItem('orderData');
             if (storedData) {
               try {
@@ -60,29 +73,31 @@ const Compra = () => {
                 console.error('Erro ao ler dados do pedido para mock:', e);
               }
             }
-          }
-
-          const data = {
-            "success": true,
-            "paid": true,
-            "amount": mockAmount,
-            "paid_amount": mockAmount,
-            "installments": 1,
-            "capture_method": capture_method || "pix"
-          };
-
-          if (isMock) {
+            const data = {
+              "success": true,
+              "paid": true,
+              "amount": mockAmount,
+              "paid_amount": mockAmount,
+              "installments": 1,
+              "capture_method": capture_method || "pix"
+            };
             console.log('🧪 Usando dados simulados (MOCK):', data);
+          }
+          else{
+            const response = await fetch(apiUrl);
+            const data = await response.json();
           }
 
           if (data.success && data.paid) {
             setPaymentStatus('success');
             console.log('✅ Pagamento confirmado com sucesso!');
 
+            // Salvar pedido na API ANTES de limpar o carrinho
             const storedData = sessionStorage.getItem('orderData');
             if (storedData) {
               const orderInfo = JSON.parse(storedData);
 
+              // Preparar dados de pagamento com valores corretos
               const paymentData = {
                 captureMethod: capture_method || data.capture_method || 'pix',
                 transactionId: transaction_id || '',
@@ -102,6 +117,7 @@ const Compra = () => {
               console.log('💰 Dados de pagamento preparados:', paymentData);
 
               const savedOrder = await saveOrder(orderInfo, paymentData);
+
               // Obter informações atualizadas do pedido (incluindo código de rastreio)
               let trackingCodeValue = null;
               if (savedOrder?.trackingCode) {
@@ -120,22 +136,35 @@ const Compra = () => {
                 }
               }
               setTrackingCode(trackingCodeValue);
+
+              // Envia e-mail de confirmação
               await sendOrderEmail(orderInfo, receipt_url || '', order_nsu || '', trackingCodeValue);
 
+              // Limpar carrinho DEPOIS de salvar tudo
               console.log('🛒 Iniciando processo de limpeza do carrinho...');
-              localStorage.removeItem('xfinder-cart');
-              clearCart();
 
+              // 1. Limpa o localStorage PRIMEIRO
+              localStorage.removeItem('xfinder-cart');
+              console.log('🗑️ LocalStorage limpo (primeira limpeza)');
+
+              // 2. Depois chama clearCart do contexto
+              clearCart();
+              console.log('✅ clearCart() chamado');
+
+              // 3. Força uma atualização adicional após um pequeno delay
               setTimeout(() => {
                 localStorage.removeItem('xfinder-cart');
+                console.log('🔄 Limpeza adicional do localStorage (garantia)');
               }, 100);
 
               console.log('✅ Processo de limpeza do carrinho concluído');
             }
 
+            // Limpar dados da sessão após 5 minutos
             setTimeout(() => {
               sessionStorage.removeItem('orderData');
               sessionStorage.removeItem('orderProcessed');
+              console.log('🗑️ Dados do pedido removidos do sessionStorage');
             }, 300000);
           } else {
             setPaymentStatus('failure');
@@ -715,7 +744,7 @@ const Compra = () => {
     <div className="min-h-screen">
       <Header />
       <WhatsAppFloat />
-      
+
       <Dialog open={isProcessing}>
         <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
@@ -732,7 +761,7 @@ const Compra = () => {
           </div>
         </DialogContent>
       </Dialog>
-      
+
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
         <section className="relative py-20 bg-cover bg-fixed bg-center text-white" style={{ backgroundImage: `url(${heroImage})` }}>
           <div className="container mx-auto px-4">
