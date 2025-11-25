@@ -54,15 +54,22 @@ const Compra = () => {
           sessionStorage.setItem('orderProcessed', 'true');
 
           const apiUrl = `${import.meta.env.VITE_PAYMENT_CHECK_URL}?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
-          console.log('🔍 Verificando pagamento na URL:', apiUrl);
-
+          
           // ========== MOCK PARA TESTE DE ETIQUETAS ==========
           // Para ativar o mock, defina VITE_USE_MOCK_CHECKOUT=true no .env
           // ou altere a linha abaixo para: const USE_MOCK = true;
           const isMock = import.meta.env.VITE_USE_MOCK_CHECKOUT === 'true' || false;
+          let data;
+          
           if (isMock) {
-
-          // Se for mock, usar dados do pedido real do sessionStorage
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('🧪 [MOCK] Verificação de Pagamento');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('📋 Ação: Verificando status do pagamento (MOCK MODE)');
+            console.log('🔗 URL que seria chamada:', apiUrl);
+            console.log('📤 Método: GET');
+            
+            // Se for mock, usar dados do pedido real do sessionStorage
             let mockAmount = 40000; // valor padrão em centavos
             const storedData = sessionStorage.getItem('orderData');
             if (storedData) {
@@ -73,7 +80,7 @@ const Compra = () => {
                 console.error('Erro ao ler dados do pedido para mock:', e);
               }
             }
-            const data = {
+            data = {
               "success": true,
               "paid": true,
               "amount": mockAmount,
@@ -81,11 +88,37 @@ const Compra = () => {
               "installments": 1,
               "capture_method": capture_method || "pix"
             };
-            console.log('🧪 Usando dados simulados (MOCK):', data);
+            console.log('📥 Resposta (MOCK):', JSON.stringify(data, null, 2));
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           }
           else{
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('💳 [API] Verificação de Pagamento');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('📋 Ação: Verificando status do pagamento na InfinitePay');
+            console.log('🔗 URL:', apiUrl);
+            console.log('📤 Método: GET');
+            console.log('📤 Headers:', {});
+            console.log('📤 Query Params:', {
+              transaction_nsu,
+              external_order_nsu: order_nsu,
+              slug
+            });
+            
             const response = await fetch(apiUrl);
-            const data = await response.json();
+            const responseText = await response.text();
+            
+            console.log('📥 Status HTTP:', response.status, response.statusText);
+            console.log('📥 Headers da Resposta:', Object.fromEntries(response.headers.entries()));
+            
+            try {
+              data = JSON.parse(responseText);
+              console.log('📥 Resposta (JSON):', JSON.stringify(data, null, 2));
+            } catch (e) {
+              console.log('📥 Resposta (Texto):', responseText);
+              data = { success: false, paid: false };
+            }
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           }
 
           if (data.success && data.paid) {
@@ -126,13 +159,36 @@ const Compra = () => {
                 // Tentar buscar o pedido salvo para obter o código de rastreio
                 try {
                   const ordersApiUrl = import.meta.env.VITE_ORDERS_API_URL || 'http://localhost:8081/api/orders';
-                  const orderResponse = await fetch(`${ordersApiUrl}/${savedOrder.id}`);
+                  const orderUrl = `${ordersApiUrl}/${savedOrder.id}`;
+                  
+                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                  console.log('🔍 [API] Buscar Pedido por ID');
+                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                  console.log('📋 Ação: Buscando informações do pedido salvo para obter código de rastreio');
+                  console.log('🔗 URL:', orderUrl);
+                  console.log('📤 Método: GET');
+                  console.log('📤 Headers:', {});
+                  
+                  const orderResponse = await fetch(orderUrl);
+                  const responseText = await orderResponse.text();
+                  
+                  console.log('📥 Status HTTP:', orderResponse.status, orderResponse.statusText);
+                  console.log('📥 Headers da Resposta:', Object.fromEntries(orderResponse.headers.entries()));
+                  
                   if (orderResponse.ok) {
-                    const orderData = await orderResponse.json();
-                    trackingCodeValue = orderData.trackingCode;
+                    try {
+                      const orderData = JSON.parse(responseText);
+                      console.log('📥 Resposta (JSON):', JSON.stringify(orderData, null, 2));
+                      trackingCodeValue = orderData.trackingCode;
+                    } catch (e) {
+                      console.log('📥 Resposta (Texto):', responseText);
+                    }
+                  } else {
+                    console.log('📥 Resposta (Erro):', responseText);
                   }
+                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 } catch (error) {
-                  console.error('Erro ao buscar código de rastreio:', error);
+                  console.error('❌ Erro ao buscar código de rastreio:', error);
                 }
               }
               setTrackingCode(trackingCodeValue);
@@ -399,22 +455,49 @@ const Compra = () => {
         htmlContent: htmlContent
       };
 
-      console.log('📧 Enviando e-mail de confirmação...');
-
       const mailApiUrl = import.meta.env.VITE_MAIL_API_URL || 'http://localhost:8081/api/mail';
-      const response = await fetch(`${mailApiUrl}/html`, {
+      const mailUrl = `${mailApiUrl}/html`;
+      
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📧 [API] Enviar E-mail de Confirmação');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📋 Ação: Enviando e-mail de confirmação de pedido para o cliente');
+      console.log('🔗 URL:', mailUrl);
+      console.log('📤 Método: POST');
+      console.log('📤 Headers:', {
+        'Content-Type': 'application/json'
+      });
+      console.log('📤 Body:', JSON.stringify({
+        ...emailData,
+        htmlContent: emailData.htmlContent ? '[HTML Content - ' + emailData.htmlContent.length + ' caracteres]' : null
+      }, null, 2));
+      
+      const response = await fetch(mailUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(emailData)
       });
-
+      
+      const responseText = await response.text();
+      
+      console.log('📥 Status HTTP:', response.status, response.statusText);
+      console.log('📥 Headers da Resposta:', Object.fromEntries(response.headers.entries()));
+      
       if (response.ok) {
+        try {
+          const responseData = JSON.parse(responseText);
+          console.log('📥 Resposta (JSON):', JSON.stringify(responseData, null, 2));
+        } catch (e) {
+          console.log('📥 Resposta (Texto):', responseText);
+        }
         console.log('✅ E-mail enviado com sucesso!');
       } else {
-        console.error('❌ Erro ao enviar e-mail:', await response.text());
+        console.log('📥 Resposta (Erro):', responseText);
+        console.error('❌ Erro ao enviar e-mail');
       }
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     } catch (error) {
       console.error('❌ Erro ao enviar e-mail:', error);
     }
@@ -508,12 +591,21 @@ const Compra = () => {
         platform: 'XFinder Archery Shop'
       };
 
-      console.log('📤 Criando pedido na SuperFrete...');
-      console.log('📤 URL:', `${superfreteApiUrl}/orders`);
-      console.log('📤 Request:', JSON.stringify(orderRequest, null, 2));
+      const createOrderUrl = `${superfreteApiUrl}/orders`;
+      
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📦 [API SuperFrete] Criar Pedido');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📋 Ação: Criando pedido na SuperFrete para gerar etiqueta de envio');
+      console.log('🔗 URL:', createOrderUrl);
+      console.log('📤 Método: POST');
+      console.log('📤 Headers:', {
+        'Content-Type': 'application/json'
+      });
+      console.log('📤 Body:', JSON.stringify(orderRequest, null, 2));
 
       // 1. Criar pedido
-      const createResponse = await fetch(`${superfreteApiUrl}/orders`, {
+      const createResponse = await fetch(createOrderUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderRequest)
@@ -523,24 +615,33 @@ const Compra = () => {
       const contentType = createResponse.headers.get('content-type');
       const responseText = await createResponse.text();
 
+      console.log('📥 Status HTTP:', createResponse.status, createResponse.statusText);
+      console.log('📥 Headers da Resposta:', Object.fromEntries(createResponse.headers.entries()));
+      console.log('📥 Content-Type:', contentType);
+
       if (!createResponse.ok) {
-        console.error('❌ Erro ao criar pedido na SuperFrete (status:', createResponse.status, '):', responseText);
+        console.log('📥 Resposta (Erro):', responseText);
+        console.error('❌ Erro ao criar pedido na SuperFrete');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return null;
       }
 
       // Verificar se a resposta é JSON
       if (!contentType || !contentType.includes('application/json')) {
+        console.log('📥 Resposta (Texto):', responseText.substring(0, 500));
         console.error('❌ Resposta não é JSON. Content-Type:', contentType);
-        console.error('❌ Resposta recebida:', responseText.substring(0, 500));
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return null;
       }
 
       let createdOrder;
       try {
         createdOrder = JSON.parse(responseText);
+        console.log('📥 Resposta (JSON):', JSON.stringify(createdOrder, null, 2));
       } catch (e) {
+        console.log('📥 Resposta (Texto):', responseText.substring(0, 500));
         console.error('❌ Erro ao fazer parse do JSON:', e);
-        console.error('❌ Resposta recebida:', responseText.substring(0, 500));
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return null;
       }
 
@@ -548,91 +649,143 @@ const Compra = () => {
 
       if (!superfreteOrderId) {
         console.error('❌ ID do pedido SuperFrete não encontrado na resposta');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return null;
       }
 
       console.log('✅ Pedido criado na SuperFrete - ID:', superfreteOrderId);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       // 2. Finalizar pedido (checkout) - CORREÇÃO: usar estrutura OrderListRequest
       const checkoutRequest = {
         orders: [superfreteOrderId]
       };
+      
+      const checkoutUrl = `${superfreteApiUrl}/orders/checkout`;
+      
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🛒 [API SuperFrete] Finalizar Checkout');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📋 Ação: Finalizando checkout do pedido na SuperFrete');
+      console.log('🔗 URL:', checkoutUrl);
+      console.log('📤 Método: POST');
+      console.log('📤 Headers:', {
+        'Content-Type': 'application/json'
+      });
+      console.log('📤 Body:', JSON.stringify(checkoutRequest, null, 2));
 
-      const finishResponse = await fetch(`${superfreteApiUrl}/orders/checkout`, {
+      const finishResponse = await fetch(checkoutUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(checkoutRequest)
       });
 
       const finishResponseText = await finishResponse.text();
+      
+      console.log('📥 Status HTTP:', finishResponse.status, finishResponse.statusText);
+      console.log('📥 Headers da Resposta:', Object.fromEntries(finishResponse.headers.entries()));
 
       if (!finishResponse.ok) {
-        console.error('❌ Erro ao finalizar pedido na SuperFrete (status:', finishResponse.status, '):', finishResponseText);
+        console.log('📥 Resposta (Erro):', finishResponseText);
+        console.error('❌ Erro ao finalizar pedido na SuperFrete');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return { superfreteOrderId };
       }
 
-      console.log('✅ Pedido finalizado na SuperFrete');
-
-      // 3. Obter link de impressão - CORREÇÃO: usar estrutura OrderListRequest
-      const printRequest = {
-        orders: [superfreteOrderId]
-      };
-
-      const printResponse = await fetch(`${superfreteApiUrl}/orders/print`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(printRequest)
-      });
-
-      let labelUrl = '';
-      if (printResponse.ok) {
-        const printResponseText = await printResponse.text();
-        const printContentType = printResponse.headers.get('content-type');
-        if (printContentType && printContentType.includes('application/json')) {
-          try {
-            const printData = JSON.parse(printResponseText);
-            labelUrl = printData.url || printData.label_url || printData.link || '';
-            console.log('✅ Link de impressão obtido:', labelUrl);
-          } catch (e) {
-            console.warn('⚠️ Aviso: erro ao fazer parse do JSON de impressão:', e);
-          }
-        }
+      try {
+        const finishData = JSON.parse(finishResponseText);
+        console.log('📥 Resposta (JSON):', JSON.stringify(finishData, null, 2));
+      } catch (e) {
+        console.log('📥 Resposta (Texto):', finishResponseText);
       }
+      
+      console.log('✅ Pedido finalizado na SuperFrete');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-      // 4. Obter informações do pedido (incluindo código de rastreio)
+      // 3. Obter informações do pedido (incluindo código de rastreio e link de impressão)
       let trackingCode = '';
-      for (let attempt = 0; attempt < 3; attempt++) {
+      let labelUrl = '';
+      const getOrderUrl = `${superfreteApiUrl}/orders/${superfreteOrderId}`;
+      const maxAttempts = 10;
+      const retryDelay = 2000; // 2 segundos
+      
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
         if (attempt > 0) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          console.log(`⏳ Aguardando ${retryDelay / 1000} segundos antes da tentativa ${attempt + 1}...`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
         }
 
-        const getOrderResponse = await fetch(`${superfreteApiUrl}/orders/${superfreteOrderId}`, {
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log(`🔍 [API SuperFrete] Obter Informações do Pedido (Tentativa ${attempt + 1}/${maxAttempts})`);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('📋 Ação: Obtendo informações do pedido na SuperFrete (código de rastreio e link de impressão)');
+        console.log('🔗 URL:', getOrderUrl);
+        console.log('📤 Método: GET');
+        console.log('📤 Headers:', {
+          'Content-Type': 'application/json'
+        });
+
+        const getOrderResponse = await fetch(getOrderUrl, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         });
 
+        const orderResponseText = await getOrderResponse.text();
+        const orderContentType = getOrderResponse.headers.get('content-type');
+        
+        console.log('📥 Status HTTP:', getOrderResponse.status, getOrderResponse.statusText);
+        console.log('📥 Headers da Resposta:', Object.fromEntries(getOrderResponse.headers.entries()));
+        console.log('📥 Content-Type:', orderContentType);
+
         if (getOrderResponse.ok) {
-          const orderResponseText = await getOrderResponse.text();
-          const orderContentType = getOrderResponse.headers.get('content-type');
           if (orderContentType && orderContentType.includes('application/json')) {
             try {
               const orderInfo = JSON.parse(orderResponseText);
-              trackingCode = orderInfo.tracking ||
-                            orderInfo.tracking_code ||
-                            orderInfo.protocol ||
-                            orderInfo.tracking_code ||
-                            orderInfo.protocols?.[0] ||
-                            orderInfo.protocols?.[0]?.protocol || '';
+              console.log('📥 Resposta (JSON):', JSON.stringify(orderInfo, null, 2));
+              
+              // Usar apenas o campo tracking conforme solicitado
+              trackingCode = orderInfo.tracking || '';
+              
+              // Extrair link de impressão da resposta (campo print.url conforme estrutura da API)
+              labelUrl = orderInfo.print?.url || orderInfo.url || orderInfo.label_url || orderInfo.link || orderInfo.print_url || '';
+
+              if (labelUrl) {
+                console.log('✅ Link de impressão obtido:', labelUrl);
+              } else {
+                console.log('⚠️ Link de impressão não encontrado na resposta');
+              }
 
               if (trackingCode) {
                 console.log('✅ Código de rastreio obtido:', trackingCode);
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 break;
+              } else {
+                console.log('⚠️ Campo tracking está vazio na resposta');
+                if (attempt === maxAttempts - 1) {
+                  console.log('❌ Não foi possível obter o código de rastreio após', maxAttempts, 'tentativas');
+                  trackingCode = 'Problema ao obter código de rastreamento';
+                }
               }
             } catch (e) {
+              console.log('📥 Resposta (Texto):', orderResponseText);
               console.warn('⚠️ Aviso: erro ao fazer parse do JSON do pedido (tentativa', attempt + 1, '):', e);
+              if (attempt === maxAttempts - 1) {
+                trackingCode = 'Problema ao obter código de rastreamento';
+              }
+            }
+          } else {
+            console.log('📥 Resposta (Texto):', orderResponseText);
+            if (attempt === maxAttempts - 1) {
+              trackingCode = 'Problema ao obter código de rastreamento';
             }
           }
+        } else {
+          console.log('📥 Resposta (Erro):', orderResponseText);
+          if (attempt === maxAttempts - 1) {
+            trackingCode = 'Problema ao obter código de rastreamento';
+          }
         }
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       }
 
       return {
@@ -663,15 +816,42 @@ const Compra = () => {
 
       const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || 'http://localhost:8081/api/customers';
       const customerCpf = orderData.customer.cpf.replace(/\D/g, '');
-      const customerResponse = await fetch(`${customersApiUrl}/cpf/${customerCpf}`);
+      const customerUrl = `${customersApiUrl}/cpf/${customerCpf}`;
+      
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('👤 [API] Buscar Cliente por CPF');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📋 Ação: Buscando cliente cadastrado pelo CPF');
+      console.log('🔗 URL:', customerUrl);
+      console.log('📤 Método: GET');
+      console.log('📤 Headers:', {});
+      console.log('📤 CPF:', customerCpf);
+
+      const customerResponse = await fetch(customerUrl);
+      const customerResponseText = await customerResponse.text();
+      
+      console.log('📥 Status HTTP:', customerResponse.status, customerResponse.statusText);
+      console.log('📥 Headers da Resposta:', Object.fromEntries(customerResponse.headers.entries()));
 
       if (!customerResponse.ok) {
+        console.log('📥 Resposta (Erro):', customerResponseText);
         console.error('❌ Cliente não encontrado');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return;
       }
 
-      const customer = await customerResponse.json();
-      console.log('✅ Cliente encontrado - ID:', customer.id);
+      let customer;
+      try {
+        customer = JSON.parse(customerResponseText);
+        console.log('📥 Resposta (JSON):', JSON.stringify(customer, null, 2));
+        console.log('✅ Cliente encontrado - ID:', customer.id);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      } catch (e) {
+        console.log('📥 Resposta (Texto):', customerResponseText);
+        console.error('❌ Erro ao fazer parse da resposta do cliente');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        return;
+      }
 
       const freightInfo = {
         name: orderData.freight.name,
@@ -713,9 +893,19 @@ const Compra = () => {
         superfreteService: labelInfo?.superfreteService || null
       };
 
-      console.log('📤 Payload do pedido:', orderPayload);
-
       const ordersApiUrl = import.meta.env.VITE_ORDERS_API_URL || 'http://localhost:8081/api/orders';
+      
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('💾 [API] Salvar Pedido');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📋 Ação: Salvando pedido completo na API (incluindo dados de pagamento e SuperFrete)');
+      console.log('🔗 URL:', ordersApiUrl);
+      console.log('📤 Método: POST');
+      console.log('📤 Headers:', {
+        'Content-Type': 'application/json'
+      });
+      console.log('📤 Body:', JSON.stringify(orderPayload, null, 2));
+
       const orderResponse = await fetch(ordersApiUrl, {
         method: 'POST',
         headers: {
@@ -724,14 +914,29 @@ const Compra = () => {
         body: JSON.stringify(orderPayload)
       });
 
+      const orderResponseText = await orderResponse.text();
+      
+      console.log('📥 Status HTTP:', orderResponse.status, orderResponse.statusText);
+      console.log('📥 Headers da Resposta:', Object.fromEntries(orderResponse.headers.entries()));
+
       if (orderResponse.ok) {
-        const savedOrder = await orderResponse.json();
-        console.log('✅ Pedido salvo com sucesso! ID:', savedOrder.id);
-        console.log('📦 Estoque atualizado automaticamente');
-        return savedOrder;
+        try {
+          const savedOrder = JSON.parse(orderResponseText);
+          console.log('📥 Resposta (JSON):', JSON.stringify(savedOrder, null, 2));
+          console.log('✅ Pedido salvo com sucesso! ID:', savedOrder.id);
+          console.log('📦 Estoque atualizado automaticamente');
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          return savedOrder;
+        } catch (e) {
+          console.log('📥 Resposta (Texto):', orderResponseText);
+          console.error('❌ Erro ao fazer parse da resposta do pedido');
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          return null;
+        }
       } else {
-        const errorText = await orderResponse.text();
-        console.error('❌ Erro ao salvar pedido:', errorText);
+        console.log('📥 Resposta (Erro):', orderResponseText);
+        console.error('❌ Erro ao salvar pedido');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return null;
       }
     } catch (error) {
@@ -743,6 +948,7 @@ const Compra = () => {
   return (
     <div className="min-h-screen">
       <Header />
+
       <WhatsAppFloat />
 
       <Dialog open={isProcessing}>
