@@ -15,6 +15,31 @@
   podman start xfinder-web
 ```
 
+- Criar background com listras na cor do alvo
+```
+  style={{
+    backgroundImage: `url(${heroImage}), repeating-linear-gradient(
+                              45deg,
+                              #FFD700,           /* amarelo */
+                              #FFD700 80px,
+                              #FF0000 80px,      /* vermelho */
+                              #FF0000 160px,
+                              #007BFF 160px,     /* azul */
+                              #007BFF 240px,
+                              #FFFFFF 240px,     /* branco */
+                              #FFFFFF 320px,
+                              #000000 320px,     /* preto */
+                              #000000 400px
+                            )`,
+    backgroundColor: "#FFFFFF", // #d4af37 = dourado de base
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
+    backgroundSize: "contain",
+  }}
+```
+
+
+
 https://xfinderarchery.com.br/compra?capture_method=pix&transaction_id=4a4b0955-f786-471a-9cd2-348f90bf861f&transaction_nsu=4a4b0955-f786-471a-9cd2-348f90bf861f&slug=6UkxZ23vCb&order_nsu=5c7f02e8-f18b-47ea-aa57-508fbbf5413a&receipt_url=https%3A%2F%2Frecibo.infinitepay.io%2F4a4b0955-f786-471a-9cd2-348f90bf861f
 https://checkout.infinitepay.io/fctassinari?items=[{"name":"X-Puller","price":100,"quantity":1}]&redirect_url=https://xfinder-archery.com.br/compra
 
