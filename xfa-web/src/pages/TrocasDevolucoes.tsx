@@ -9,50 +9,31 @@ const TrocasDevolucoes = () => {
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
             {/* Hero Section */}
-<section
-  className="relative py-20 bg-center bg-no-repeat text-white overflow-hidden"
-  style={{
-    backgroundImage: `url(${heroImage}), repeating-linear-gradient(
-                              45deg,
-                              #FFD700,           /* amarelo */
-                              #FFD700 80px,
-                              #FF0000 80px,      /* vermelho */
-                              #FF0000 160px,
-                              #007BFF 160px,     /* azul */
-                              #007BFF 240px,
-                              #FFFFFF 240px,     /* branco */
-                              #FFFFFF 320px,
-                              #000000 320px,     /* preto */
-                              #000000 400px
-                            )`,
-    backgroundColor: "#FFFFFF", // #d4af37 = dourado de base
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    backgroundSize: "contain",
-  }}
->
+            <section
+              className="relative py-20 bg-center bg-no-repeat text-white overflow-hidden"
+              style={{
+                backgroundImage: `url(${heroImage}), repeating-linear-gradient(
+                                          45deg,
+                                          #d4af37           /* dourado */
+                                        )`,
+                backgroundColor: "#FFFFFF", // #d4af37 = dourado de base
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "contain",
+              }}>
 
+              {/* Overlay dourado translúcido
+              <div className="absolute inset-0 bg-gradient-to-b from-[#FFFFFF]/40 to-[#FFFFFF]/60 pointer-events-none"></div>*/}
 
-
-  {/* Overlay dourado translúcido */}
-  <div className="absolute inset-0 bg-gradient-to-b from-[#FFFFFF]/40 to-[#FFFFFF]/60 pointer-events-none"></div>
-
-
-  {/* Responsividade: imagem vira cover no mobile */}
-  <style>{`
-    @media (max-width: 768px) {
-      section {
-        background-size: cover;
-      }
-    }
-  `}</style>
-</section>
-
-
-
-
-
-
+              {/* Responsividade: imagem vira cover no mobile */}
+              <style>{`
+                @media (max-width: 768px) {
+                  section {
+                    background-size: cover;
+                  }
+                }
+              `}</style>
+            </section>
 
           <main className="container mx-auto px-4 py-16">
             <div className="max-w-4xl mx-auto">

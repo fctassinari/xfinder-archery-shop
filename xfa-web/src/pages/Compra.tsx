@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import heroImage from "@/assets/nocks.jpeg";
 import { CheckCircle, XCircle, Clock, Package, User, MapPin, CreditCard, Loader2 } from 'lucide-react';
+import targetArrows from "@/assets/target-arrows.png";
 import { useCart } from "@/contexts/CartContext";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -952,19 +953,25 @@ const Compra = () => {
       <WhatsAppFloat />
 
       <Dialog open={isProcessing}>
-        <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        <DialogContent className="sm:max-w-md border-0 bg-gradient-to-br from-navy-primary via-navy-light to-navy-primary shadow-elegant" onInteractOutside={(e) => e.preventDefault()}>
+          <DialogHeader className="space-y-6">
+            <div className="mx-auto">
+              <img src={targetArrows} alt="Alvo com flechas" className="w-32 h-32 mx-auto object-contain" />
+            </div>
+            
+            <DialogTitle className="text-center text-2xl font-bold text-primary-foreground">
               Processando Venda
             </DialogTitle>
-            <DialogDescription>
-              Aguarde enquanto processamos seu pedido e geramos as informações de envio...
+            
+            <DialogDescription className="text-center text-muted-foreground">
+              <span className="block mb-2">Aguarde enquanto processamos seu pedido e geramos as informações de envio...</span>
+              <span className="text-sm text-coral-light">Estamos acertando o alvo! 🎯</span>
             </DialogDescription>
+            
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-10 w-10 animate-spin text-coral-accent" />
+            </div>
           </DialogHeader>
-          <div className="flex items-center justify-center py-6">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-          </div>
         </DialogContent>
       </Dialog>
 

@@ -2,28 +2,38 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import { Shield } from "lucide-react";
-import heroImage from "@/assets/nocks.jpeg";
+import heroImage from "@/assets/xfinder-nome.png";
 const PoliticaPrivacidade = () => {
   return (
     <div className="min-h-screen">
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
             {/* Hero Section */}
-            <section className="relative py-20 bg-cover bg-fixed bg-center text-white" style={{ backgroundImage: `url(${heroImage})` }}>
-            {/*<section className="relative py-20 bg-gradient-to-r from-navy-primary to-navy-primary/80 text-white">*/}
-              <div className="container mx-auto px-4">
-                <div className="text-center animate-fade-in">
-                  <h1 className="text-5xl md:text-6xl font-bold mb-6">
-                    Entre em Contato
-                  </h1>
-                  <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-                    Nossa equipe de especialistas está pronta para ajudar você a encontrar
-                    o equipamento perfeito para suas necessidades.
-                  </p>
-                </div>
-              </div>
-            </section>
+            <section
+              className="relative py-20 bg-center bg-no-repeat text-white overflow-hidden"
+              style={{
+                backgroundImage: `url(${heroImage}), repeating-linear-gradient(
+                                          45deg,
+                                          #d4af37           /* dourado */
+                                        )`,
+                backgroundColor: "#FFFFFF",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "contain",
+              }}>
 
+              {/* Overlay dourado translúcido
+              <div className="absolute inset-0 bg-gradient-to-b from-[#FFFFFF]/40 to-[#FFFFFF]/60 pointer-events-none"></div>*/}
+
+              {/* Responsividade: imagem vira cover no mobile */}
+              <style>{`
+                @media (max-width: 768px) {
+                  section {
+                    background-size: cover;
+                  }
+                }
+              `}</style>
+            </section>
           <main className="container mx-auto px-4 py-16">
             <div className="max-w-4xl mx-auto">
               <div className="flex items-center gap-4 mb-8">
