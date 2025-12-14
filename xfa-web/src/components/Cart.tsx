@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShoppingCart, Minus, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,9 +11,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { LoginButton } from "@/components/auth/LoginButton";
+import apiClient from "@/services/apiClient";
 
 const Cart = () => {
   const { cart, removeItem, updateQuantity, clearCart } = useCart();
+  const { isAuthenticated, customer, login, syncCustomer, token } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [cep, setCep] = useState("");
   const [freightOptions, setFreightOptions] = useState<any[]>([]);
@@ -183,22 +187,79 @@ const Cart = () => {
     setSuperfreteLabelInfo(null);
   };
 
-  const handleOpenCheckout = () => {
+  const handleOpenCheckout = async () => {
     if (!selectedFreight) {
       alert("Por favor, selecione uma opção de frete antes de finalizar a compra.");
       return;
     }
-    // Pré-preenche o CEP de entrega com o CEP usado para calcular o frete
-    setCustomerData(prev => ({ ...prev, cep: cep }));
 
-    // Reseta os estados quando abre o popup
-    setCustomerExists(false);
-    setCustomerId(null);
-    setOriginalCustomerData(null);
+    // Verificar se está autenticado
+    if (!isAuthenticated) {
+      alert("Por favor, faça login para finalizar a compra.");
+      login();
+      return;
+    }
+
+    console.log('🛒 Abrindo checkout, customer:', customer);
+    console.log('🛒 isAuthenticated:', isAuthenticated);
+
+    // Se customer não está disponível, tentar sincronizar primeiro
+    if (!customer) {
+      console.log('🔄 Customer não disponível, sincronizando...');
+      setIsLoadingCustomer(true);
+      try {
+        await syncCustomer();
+        console.log('✅ Sincronização iniciada, aguardando customer ser carregado...');
+      } catch (error) {
+        console.error('❌ Erro ao sincronizar customer:', error);
+        setIsLoadingCustomer(false);
+      }
+    }
+
+    // Não carregar dados aqui - o useEffect vai fazer isso quando o popup abrir e o customer estiver disponível
+    // Apenas garantir que o CEP do frete seja usado se o customer não tiver CEP
+    if (!customer?.cep) {
+      setCustomerData(prev => ({ ...prev, cep: cep }));
+    }
 
     setShowCheckoutPopup(true);
     setIsOpen(false); // Fecha o sheet do carrinho
   };
+
+  // Carregar dados do cliente quando o popup de checkout abre e o customer está disponível
+  useEffect(() => {
+    if (showCheckoutPopup && isAuthenticated) {
+      console.log('📦 Popup de checkout aberto, verificando customer:', customer);
+      
+      // Se customer está disponível, carregar os dados
+      if (customer && customer.id) {
+        console.log('✅ Customer encontrado, carregando dados:', customer);
+        const loadedData = {
+          name: customer.name || "",
+          email: customer.email || "",
+          phone: formatPhone(customer.phone || ""),
+          cpf: formatCPF(customer.cpf || ""),
+          cep: formatCEP(customer.cep || cep),
+          address: customer.address || "",
+          number: customer.number || "",
+          complement: customer.complement || "",
+          neighborhood: customer.neighborhood || "",
+          city: customer.city || "",
+          state: customer.state || ""
+        };
+
+        console.log('📦 Dados carregados no popup:', loadedData);
+        setCustomerData(loadedData);
+        setOriginalCustomerData(loadedData);
+        setCustomerId(customer.id);
+        setCustomerExists(true);
+      } else if (!customer) {
+        console.log('⚠️ Customer não disponível ainda (pode estar sincronizando)');
+        // Se o customer não está disponível, pode estar sendo sincronizado
+        // O useEffect vai executar novamente quando o customer for carregado
+      }
+    }
+  }, [showCheckoutPopup, isAuthenticated, customer, cep]);
 
   const handleCustomerDataChange = (field: string, value: string) => {
     setCustomerData(prev => ({ ...prev, [field]: value }));
@@ -270,14 +331,8 @@ const Cart = () => {
   const handleCPFChange = (value: string) => {
     const formatted = formatCPF(value);
     setCustomerData(prev => ({ ...prev, cpf: formatted }));
-
-    // Verificar cliente quando CPF estiver completo
-    const cleanCpf = formatted.replace(/\D/g, '');
-    if (cleanCpf.length === 11) {
-      checkExistingCustomer(cleanCpf);
-    } else {
-      setCustomerExists(false);
-    }
+    // Apenas atualizar o campo - não fazer busca automática
+    // Os dados já foram carregados ao abrir o popup
   };
 
   const checkExistingCustomer = async (cpf: string) => {
@@ -434,16 +489,25 @@ const Cart = () => {
             };
 
             const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            if (token) {
+              headers['Authorization'] = `Bearer ${token}`;
+            }
             const updateResponse = await fetch(`${customersApiUrl}/${customerId}`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
+              headers,
               body: JSON.stringify(customerPayload)
             });
 
             if (!updateResponse.ok) {
-              const errorData = await updateResponse.json();
-              console.error('❌ Erro na resposta:', errorData);
-              alert(`Erro ao atualizar cadastro: ${errorData.error || 'Erro desconhecido'}`);
+              const errorText = await updateResponse.text();
+              console.error('❌ Erro na resposta (texto):', errorText);
+              try {
+                const errorData = errorText ? JSON.parse(errorText) : { error: 'Erro desconhecido' };
+                alert(`Erro ao atualizar cadastro: ${errorData.error || 'Erro desconhecido'}`);
+              } catch {
+                alert(`Erro ao atualizar cadastro: ${errorText || 'Erro desconhecido'}`);
+              }
               return;
             }
           }
@@ -463,9 +527,13 @@ const Cart = () => {
           };
 
           const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+          const headers: HeadersInit = { 'Content-Type': 'application/json' };
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
           const customerResponse = await fetch(customersApiUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify(customerPayload)
           });
 
@@ -542,20 +610,31 @@ const Cart = () => {
           //console.log('📤 Enviando atualização:', customerPayload);
 
           const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+          const headers: HeadersInit = { 'Content-Type': 'application/json' };
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
           const updateResponse = await fetch(`${customersApiUrl}/${customerId}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify(customerPayload)
           });
 
           if (!updateResponse.ok) {
-            const errorData = await updateResponse.json();
-            console.error('❌ Erro na resposta:', errorData);
-            alert(`Erro ao atualizar cadastro: ${errorData.error || 'Erro desconhecido'}`);
+            const errorText = await updateResponse.text();
+            console.error('❌ Erro na resposta (texto):', errorText);
+            try {
+              const errorData = errorText ? JSON.parse(errorText) : { error: 'Erro desconhecido' };
+              alert(`Erro ao atualizar cadastro: ${errorData.error || 'Erro desconhecido'}`);
+            } catch {
+              alert(`Erro ao atualizar cadastro: ${errorText || 'Erro desconhecido'}`);
+            }
             return;
           }
 
-          const updatedCustomer = await updateResponse.json();
+          // Só tentar fazer parse JSON se houver conteúdo
+          const responseText = await updateResponse.text();
+          const updatedCustomer = responseText ? JSON.parse(responseText) : null;
           //console.log('✅ Cadastro atualizado com sucesso! ID:', updatedCustomer.id);
         } else {
           //console.log('ℹ️ Nenhuma alteração detectada, prosseguindo com a compra');
@@ -583,9 +662,13 @@ const Cart = () => {
         //console.log('📤 Enviando novo cliente:', customerPayload);
 
         const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
         const customerResponse = await fetch(customersApiUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify(customerPayload)
         });
 
@@ -603,7 +686,9 @@ const Cart = () => {
           return;
         }
 
-        const createdCustomer = await customerResponse.json();
+        // Só tentar fazer parse JSON se houver conteúdo
+        const responseText = await customerResponse.text();
+        const createdCustomer = responseText ? JSON.parse(responseText) : null;
         //console.log('✅ Cliente cadastrado com sucesso!', createdCustomer);
       }
 
@@ -664,9 +749,29 @@ const Cart = () => {
     // ========== FIM DO CÓDIGO ORIGINAL ==========
   };
 
+  // Verificar autenticação ao abrir o carrinho
+  const handleCartOpen = (open: boolean) => {
+    if (open && !isAuthenticated) {
+      // Se tentar abrir o carrinho sem estar autenticado, redirecionar para login
+      setIsOpen(false);
+      login();
+      return;
+    }
+    setIsOpen(open);
+  };
+
+  // Carregar CEP do cliente quando o carrinho abre e o cliente está logado
+  useEffect(() => {
+    if (isOpen && isAuthenticated && customer?.cep) {
+      console.log('📍 Carregando CEP do cliente no carrinho:', customer.cep);
+      const formattedCep = formatCEP(customer.cep);
+      setCep(formattedCep);
+    }
+  }, [isOpen, isAuthenticated, customer?.cep]);
+
   return (
     <>
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <Sheet open={isOpen} onOpenChange={handleCartOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon" className="relative">
             <ShoppingCart className="h-5 w-5" />
@@ -853,14 +958,8 @@ const Cart = () => {
                     onChange={(e) => handleCPFChange(e.target.value)}
                     maxLength={14}
                   />
-                  {isLoadingCustomer && (
-                    <p className="text-sm text-blue-600 mt-2">🔍 Verificando CPF...</p>
-                  )}
-                  {customerExists && (
-                    <p className="text-sm text-green-600 mt-2">✅ Cliente encontrado! Você pode editar os dados se necessário.</p>
-                  )}
-                  {!customerExists && customerData.cpf.replace(/\D/g, '').length === 11 && !isLoadingCustomer && (
-                    <p className="text-sm text-orange-600 mt-2">ℹ️ CPF não cadastrado. Preencha os dados abaixo.</p>
+                  {customerData.cpf.replace(/\D/g, '').length === 11 && (
+                    <p className="text-sm text-blue-600 mt-2">✅ Se for necessário, atualize seus dados aqui.</p>
                   )}
                 </div>
 

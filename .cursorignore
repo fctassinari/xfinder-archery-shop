@@ -1,0 +1,103 @@
+# Arquivos e diretórios a ignorar no índice do Cursor AI
+
+# Build outputs
+**/target/
+**/node_modules/
+**/dist/
+**/build/
+**/.next/
+**/out/
+
+# Dependências
+**/node_modules/
+**/.pnp/
+**/.pnp.js
+
+# Logs
+**/*.log
+**/logs/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Arquivos de ambiente (mas manter .env.example)
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# IDEs
+**/.idea/
+**/.vscode/
+**/.settings/
+**/.classpath
+**/.project
+**/*.iml
+**/*.ipr
+**/*.iws
+
+# Sistema operacional
+**/.DS_Store
+**/Thumbs.db
+
+# Arquivos temporários
+**/*.tmp
+**/*.temp
+**/*.swp
+**/*.swo
+**/*.orig
+**/*.rej
+
+# Arquivos de lock (manter para referência, mas não indexar)
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+**/bun.lockb
+
+# Arquivos de build do Quarkus
+**/quarkus/
+**/generated-sources/
+**/generated-test-sources/
+**/maven-status/
+
+# Arquivos compilados
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+
+# Arquivos de documentação gerados
+**/javadoc/
+**/docs/build/
+
+# Arquivos de teste (manter estrutura, mas não indexar conteúdo detalhado)
+# **/test/
+# **/__tests__/
+# **/*.test.ts
+# **/*.test.tsx
+# **/*.spec.ts
+# **/*.spec.tsx
+
+# Assets grandes (imagens, vídeos)
+**/*.jpg
+**/*.jpeg
+**/*.png
+**/*.gif
+**/*.svg
+**/*.webp
+**/*.ico
+**/*.mp4
+**/*.mov
+**/*.avi
+
+# Arquivos de dados grandes
+**/*.json.bak
+**/product.json
+**/email.json
+
+# Docker
+**/docker-compose.override.yml
+
+# Quarkus CLI
+**/.quarkus/
+

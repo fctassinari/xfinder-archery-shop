@@ -1,11 +1,27 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Cart from "@/components/Cart";
 import logo from "@/assets/logo.png";
+import { LoginButton } from "@/components/auth/LoginButton";
+import { UserMenu } from "@/components/auth/UserMenu";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  let isAuthenticated = false;
+  let isLoading = true;
+  
+  try {
+    const authContext = useAuth();
+    isAuthenticated = authContext?.isAuthenticated ?? false;
+    isLoading = authContext?.isLoading ?? true;
+  } catch (error) {
+    console.error('Erro ao acessar contexto de autenticação:', error);
+    // Valores padrão seguros em caso de erro
+    isAuthenticated = false;
+    isLoading = false;
+  }
 
   return (
     <>
@@ -55,9 +71,13 @@ const Header = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-            </Button>
+            {isLoading ? (
+              <div className="h-10 w-10 animate-pulse bg-muted rounded-full" />
+            ) : isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <LoginButton />
+            )}
             <Cart />
           </div>
 
@@ -87,9 +107,13 @@ const Header = () => {
                 Contato
               </a>
               <div className="flex items-center space-x-4 pt-4">
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
+                {isLoading ? (
+                  <div className="h-10 w-10 animate-pulse bg-muted rounded-full" />
+                ) : isAuthenticated ? (
+                  <UserMenu />
+                ) : (
+                  <LoginButton />
+                )}
                 <Cart />
               </div>
             </nav>

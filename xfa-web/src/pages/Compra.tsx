@@ -151,6 +151,7 @@ const Compra = () => {
               console.log('💰 Dados de pagamento preparados:', paymentData);
 
               const savedOrder = await saveOrder(orderInfo, paymentData);
+              
 
               // Obter informações atualizadas do pedido (incluindo código de rastreio)
               let trackingCodeValue = null;
@@ -813,6 +814,7 @@ const Compra = () => {
 
       // Gerar etiqueta na SuperFrete antes de salvar o pedido
       const labelInfo = await generateSuperfreteLabel(orderData);
+      
       console.log('📦 Informações da etiqueta:', labelInfo);
 
       const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || 'http://localhost:8081/api/customers';
@@ -945,7 +947,7 @@ const Compra = () => {
       return null;
     }
   };
-
+  
   return (
     <div className="min-h-screen">
       <Header />

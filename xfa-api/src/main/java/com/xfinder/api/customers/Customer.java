@@ -50,6 +50,9 @@ public class Customer extends PanacheEntity { // Já herda 'id' auto-increment d
     @Column(name = "active")
     public Boolean active = true;
 
+    @Column(name = "keycloak_id", length = 100)
+    public String keycloakId;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

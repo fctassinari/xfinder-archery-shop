@@ -1,6 +1,7 @@
 ### Executar em container
-```bash
-  podman build -t xfinder-web:latest .
+podman build -t xfinder-web:latest .
+```shell
+podman build --build-arg VITE_API_BASE_URL=http://localhost:8081 --build-arg VITE_KEYCLOAK_URL=https://localhost:8443 --build-arg VITE_KEYCLOAK_REALM=xfinder --build-arg VITE_KEYCLOAK_CLIENT_ID=xfinder-web --build-arg VITE_APP_BASE_URL=http://localhost:8080 -t xfinder-web:latest .  
 ```
 ```bash
   podman stop xfinder-web

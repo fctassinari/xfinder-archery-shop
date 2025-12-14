@@ -5,17 +5,31 @@ USER root
 # Definir diretório de trabalho
 WORKDIR /app
 
+# Argumentos de build para variáveis de ambiente
+ARG VITE_API_BASE_URL=http://localhost:8081
+ARG VITE_KEYCLOAK_URL=https://localhost:8443
+ARG VITE_KEYCLOAK_REALM=xfinder
+ARG VITE_KEYCLOAK_CLIENT_ID=xfinder-web
+ARG VITE_APP_BASE_URL=http://localhost:8080
+
+# Variáveis de ambiente para o build do Vite
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+ENV VITE_KEYCLOAK_URL=${VITE_KEYCLOAK_URL}
+ENV VITE_KEYCLOAK_REALM=${VITE_KEYCLOAK_REALM}
+ENV VITE_KEYCLOAK_CLIENT_ID=${VITE_KEYCLOAK_CLIENT_ID}
+ENV VITE_APP_BASE_URL=${VITE_APP_BASE_URL}
+
 # Copiar arquivos de dependências
 COPY package*.json ./
 COPY bun.lockb ./
 
-# Instalar dependências
-RUN npm install
+# Instalar dependências (inclui keycloak-js e todas as outras)
+RUN npm install --legacy-peer-deps
 
 # Copiar código fonte
 COPY . .
 
-# Build da aplicação
+# Build da aplicação (as variáveis de ambiente serão injetadas aqui)
 RUN npm run build
 USER 1001
 

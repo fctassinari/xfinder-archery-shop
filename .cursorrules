@@ -1,0 +1,78 @@
+# Regras do Cursor AI para X-Finder Archery Shop
+
+## Contexto do Projeto
+Este é um projeto de e-commerce de arco e flecha com:
+- **Backend**: Java 21 + Quarkus 3.28.3 + PostgreSQL
+- **Frontend**: React 18 + TypeScript + Vite + TailwindCSS + shadcn/ui
+- **Autenticação**: Keycloak 26.4.7
+- **Estrutura**: Monorepo com módulos separados (xfa-api, xfa-web, xfa-keycloak)
+
+## Padrões de Código
+
+### Backend (Java/Quarkus)
+- Usar Java 21 com Quarkus 3.28.3
+- Seguir padrões RESTful para endpoints
+- Usar Panache para persistência (Active Record pattern)
+- DTOs para transferência de dados entre camadas
+- Injeção de dependência com CDI (@Inject, @ApplicationScoped)
+- Validação com Bean Validation quando necessário
+- Tratamento de erros consistente
+
+### Frontend (React/TypeScript)
+- Usar TypeScript com configurações do tsconfig.json
+- Componentes funcionais com hooks
+- Usar React Router para navegação
+- shadcn/ui para componentes de UI
+- TailwindCSS para estilização
+- React Query (@tanstack/react-query) para gerenciamento de estado de servidor
+- React Hook Form para formulários
+- Zod para validação de schemas
+
+### Convenções de Nomenclatura
+- **Java**: PascalCase para classes, camelCase para métodos/variáveis
+- **TypeScript/React**: PascalCase para componentes, camelCase para funções/variáveis
+- **Arquivos**: PascalCase para componentes React, camelCase para utilitários
+
+### Estrutura de Pastas
+- Backend: `xfa-api/src/main/java/com/xfinder/api/{module}/`
+- Frontend: `xfa-web/src/{components|pages|services|types|contexts}/`
+
+## Boas Práticas
+
+### Segurança
+- Nunca commitar credenciais ou chaves de API
+- Validar inputs do usuário
+- Usar HTTPS em produção
+- Implementar autenticação adequada com Keycloak
+
+### Performance
+- Otimizar queries do banco de dados
+- Usar lazy loading quando apropriado
+- Implementar paginação para listas grandes
+- Cache quando necessário
+
+### Código
+- Manter funções pequenas e focadas
+- Evitar duplicação de código (DRY)
+- Comentar código complexo
+- Escrever código legível e auto-documentado
+
+## Linguagem e Comunicação
+- **Sempre responder em Português (Brasil)**
+- Usar termos técnicos em inglês quando apropriado
+- Explicar decisões técnicas quando necessário
+
+## Quando Sugerir Mudanças
+- Sempre que houver uma forma mais eficiente de fazer algo
+- Quando detectar possíveis bugs ou problemas de segurança
+- Para melhorar a manutenibilidade do código
+- Para seguir melhores práticas do framework/linguagem
+
+## Arquivos Importantes
+- `xfa-api/pom.xml` - Dependências do backend
+- `xfa-web/package.json` - Dependências do frontend
+- `xfa-api/src/main/resources/application.properties` - Configurações da API
+- `README.md` - Documentação principal do projeto
+
+## Documentação para pesquisa
+- https://www.keycloak.org/documentation

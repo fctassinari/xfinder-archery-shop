@@ -2,9 +2,18 @@ version: '3.8'
 
 services:
   xfinder-archery:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # URLs para acesso do navegador (externas)
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8081}
+        VITE_KEYCLOAK_URL: ${VITE_KEYCLOAK_URL:-https://localhost:8443}
+        VITE_KEYCLOAK_REALM: ${VITE_KEYCLOAK_REALM:-xfinder}
+        VITE_KEYCLOAK_CLIENT_ID: ${VITE_KEYCLOAK_CLIENT_ID:-xfinder-web}
+        VITE_APP_BASE_URL: ${VITE_APP_BASE_URL:-http://localhost:8080}
     ports:
-      - "8080:80"
+      - "8080:8080"
     restart: unless-stopped
     container_name: xfinder-archery-site
     environment:

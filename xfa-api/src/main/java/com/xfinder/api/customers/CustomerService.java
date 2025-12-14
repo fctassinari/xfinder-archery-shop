@@ -147,7 +147,7 @@ public class CustomerService {
     }
 
     // Métodos auxiliares para conversão DTO <-> Entity
-    private CustomerDTO toDTO(Customer customer) {
+    public CustomerDTO toDTO(Customer customer) {
         CustomerDTO dto = new CustomerDTO();
         dto.id = customer.id;
         dto.name = customer.name;

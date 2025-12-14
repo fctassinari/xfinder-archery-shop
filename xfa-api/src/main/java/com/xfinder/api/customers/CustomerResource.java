@@ -6,6 +6,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -24,6 +25,7 @@ public class CustomerResource {
     CustomerService customerService;
 
     @GET
+    @RolesAllowed({"admin"})
     @Operation(summary = "Listar clientes", description = "Retorna todos os clientes de forma paginada")
     @APIResponse(responseCode = "200", description = "Lista de clientes",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerDTO.class)))
@@ -123,6 +125,7 @@ public class CustomerResource {
 
     @PUT
     @Path("/{id}")
+    @RolesAllowed({"customer", "admin"})
     @Transactional
     @Operation(summary = "Atualizar cliente", description = "Atualiza um cliente existente")
     public Response updateCustomer(@PathParam("id") Long id, CustomerDTO customerDTO) {
@@ -146,6 +149,7 @@ public class CustomerResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed({"customer", "admin"})
     @Transactional
     @Operation(summary = "Deletar cliente", description = "Remove um cliente do sistema (soft delete)")
     public Response deleteCustomer(@PathParam("id") Long id) {
