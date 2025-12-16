@@ -967,7 +967,7 @@ const Compra = () => {
             
             <DialogDescription className="text-center text-muted-foreground">
               <span className="block mb-2">Aguarde enquanto processamos seu pedido e geramos as informações de envio...</span>
-              <span className="text-sm text-coral-light">Estamos acertando o alvo! 🎯</span>
+              <span className="text-sm text-coral-light">Concentre... Inspire... Ancore... Dispare!!!! 🎯</span>
             </DialogDescription>
             
             <div className="flex items-center justify-center py-4">
