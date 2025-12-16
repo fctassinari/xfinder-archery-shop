@@ -46,33 +46,27 @@ public class KeycloakSyncService {
                 existingCustomerByKeycloakId = Customer.find("keycloakId", keycloakId).firstResultOptional();
             }
 
-            // Se encontrou por email ou keycloakId, atualizar
+            // Se encontrou por email ou keycloakId, atualizar APENAS o keycloakId
+            // IMPORTANTE: Não atualizar nome, email ou outros dados para não sobrescrever
+            // dados que o cliente pode ter alterado no sistema
             if (existingCustomerByEmail.isPresent()) {
                 Customer customer = Customer.findById(existingCustomerByEmail.get().id);
                 if (customer != null) {
-                    // Atualizar keycloakId se ainda não tiver
+                    // Atualizar APENAS keycloakId se ainda não tiver ou se mudou
                     if (keycloakId != null && !keycloakId.isEmpty() && 
-                        (customer.keycloakId == null || customer.keycloakId.isEmpty())) {
+                        (customer.keycloakId == null || customer.keycloakId.isEmpty() || !customer.keycloakId.equals(keycloakId))) {
                         customer.keycloakId = keycloakId;
                         customer.persist();
                     }
-                    // Atualizar nome se mudou
-                    if (name != null && !name.isEmpty() && !name.equals(customer.name)) {
-                        customer.name = name;
-                        customer.persist();
-                    }
+                    // NÃO atualizar nome, email ou outros dados - deixar como está no banco
                     return customerService.toDTO(customer);
                 }
                 return existingCustomerByEmail.get();
             } else if (existingCustomerByKeycloakId.isPresent()) {
-                // Se encontrou por keycloakId mas não por email, atualizar email
+                // Se encontrou por keycloakId mas não por email, apenas garantir que keycloakId está correto
                 Customer customer = existingCustomerByKeycloakId.get();
-                if (!email.equals(customer.email)) {
-                    customer.email = email;
-                }
-                if (name != null && !name.isEmpty() && !name.equals(customer.name)) {
-                    customer.name = name;
-                }
+                // NÃO atualizar email ou nome - deixar como está no banco
+                // Apenas garantir que keycloakId está correto (já está, pois foi encontrado por ele)
                 customer.persist();
                 return customerService.toDTO(customer);
             } else {

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import keycloak, { keycloakInitOptions } from '@/config/keycloak';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -51,8 +51,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(false); // Evita múltiplas inicializações simultâneas
+  const hasRestoredState = useRef(false); // Flag para evitar restaurar estado múltiplas vezes
+  const hasInitializedKeycloak = useRef(false); // Flag para evitar inicializar Keycloak múltiplas vezes
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Função helper para verificar se já sincronizou nesta sessão (usando sessionStorage)
+  const hasSyncedCustomer = (): boolean => {
+    try {
+      const synced = sessionStorage.getItem('keycloak_customer_synced');
+      return synced === 'true';
+    } catch (error) {
+      return false;
+    }
+  };
+
+  // Função helper para marcar como sincronizado
+  const setSyncedCustomer = (value: boolean) => {
+    try {
+      if (value) {
+        sessionStorage.setItem('keycloak_customer_synced', 'true');
+      } else {
+        sessionStorage.removeItem('keycloak_customer_synced');
+      }
+    } catch (error) {
+      console.error('Erro ao salvar flag de sincronização:', error);
+    }
+  };
 
   // Função para verificar se há código de autorização na URL (após redirect do login)
   const hasAuthorizationCode = (): boolean => {
@@ -116,6 +141,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (authenticated) {
         try {
           updateUserInfo();
+          // Sincronizar customer APENAS quando o usuário faz login
+          // Aguardar um pouco para garantir que o token foi processado
+          setTimeout(() => {
+            console.log('antes hasSyncedCustomer:', hasSyncedCustomer());
+            // Sincronizar apenas se ainda não foi sincronizado nesta sessão
+            if (!hasSyncedCustomer()) {
+              console.log('🔄 Sincronizando keycloakId após login...');
+              setSyncedCustomer(true);
+              console.log('depois hasSyncedCustomer:', hasSyncedCustomer());
+              syncCustomerMutation.mutate();
+            } else {
+              console.log('ℹ️ Customer já foi sincronizado nesta sessão, pulando...');
+            }
+          }, 500);
         } catch (error) {
           console.error('❌ Erro ao atualizar informações do usuário:', error);
         }
@@ -204,7 +243,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Verificar se o Keycloak já tem token armazenado e inicializar se necessário
   // Isso mantém o estado de autenticação e permite refresh de tokens
+  // IMPORTANTE: Este useEffect só executa UMA VEZ quando o componente é montado pela primeira vez
   useEffect(() => {
+    // Se já restaurou o estado anteriormente, não fazer nada
+    if (hasRestoredState.current) {
+      return;
+    }
+    
     // Só verificar se não foi inicializado e não está inicializando
     // E se não há código na URL (para não interferir no processo de login)
     if (isInitialized || isInitializing) {
@@ -226,16 +271,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (savedAuthState) {
         const authState = JSON.parse(savedAuthState);
         if (authState.isAuthenticated && authState.user) {
-          console.log('🔍 Estado de autenticação encontrado no sessionStorage, restaurando...');
+          // Marcar que já tentou restaurar o estado
+          hasRestoredState.current = true;
+          
+          // Só logar na primeira vez que restaurar o estado
+          if (!hasInitializedKeycloak.current) {
+            console.log('🔍 Estado de autenticação encontrado no sessionStorage, restaurando...');
+          }
+          
           setIsAuthenticated(true);
           setUser(authState.user);
           setToken(authState.token);
           
           // IMPORTANTE: Inicializar o Keycloak silenciosamente para ter acesso ao refresh token
           // Mas só fazer isso se não estiver na página de compra (para não interferir)
+          // E apenas UMA VEZ durante toda a sessão
           const isCompraPage = window.location.pathname === '/compra';
           
-          if (!isCompraPage) {
+          // Só inicializar se:
+          // 1. Não estiver na página de compra
+          // 2. Ainda não foi inicializado (usando ref para persistir entre navegações)
+          // 3. O Keycloak ainda não está autenticado
+          if (!isCompraPage && !hasInitializedKeycloak.current && !keycloak.authenticated && !isInitialized) {
+            // Marcar que já tentou inicializar para não tentar novamente
+            hasInitializedKeycloak.current = true;
+            
             console.log('🔍 Inicializando Keycloak silenciosamente para permitir refresh de tokens...');
             setIsInitializing(true);
             
@@ -260,15 +320,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setIsInitializing(false);
                 // Manter estado do sessionStorage mesmo se falhar
               });
-          } else {
+          } else if (isCompraPage) {
             // Se estiver na página de compra, não inicializar para não interferir
-            console.log('ℹ️ Página de compra detectada, não inicializando Keycloak para evitar interferência');
+            // Não logar para evitar poluição do console
+          } else if (keycloak.authenticated || hasInitializedKeycloak.current) {
+            // Se já está autenticado ou já foi inicializado, não fazer nada
+            // Não logar para evitar poluição do console
           }
+        } else {
+          // Se não há estado válido, marcar como já verificado para não verificar novamente
+          hasRestoredState.current = true;
         }
+      } else {
+        // Se não há estado salvo, marcar como já verificado para não verificar novamente
+        hasRestoredState.current = true;
       }
     } catch (error) {
-      // Se não conseguir ler o sessionStorage, não fazer nada
+      // Se não conseguir ler o sessionStorage, marcar como verificado para não tentar novamente
       console.error('Erro ao ler estado de autenticação do sessionStorage:', error);
+      hasRestoredState.current = true;
     }
   }, []); // Executar apenas uma vez ao montar
 
@@ -422,6 +492,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (authenticated) {
           // Se já estava autenticado, atualizar informações
           updateUserInfo();
+          // Sincronizar customer APENAS quando o usuário faz login
+          setTimeout(() => {
+            if (!hasSyncedCustomer()) {
+              console.log('🔄 Sincronizando keycloakId após login...');
+              setSyncedCustomer(true);
+              syncCustomerMutation.mutate();
+            } else {
+              console.log('ℹ️ Customer já foi sincronizado nesta sessão, pulando...');
+            }
+          }, 500);
           console.log('✅ Usuário já estava autenticado');
         } else {
           // Se não autenticado, o init com login-required já fez o redirect
@@ -463,6 +543,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setToken(null);
         setIsAuthenticated(false);
         queryClient.clear();
+        // Resetar flag de sincronização para permitir sincronização no próximo login
+        setSyncedCustomer(false);
+        console.log('hasSyncedCustomer false: 01');
         try {
           sessionStorage.removeItem('keycloak_auth_state');
         } catch (error) {
@@ -478,6 +561,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setToken(null);
       setIsAuthenticated(false);
       queryClient.clear();
+      // Resetar flag de sincronização para permitir sincronização no próximo login
+      setSyncedCustomer(false);
+      console.log('hasSyncedCustomer false: 02');
+
       
       // Limpar estado do sessionStorage
       try {
@@ -503,6 +590,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setToken(null);
       setIsAuthenticated(false);
       queryClient.clear();
+      // Resetar flag de sincronização para permitir sincronização no próximo login
+      setSyncedCustomer(false);
+      console.log('hasSyncedCustomer false: 03');
+
       try {
         sessionStorage.removeItem('keycloak_auth_state');
       } catch (e) {
@@ -534,15 +625,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const syncCustomer = async () => {
-    return await syncCustomerMutation.mutateAsync();
+      return await syncCustomerMutation.mutateAsync();
   };
 
   // Sincronizar Customer automaticamente após login
-  useEffect(() => {
-    if (isAuthenticated && !customer) {
-      syncCustomerMutation.mutate();
-    }
-  }, [isAuthenticated, customer]);
+  // IMPORTANTE: Só sincronizar UMA VEZ após o login bem-sucedido, não a cada navegação
+  // REMOVIDO: Este useEffect estava causando sincronização a cada navegação
+  // A sincronização agora acontece apenas quando o usuário faz login (no initializeKeycloak)
 
   const value: AuthContextType = {
     isAuthenticated: isAuthenticated ?? false,

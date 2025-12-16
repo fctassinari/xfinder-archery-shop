@@ -7,10 +7,10 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import apiClient from '@/services/apiClient';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
+import heroImage from '@/assets/lubepuller.jpg';
 
 const Profile = () => {
   // useRequireAuth garante que Keycloak seja inicializado quando acessa esta página
@@ -98,15 +98,26 @@ const Profile = () => {
 
   if (!customer && !user) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
         <Header />
-        <div className="container mx-auto px-4 py-16">
-          <Card>
-            <CardHeader>
-              <CardTitle>Carregando...</CardTitle>
-            </CardHeader>
-          </Card>
-        </div>
+        <section className="relative py-20 bg-cover bg-fixed bg-center text-white" style={{ backgroundImage: `url(${heroImage})` }}>
+          <div className="container mx-auto px-4">
+            <div className="text-center animate-fade-in">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6">
+                Meu Perfil
+              </h1>
+            </div>
+          </div>
+        </section>
+        <section className="py-12">
+          <div className="container mx-auto px-4">
+            <Card className="max-w-4xl mx-auto animate-slide-in">
+              <CardHeader>
+                <CardTitle>Carregando...</CardTitle>
+              </CardHeader>
+            </Card>
+          </div>
+        </section>
         <Footer />
         <WhatsAppFloat />
       </div>
@@ -114,38 +125,65 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
       <Header />
-      <div className="container mx-auto px-4 py-16">
-        <Card className="max-w-4xl mx-auto">
-          <CardHeader>
-            <CardTitle>Meu Perfil</CardTitle>
-            <CardDescription>
+      {/* Hero Section */}
+      <section className="relative py-20 bg-cover bg-fixed bg-center text-white" style={{ backgroundImage: `url(${heroImage})` }}>
+        <div className="container mx-auto px-4">
+          <div className="text-center animate-fade-in">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              Meu Perfil
+            </h1>
+            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
               Gerencie suas informações pessoais e dados de entrega
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Content Section */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <Card className="max-w-4xl mx-auto animate-slide-in">
+            <CardHeader>
+              <CardTitle className="text-2xl text-navy-primary">Meu Perfil</CardTitle>
+              <CardDescription>
+                Gerencie suas informações pessoais e dados de entrega
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
             {!customer ? (
               <div className="text-center py-8">
                 <p className="text-muted-foreground mb-4">
                   Seus dados ainda não foram sincronizados. Clique no botão abaixo para sincronizar.
                 </p>
-                <Button onClick={syncCustomer} disabled={isLoading}>
+                <Button 
+                  variant="archery" 
+                  size="lg" 
+                  onClick={syncCustomer} 
+                  disabled={isLoading}
+                  className="w-full sm:w-auto"
+                >
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Sincronizando...
                     </>
                   ) : (
-                    'Sincronizar Dados'
+                    <>
+                      <User className="mr-2 h-5 w-5" />
+                      Sincronizar Dados
+                    </>
                   )}
                 </Button>
               </div>
             ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nome Completo</Label>
+                  <div>
+                    <label htmlFor="name" className="text-sm font-medium text-foreground mb-2 block">
+                      Nome Completo
+                    </label>
                     <Input
                       id="name"
                       name="name"
@@ -154,8 +192,10 @@ const Profile = () => {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">E-mail</Label>
+                  <div>
+                    <label htmlFor="email" className="text-sm font-medium text-foreground mb-2 block">
+                      E-mail
+                    </label>
                     <Input
                       id="email"
                       name="email"
@@ -165,8 +205,10 @@ const Profile = () => {
                       className="bg-muted"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone</Label>
+                  <div>
+                    <label htmlFor="phone" className="text-sm font-medium text-foreground mb-2 block">
+                      Telefone
+                    </label>
                     <Input
                       id="phone"
                       name="phone"
@@ -178,8 +220,10 @@ const Profile = () => {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cpf">CPF</Label>
+                  <div>
+                    <label htmlFor="cpf" className="text-sm font-medium text-foreground mb-2 block">
+                      CPF
+                    </label>
                     <Input
                       id="cpf"
                       name="cpf"
@@ -191,8 +235,10 @@ const Profile = () => {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cep">CEP</Label>
+                  <div>
+                    <label htmlFor="cep" className="text-sm font-medium text-foreground mb-2 block">
+                      CEP
+                    </label>
                     <Input
                       id="cep"
                       name="cep"
@@ -204,8 +250,10 @@ const Profile = () => {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="state">Estado</Label>
+                  <div>
+                    <label htmlFor="state" className="text-sm font-medium text-foreground mb-2 block">
+                      Estado
+                    </label>
                     <Input
                       id="state"
                       name="state"
@@ -216,8 +264,10 @@ const Profile = () => {
                       className="uppercase"
                     />
                   </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="address">Endereço</Label>
+                  <div className="md:col-span-2">
+                    <label htmlFor="address" className="text-sm font-medium text-foreground mb-2 block">
+                      Endereço
+                    </label>
                     <Input
                       id="address"
                       name="address"
@@ -226,8 +276,10 @@ const Profile = () => {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="number">Número</Label>
+                  <div>
+                    <label htmlFor="number" className="text-sm font-medium text-foreground mb-2 block">
+                      Número
+                    </label>
                     <Input
                       id="number"
                       name="number"
@@ -236,8 +288,10 @@ const Profile = () => {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="complement">Complemento</Label>
+                  <div>
+                    <label htmlFor="complement" className="text-sm font-medium text-foreground mb-2 block">
+                      Complemento
+                    </label>
                     <Input
                       id="complement"
                       name="complement"
@@ -246,8 +300,10 @@ const Profile = () => {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="neighborhood">Bairro</Label>
+                  <div>
+                    <label htmlFor="neighborhood" className="text-sm font-medium text-foreground mb-2 block">
+                      Bairro
+                    </label>
                     <Input
                       id="neighborhood"
                       name="neighborhood"
@@ -256,8 +312,10 @@ const Profile = () => {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Cidade</Label>
+                  <div>
+                    <label htmlFor="city" className="text-sm font-medium text-foreground mb-2 block">
+                      Cidade
+                    </label>
                     <Input
                       id="city"
                       name="city"
@@ -272,6 +330,7 @@ const Profile = () => {
                     <>
                       <Button
                         variant="outline"
+                        size="lg"
                         onClick={() => {
                           setIsEditing(false);
                           // Resetar formData
@@ -293,26 +352,44 @@ const Profile = () => {
                       >
                         Cancelar
                       </Button>
-                      <Button onClick={handleSave} disabled={isLoading}>
+                      <Button 
+                        variant="archery" 
+                        size="lg" 
+                        onClick={handleSave} 
+                        disabled={isLoading}
+                        className="group"
+                      >
                         {isLoading ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Salvando...
                           </>
                         ) : (
-                          'Salvar'
+                          <>
+                            <User className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                            Salvar
+                          </>
                         )}
                       </Button>
                     </>
                   ) : (
-                    <Button onClick={() => setIsEditing(true)}>Editar</Button>
+                    <Button 
+                      variant="archery" 
+                      size="lg" 
+                      onClick={() => setIsEditing(true)}
+                      className="group"
+                    >
+                      <User className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                      Editar Perfil
+                    </Button>
                   )}
                 </div>
               </>
             )}
           </CardContent>
         </Card>
-      </div>
+        </div>
+      </section>
       <Footer />
       <WhatsAppFloat />
     </div>
