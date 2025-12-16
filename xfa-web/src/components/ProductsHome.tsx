@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShoppingCart, Heart, Eye, Ruler, Package } from "lucide-react";
+import { Star, ShoppingCart, Heart, Eye, Ruler, Package, ArrowRight } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/types/cart";
 import { productService, ProductDetails } from "@/services/productService";
@@ -335,9 +335,10 @@ const Products = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="hero" size="xl" asChild>
+          <Button variant="archery" size="xl" asChild className="group">
             <a href="/produtos">
               Ver Todos os Produtos
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </a>
           </Button>
         </div>

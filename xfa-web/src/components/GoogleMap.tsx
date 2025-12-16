@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
+import { Button } from '@/components/ui/button';
+import { MapPin } from 'lucide-react';
 
 interface GoogleMapProps {
   address?: string;
@@ -84,14 +86,21 @@ const render = (status: Status) => {
             <p className="text-xs text-muted-foreground mt-2">
               Mapa temporariamente indisponível
             </p>
-            <a 
-              href="https://maps.google.com/?q=Mooca,+São+Paulo,+SP,+Brasil" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-block mt-3 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm"
+            <Button
+              variant="archery"
+              size="lg"
+              asChild
+              className="mt-3 group"
             >
-              Ver no Google Maps
-            </a>
+              <a 
+                href="https://maps.google.com/?q=Mooca,+São+Paulo,+SP,+Brasil" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <MapPin className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                Ver no Google Maps
+              </a>
+            </Button>
           </div>
         </div>
       );
