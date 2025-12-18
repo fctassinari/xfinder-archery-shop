@@ -17,7 +17,7 @@
   podman build -f src/main/docker/Dockerfile.jvm -t xfinder-api:latest .
 ```    
 ```bash
-  podman run -d --name xfinder-api --network nt-xfinder -p 8081:8081 xfinder-api:latest
+  podman run -d  --tz=America/Sao_Paulo --name xfinder-api --network nt-xfinder -p 8081:8081 xfinder-api:latest
 ```
 ```bash
   podman start xfinder-api

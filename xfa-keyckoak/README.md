@@ -11,7 +11,7 @@
 ```
 
 ```bash
-    podman run -d --name xfinder-keycloak --network nt-xfinder -p 8443:8443 -p 9000:9000  \
+    podman run -d  --tz=America/Sao_Paulo  --name xfinder-keycloak --network nt-xfinder -p 8443:8443 -p 9000:9000  \
         xfinder-keycloak:latest start --optimized --http-enabled=true  
 ```
 ```bash

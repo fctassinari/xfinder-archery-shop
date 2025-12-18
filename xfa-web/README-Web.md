@@ -10,7 +10,7 @@ podman build --build-arg VITE_API_BASE_URL=http://localhost:8081 --build-arg VIT
   podman rm xfinder-web
 ```
 ```bash
-  podman run -d --name xfinder-web -p 8080:8080 --network nt-xfinder --restart unless-stopped xfinder-web:latest
+  podman run -d  --tz=America/Sao_Paulo --name xfinder-web -p 8080:8080 --network nt-xfinder --restart unless-stopped xfinder-web:latest
 ```
 ```bash
   podman start xfinder-web
