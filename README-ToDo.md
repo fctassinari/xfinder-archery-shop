@@ -105,6 +105,6 @@ location.reload();
   * ✅ Cadastrar pins
   * ✅ Ajustar imagens hero
   * ✅ Ver o que fazer com a newsletter
-  * Implementar Login
+  * ✅ Implementar Login
   * SSL
   * 

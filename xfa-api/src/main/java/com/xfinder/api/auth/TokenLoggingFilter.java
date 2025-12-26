@@ -86,7 +86,6 @@ public class TokenLoggingFilter implements ContainerRequestFilter {
                         System.err.println("realm_access.roles: " + roles);
                         
                         if (roles instanceof java.util.List) {
-                            @SuppressWarnings("unchecked")
                             java.util.List<?> rolesList = (java.util.List<?>) roles;
                             System.err.println("realm_access.roles (lista): " + rolesList);
                             if (!rolesList.isEmpty() && rolesList.get(0) != null) {
