@@ -15,6 +15,12 @@ RUN /opt/keycloak/bin/kc.sh build
 FROM quay.io/keycloak/keycloak:latest
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
+# Copiar estrutura completa do tema (inclui diretórios)
+COPY themes/ /opt/keycloak/themes/
+# Desabilitar cache de temas (desenvolvimento)
+ENV KC_SPI_THEME_CACHE_THEMES=false
+ENV KC_SPI_THEME_CACHE_TEMPLATES=false
+
 # change these values to point to a running postgres instance
 ENV KC_DB='postgres'
 #ENV KC_DB_URL='jdbc:postgresql://xfinder-postgres:5432/keycloak?ssl=true&sslmode=require&connectTimeout=30&socketTimeout=60'
