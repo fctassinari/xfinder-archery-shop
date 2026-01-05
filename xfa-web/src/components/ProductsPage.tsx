@@ -48,6 +48,7 @@ const ProductsPage = () => {
   const [page, setPage] = useState(1);
   const [initialLoad, setInitialLoad] = useState(true);
   const [apiError, setApiError] = useState(false);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   // Extrair categorias únicas dos produtos
   const categories = ["all", ...Array.from(new Set(products.map(p => p.category))).sort()];
@@ -368,6 +369,20 @@ const ProductsPage = () => {
     }
   };
 
+  // Função para alternar favorito
+  const toggleFavorite = (productId: string | number) => {
+    const idString = String(productId);
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(idString)) {
+        newFavorites.delete(idString);
+      } else {
+        newFavorites.add(idString);
+      }
+      return newFavorites;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
       {/* Hero Section */}
@@ -480,7 +495,7 @@ const ProductsPage = () => {
                   <Card
                     key={`${product.id}-${index}`}
                     className={`group hover:shadow-elegant transition-smooth animate-fade-in ${
-                      viewMode === "list" ? "flex flex-col md:flex-row overflow-hidden" : ""
+                      viewMode === "list" ? "flex flex-col md:flex-row overflow-hidden" : "flex flex-col h-full"
                     }`}
                     style={{animationDelay: `${index * 0.05}s`}}
                   >
@@ -511,18 +526,28 @@ const ProductsPage = () => {
                           )}
                         </div>
                         <div className="absolute top-4 right-4">
-                          <Button size="icon" variant="secondary" className="h-8 w-8">
-                            <Heart className="h-4 w-4" />
+                          <Button 
+                            size="icon" 
+                            variant="secondary" 
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(product.id);
+                            }}
+                          >
+                            <Heart 
+                              className={`h-4 w-4 ${favorites.has(String(product.id)) ? 'fill-red-500 text-red-500' : ''}`} 
+                            />
                           </Button>
                         </div>
                       </div>
                     </div>
 
-                    <div className={`flex flex-col ${viewMode === "list" ? "md:w-2/3" : ""}`}>
+                    <div className={`flex flex-col ${viewMode === "list" ? "md:w-2/3" : "flex-1"}`}>
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between mb-2">
                           <Badge variant="secondary">{product.category}</Badge>
-                          <div className="flex items-center space-x-1">
+                          <div className="flex items-center space-x-1 hidden">
                             <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                             <span className="text-sm font-medium">{product.rating}</span>
                             <span className="text-sm text-muted-foreground">({product.reviews})</span>
@@ -533,7 +558,7 @@ const ProductsPage = () => {
                         </CardTitle>
                       </CardHeader>
 
-                      <CardContent className="pb-3 flex-1">
+                      <CardContent className="pb-3 flex-1 flex flex-col">
                         <CardDescription className="mb-3">
                           {product.description}
                         </CardDescription>
@@ -565,7 +590,7 @@ const ProductsPage = () => {
                           </div>
                         )}
 
-                        <div className="space-y-1 mb-4">
+                        <div className="space-y-1 mb-4 flex-1">
                           {product.features.slice(0, 4).map((feature, idx) => (
                             <div key={idx} className="flex items-center text-sm text-muted-foreground">
                               <div className="w-2 h-2 bg-coral-accent rounded-full mr-2 flex-shrink-0"></div>
@@ -574,7 +599,7 @@ const ProductsPage = () => {
                           ))}
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 mt-auto">
                           <span className="text-2xl font-bold text-navy-primary">{formatPrice(product.price)}</span>
                           {product.originalPrice && (
                             <span className="text-lg text-muted-foreground line-through">

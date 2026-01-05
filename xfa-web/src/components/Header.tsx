@@ -28,11 +28,13 @@ const Header = () => {
       {/* Logo Flutuante - Desktop apenas */}
       <div className="hidden md:block fixed top-6 left-6 z-50">
         <a href="/">
-          <img
-            src={logo}
-            alt="XFinder Archery"
-            className="h-40 w-auto border-2 border-white rounded shadow-lg hover:shadow-xl transition-all duration-300"
-          />
+          <div className="h-[165px] w-[165px] border-[5px] border-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex items-center justify-center bg-white">
+            <img
+              src={logo}
+              alt="XFinder Archery"
+              className="max-h-[80%] max-w-[80%] h-auto w-auto object-contain"
+            />
+          </div>
         </a>
       </div>
 

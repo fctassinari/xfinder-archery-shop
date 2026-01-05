@@ -21,6 +21,7 @@ const Products = () => {
   const [productDetails, setProductDetails] = useState<ProductDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -183,6 +184,19 @@ const Products = () => {
     }
   };
 
+  // Função para alternar favorito
+  const toggleFavorite = (productId: string) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(productId)) {
+        newFavorites.delete(productId);
+      } else {
+        newFavorites.add(productId);
+      }
+      return newFavorites;
+    });
+  };
+
   if (loading) {
     return (
       <section id="products" className="py-20 bg-muted/30">
@@ -217,7 +231,7 @@ const Products = () => {
           {products.map((product, index) => {
             const details = productDetails[index];
             return (
-              <Card key={product.id} className="group hover:shadow-elegant transition-smooth animate-fade-in" style={{animationDelay: `${index * 0.1}s`}}>
+              <Card key={product.id} className="group hover:shadow-elegant transition-smooth animate-fade-in flex flex-col h-full" style={{animationDelay: `${index * 0.1}s`}}>
                 <div className="relative">
                   <div className="relative overflow-hidden rounded-t-lg">
                     <img 
@@ -243,8 +257,18 @@ const Products = () => {
                       )}
                     </div>
                     <div className="absolute top-4 right-4">
-                      <Button size="icon" variant="secondary" className="h-8 w-8">
-                        <Heart className="h-4 w-4" />
+                      <Button 
+                        size="icon" 
+                        variant="secondary" 
+                        className="h-8 w-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(product.id);
+                        }}
+                      >
+                        <Heart 
+                          className={`h-4 w-4 ${favorites.has(product.id) ? 'fill-red-500 text-red-500' : ''}`} 
+                        />
                       </Button>
                     </div>
                   </div>
@@ -253,7 +277,7 @@ const Products = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between mb-2">
                     <Badge variant="secondary">{details?.category || "Produto"}</Badge>
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1 hidden">
                       <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                       <span className="text-sm font-medium">{details?.rating || 5.0}</span>
                       <span className="text-sm text-muted-foreground">({details?.reviews || 0})</span>
@@ -264,7 +288,7 @@ const Products = () => {
                   </CardTitle>
                 </CardHeader>
 
-                <CardContent className="pb-3 flex-1">
+                <CardContent className="pb-3 flex-1 flex flex-col">
                   <CardDescription className="mb-3">
                     {product.description}
                   </CardDescription>
@@ -296,7 +320,7 @@ const Products = () => {
                     </div>
                   )}
 
-                  <div className="space-y-1 mb-4">
+                  <div className="space-y-1 mb-4 flex-1">
                     {details?.features?.slice(0, 4).map((feature, idx) => (
                       <div key={idx} className="flex items-center text-sm text-muted-foreground">
                         <div className="w-2 h-2 bg-coral-accent rounded-full mr-2 flex-shrink-0"></div>
@@ -305,7 +329,7 @@ const Products = () => {
                     ))}
                   </div>
 
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 mt-auto">
                     <span className="text-2xl font-bold text-navy-primary">{formatPrice(product.price)}</span>
                     {details?.originalPrice && (
                       <span className="text-lg text-muted-foreground line-through">

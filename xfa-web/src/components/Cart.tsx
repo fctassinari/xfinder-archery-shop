@@ -920,7 +920,7 @@ const Cart = () => {
                     </Button>
                     <Button
                       variant="outline"
-                      className="w-full"
+                      className="w-full hidden"
                       onClick={handleClearCart}
                     >
                       Limpar Carrinho

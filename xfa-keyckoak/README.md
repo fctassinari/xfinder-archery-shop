@@ -22,12 +22,13 @@
         --name xfinder-keycloak \
         --network nt-xfinder \
         -p 8443:8443 -p 9000:9000 \
-        -v "C:/Users/integ/Downloads/dev/git/xfinder-archery-shop/xfa-keyckoak/realm-export.json:/opt/keycloak/data/import/realm-export.json:Z" \
+        -v "C:/Users/FábioTassinari/Downloads/dev/git/xfinder/xfinder-archery-shop/xfa-keyckoak/realm-export.json:/opt/keycloak/data/import/realm-export.json:Z" \
         xfinder-keycloak:latest start \
         --optimized \
         --http-enabled=true \
         --import-realm
 ```
+    -v "C:/Users/integ/Downloads/dev/git/xfinder-archery-shop/xfa-keyckoak/realm-export.json:/opt/keycloak/data/import/realm-export.json:Z" \
 
 **Subir Keycloak (execuções subsequentes)**
 ```bash

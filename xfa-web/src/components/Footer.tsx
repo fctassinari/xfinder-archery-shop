@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin, Instagram, Shield } from "lucide-react";
-import logoBlanco from "@/assets/xfinder_Logo_nome-branco.png";
+import logoBlanco from "@/assets/xfinder_Logo_nome-dourado.png";
 
 const Footer = () => {
   return (
@@ -87,7 +87,7 @@ const Footer = () => {
             <img 
               src={logoBlanco}
               alt="XFinder Archery Logo" 
-              className="w-full max-w-[200px] h-auto object-contain"
+              className="w-full max-w-[400px] h-auto object-contain"
             />
           </div>
 
@@ -148,7 +148,7 @@ const Footer = () => {
         <div className="border-t border-white/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-white/60 text-sm">
-              © 2025 XFinder Archery. Todos os direitos reservados.
+              © 2026 XFinder Archery. Todos os direitos reservados.
             </p>
             <div className="flex space-x-6 text-sm">
               <a href="/politica-privacidade" className="text-white/60 hover:text-coral-accent transition-smooth">

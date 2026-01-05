@@ -120,12 +120,12 @@ const Sobre = () => {
                   </p>
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-coral-accent/10 to-navy-primary/10 h-96 flex items-center justify-center rounded-lg">
+              <div className="bg-gradient-to-br from-coral-accent/10 to-navy-primary/10 h-96 flex items-center justify-center rounded-lg overflow-hidden">
                 {/*<Target className="h-32 w-32 text-coral-accent" />*/}
                 <img
                   src={historyImage}
                   alt="Arrows"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-lg"
                 />
               </div>
             </div>
