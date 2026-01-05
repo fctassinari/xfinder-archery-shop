@@ -62,13 +62,13 @@ export const UserMenu = () => {
         </DropdownMenuItem>
         {customer && (
           <>
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className="hidden">
               <Link to="/pedidos" className="flex items-center">
                 <Package className="mr-2 h-4 w-4" />
                 <span>Meus Pedidos</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="hidden" />
           </>
         )}
         <DropdownMenuItem onClick={logout} className="text-red-600">
