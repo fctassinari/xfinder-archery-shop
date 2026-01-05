@@ -106,5 +106,11 @@ location.reload();
   * ✅ Ajustar imagens hero
   * ✅ Ver o que fazer com a newsletter
   * ✅ Implementar Login
-  * SSL
-  * 
+  * ✅ SSL
+  
+* Implementar Meus pedidos
+  * Listar todos os pedidos do cliente
+
+* Implementar tela Administração
+  * Buscar pedidos em aberto 
+  * Imprimir etiqueta

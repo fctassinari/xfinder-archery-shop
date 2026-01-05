@@ -409,23 +409,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } catch (error: any) {
         // 404 é esperado quando o customer ainda não foi sincronizado
         // Não é um erro real, apenas indica que precisa sincronizar
-        // O navegador pode mostrar 404 no console, mas isso é normal
         if (error.response?.status === 404) {
           // Retornar null silenciosamente - é comportamento esperado
           return null;
         }
-        // Para outros erros, logar
+        // 401 significa token inválido/expirado - não é erro crítico, apenas retornar null
+        if (error.response?.status === 401) {
+          // Token inválido/expirado - retornar null silenciosamente
+          // O usuário precisará fazer login novamente
+          return null;
+        }
+        // Para outros erros, logar mas não lançar para evitar quebrar a aplicação
         console.error('❌ Erro ao buscar dados do customer:', error);
-        throw error;
+        return null;
       }
     },
     enabled: isAuthenticated && !!token, // Só executar se tiver token
     retry: false,
     staleTime: 5 * 60 * 1000, // Cache por 5 minutos
-    // Não tratar 404 como erro - é comportamento esperado
+    // Não tratar 404 e 401 como erro - são comportamentos esperados
     throwOnError: (error: any) => {
-      // Não lançar erro se for 404 (customer não encontrado é esperado)
-      return error.response?.status !== 404;
+      // Não lançar erro se for 404 (customer não encontrado) ou 401 (token inválido)
+      const status = error.response?.status;
+      return status !== 404 && status !== 401;
     },
   });
 

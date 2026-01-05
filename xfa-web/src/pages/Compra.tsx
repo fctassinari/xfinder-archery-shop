@@ -54,7 +54,9 @@ const Compra = () => {
           setIsProcessing(true);
           sessionStorage.setItem('orderProcessed', 'true');
 
-          const apiUrl = `${import.meta.env.VITE_PAYMENT_CHECK_URL}?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
+          // Usar o endpoint do backend para evitar problemas de CORS
+          const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+          const apiUrl = `${apiBaseUrl}/api/payment/check?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
           
           // ========== MOCK PARA TESTE DE ETIQUETAS ==========
           // Para ativar o mock, defina VITE_USE_MOCK_CHECKOUT=true no .env
@@ -96,10 +98,9 @@ const Compra = () => {
             console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             console.log('💳 [API] Verificação de Pagamento');
             console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            console.log('📋 Ação: Verificando status do pagamento na InfinitePay');
-            console.log('🔗 URL:', apiUrl);
+            console.log('📋 Ação: Verificando status do pagamento na InfinitePay via backend');
+            console.log('🔗 URL (Backend):', apiUrl);
             console.log('📤 Método: GET');
-            console.log('📤 Headers:', {});
             console.log('📤 Query Params:', {
               transaction_nsu,
               external_order_nsu: order_nsu,
@@ -521,12 +522,12 @@ const Compra = () => {
       // Dados do remetente (loja) - usar valores padrão ou do env
       const storePostalCode = import.meta.env.VITE_STORE_POSTAL_CODE || '03167030';
       const storeEmail = import.meta.env.VITE_STORE_EMAIL || 'contato.xfinder@gmail.com.br';
-      const storeName = import.meta.env.VITE_STORE_NAME || 'Loja XFinder';
+      const storeName = import.meta.env.VITE_STORE_NAME || 'Fabio Tassinari';
       const storePhone = import.meta.env.VITE_STORE_PHONE || '11991318744';
-      const storeAddress = import.meta.env.VITE_STORE_ADDRESS || 'Rua Exemplo';
-      const storeNumber = import.meta.env.VITE_STORE_NUMBER || '123';
-      const storeComplement = import.meta.env.VITE_STORE_COMPLEMENT || '';
-      const storeDistrict = import.meta.env.VITE_STORE_DISTRICT || 'Centro';
+      const storeAddress = import.meta.env.VITE_STORE_ADDRESS || 'Rua dos Capitães Mores';
+      const storeNumber = import.meta.env.VITE_STORE_NUMBER || '346';
+      const storeComplement = import.meta.env.VITE_STORE_COMPLEMENT || 'APTO 101 B';
+      const storeDistrict = import.meta.env.VITE_STORE_DISTRICT || 'Mooca';
       const storeCity = import.meta.env.VITE_STORE_CITY || 'São Paulo';
       const storeState = import.meta.env.VITE_STORE_STATE || 'SP';
 
@@ -708,7 +709,7 @@ const Compra = () => {
       let trackingCode = '';
       let labelUrl = '';
       const getOrderUrl = `${superfreteApiUrl}/orders/${superfreteOrderId}`;
-      const maxAttempts = 10;
+      const maxAttempts = 20;
       const retryDelay = 2000; // 2 segundos
       
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -1030,7 +1031,7 @@ const Compra = () => {
               )}
 
               {orderData && (
-                <React.Fragment>
+                <>
                   <div className="bg-white rounded-lg shadow-lg p-6">
                     <div className="flex items-center mb-4">
                       <User className="h-6 w-6 text-indigo-600 mr-2" />
@@ -1159,7 +1160,7 @@ const Compra = () => {
                       </div>
                     )}
                   </div>
-                </React.Fragment>
+                </>
               )}
             </div>
           )}

@@ -250,35 +250,91 @@ public class SuperfreteService {
      */
     public Response createOrder(OrderRequest request) {
         try {
-//            System.out.println("📦 Criando pedido na SuperFrete...");
-//            System.out.println("📦 Request: " + objectMapper.writeValueAsString(request));
-            
-            String authorization = getAuthorizationHeader();
-            String userAgent = getUserAgentHeader();
-                        
-            Response response = superfreteApiClient.createOrder(authorization, userAgent, request);
-            String responseBody = response.readEntity(String.class);
-            
-//            System.out.println("📦 Response Status: " + response.getStatus());
-//            System.out.println("📦 Response Body: " + responseBody.substring(0, Math.min(500, responseBody.length())));
-            
-            // Verificar se a resposta é HTML (erro)
-            if (responseBody.trim().startsWith("<!") || responseBody.trim().startsWith("<html")) {
-                System.err.println("❌ Erro: API SuperFrete retornou HTML ao invés de JSON");
-                return Response.status(Response.Status.BAD_GATEWAY)
-                        .entity("{\"error\": \"API SuperFrete retornou resposta inválida (HTML)\", \"details\": \"" + 
-                                responseBody.substring(0, Math.min(200, responseBody.length())).replace("\"", "\\\"") + "\"}")
+            // Validações básicas
+            if (request == null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\": \"Request não pode ser nulo\"}")
                         .build();
             }
             
-            return Response.status(response.getStatus())
-                    .entity(responseBody)
-                    .build();
+            if (request.getFrom() == null || request.getTo() == null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\": \"Endereços 'from' e 'to' são obrigatórios\"}")
+                        .build();
+            }
+            
+            if (request.getProducts() == null || request.getProducts().isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\": \"Lista de produtos não pode estar vazia\"}")
+                        .build();
+            }
+            
+            if (request.getVolume() == null || request.getVolume().isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\": \"Lista de volumes não pode estar vazia\"}")
+                        .build();
+            }
+            
+            System.out.println("📦 Criando pedido na SuperFrete...");
+            try {
+                System.out.println("📦 Request: " + objectMapper.writeValueAsString(request));
+            } catch (JsonProcessingException e) {
+                System.out.println("📦 Request: [erro ao serializar]");
+            }
+            
+            String authorization = getAuthorizationHeader();
+            String userAgent = getUserAgentHeader();
+            
+            Response response = null;
+            String responseBody = null;
+            try {
+                response = superfreteApiClient.createOrder(authorization, userAgent, request);
+                responseBody = response.readEntity(String.class);
+                
+                System.out.println("📦 Response Status: " + response.getStatus());
+                System.out.println("📦 Response Body: " + (responseBody.length() > 500 ? 
+                        responseBody.substring(0, 500) + "..." : responseBody));
+                
+                // Verificar se a resposta é HTML (erro)
+                if (responseBody.trim().startsWith("<!") || responseBody.trim().startsWith("<html")) {
+                    System.err.println("❌ Erro: API SuperFrete retornou HTML ao invés de JSON");
+                    return Response.status(Response.Status.BAD_GATEWAY)
+                            .entity("{\"error\": \"API SuperFrete retornou resposta inválida (HTML)\", \"details\": \"" + 
+                                    responseBody.substring(0, Math.min(200, responseBody.length())).replace("\"", "\\\"") + "\"}")
+                            .build();
+                }
+                
+                return Response.status(response.getStatus())
+                        .entity(responseBody)
+                        .build();
+            } catch (org.jboss.resteasy.client.exception.ResteasyBadRequestException e) {
+                // Capturar erro 400 e tentar extrair detalhes
+                System.err.println("❌ Erro 400 Bad Request da SuperFrete");
+                System.err.println("❌ Mensagem: " + e.getMessage());
+                System.err.println("❌ Causa: " + (e.getCause() != null ? e.getCause().getMessage() : "null"));
+                
+                // Extrair mensagem de erro
+                String errorMessage = e.getMessage();
+                String causeMessage = e.getCause() != null ? e.getCause().getMessage() : "";
+                
+                // Construir mensagem de erro detalhada
+                String errorDetails = errorMessage;
+                if (causeMessage != null && !causeMessage.isEmpty() && !causeMessage.equals(errorMessage)) {
+                    errorDetails = errorMessage + " | Causa: " + causeMessage;
+                }
+                
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\": \"Erro ao criar pedido na SuperFrete\", " +
+                                "\"message\": \"" + errorMessage.replace("\"", "\\\"").replace("\n", " ").replace("\r", " ") + "\", " +
+                                "\"details\": \"" + errorDetails.replace("\"", "\\\"").replace("\n", " ").replace("\r", " ") + "\"}")
+                        .build();
+            }
         } catch (Exception e) {
             System.err.println("❌ Erro ao criar pedido na SuperFrete: " + e.getMessage());
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\": \"" + e.getMessage().replace("\"", "\\\"") + "\"}")
+                    .entity("{\"error\": \"Erro interno ao processar requisição\", " +
+                            "\"message\": \"" + e.getMessage().replace("\"", "\\\"").replace("\n", " ") + "\"}")
                     .build();
         }
     }

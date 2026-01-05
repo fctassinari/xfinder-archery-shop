@@ -124,9 +124,11 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // 404 em /api/auth/customer é esperado quando o customer ainda não foi sincronizado
-    // Não é um erro real, apenas indica que precisa sincronizar
-    if (error.response?.status === 404 && requestUrl?.includes('/api/auth/customer')) {
+    // 404 e 401 em /api/auth/customer são esperados
+    // 404: customer ainda não foi sincronizado
+    // 401: token inválido/expirado (não é erro crítico neste contexto)
+    if ((error.response?.status === 404 || error.response?.status === 401) && 
+        requestUrl?.includes('/api/auth/customer')) {
       // Retornar erro silenciosamente - o código que chama já trata isso
       return Promise.reject(error);
     }
