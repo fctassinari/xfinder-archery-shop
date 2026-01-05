@@ -73,6 +73,24 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    // Produtos em oferta (produtos com originalPrice maior que price atual)
+    public List<ProductDTO> getProductsOnSale() {
+        // Buscar produtos que são produtos principais (não variantes) e que estão em oferta
+        List<Product> products = Product.find(
+                        "SELECT p FROM Product p LEFT JOIN ProductVariant pv ON p.id = pv.variantProduct.id " +
+                                "WHERE pv.variantProduct.id IS NULL " +
+                                "AND p.originalPrice IS NOT NULL " +
+                                "AND p.originalPrice > p.price " +
+                                "AND p.inStock = true " +
+                                "ORDER BY (p.originalPrice - p.price) DESC"
+                )
+                .list();
+
+        return products.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
 //    public List<com.xfinder.api.produtosold.Product> getFeaturedProducts() {
 //        return products.stream()
 //                .filter(product -> product.getIsNew() != null && product.getIsNew())

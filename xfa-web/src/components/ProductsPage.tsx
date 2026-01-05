@@ -566,7 +566,7 @@ const ProductsPage = () => {
                         )}
 
                         <div className="space-y-1 mb-4">
-                          {product.features.slice(0, 3).map((feature, idx) => (
+                          {product.features.slice(0, 4).map((feature, idx) => (
                             <div key={idx} className="flex items-center text-sm text-muted-foreground">
                               <div className="w-2 h-2 bg-coral-accent rounded-full mr-2 flex-shrink-0"></div>
                               {feature}

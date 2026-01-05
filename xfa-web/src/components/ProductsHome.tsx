@@ -27,7 +27,7 @@ const Products = () => {
       try {
         setLoading(true);
 
-        const apiProducts = await productService.getAllProducts();
+        const apiProducts = await productService.getProductsOnSale();
 
         // Converter produtos da API para o formato do frontend com campos extras
         const convertedProducts: ExtendedProduct[] = apiProducts.map(apiProduct => ({
@@ -297,7 +297,7 @@ const Products = () => {
                   )}
 
                   <div className="space-y-1 mb-4">
-                    {details?.features?.slice(0, 3).map((feature, idx) => (
+                    {details?.features?.slice(0, 4).map((feature, idx) => (
                       <div key={idx} className="flex items-center text-sm text-muted-foreground">
                         <div className="w-2 h-2 bg-coral-accent rounded-full mr-2 flex-shrink-0"></div>
                         {feature}

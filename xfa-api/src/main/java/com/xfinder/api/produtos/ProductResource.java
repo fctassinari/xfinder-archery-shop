@@ -73,6 +73,15 @@ public class ProductResource {
         return productService.getFeaturedProducts();
     }
 
+    @GET
+    @Path("/on-sale")
+    @Operation(summary = "Produtos em oferta", description = "Retorna produtos que estão em oferta (com originalPrice maior que price)")
+    @APIResponse(responseCode = "200", description = "Lista de produtos em oferta",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDTO.class)))
+    public List<ProductDTO> getProductsOnSale() {
+        return productService.getProductsOnSale();
+    }
+
     @POST
     @Transactional
     @Operation(summary = "Criar produto", description = "Cria um novo produto")

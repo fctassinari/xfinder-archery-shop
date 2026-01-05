@@ -53,6 +53,10 @@ class ProductService {
     return this.request<ApiProduct[]>('/featured');
   }
 
+  async getProductsOnSale(): Promise<ApiProduct[]> {
+    return this.request<ApiProduct[]>('/on-sale');
+  }
+
   async healthCheck(): Promise<{ status: string; timestamp: string }> {
     return this.request<{ status: string; timestamp: string }>('/health');
   }

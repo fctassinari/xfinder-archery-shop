@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock, Send, AlertCircle } from "lucide-react";
 import GoogleMap from "@/components/GoogleMap";
-import heroImage from "@/assets/lubepuller.jpg";
+import heroImage from "@/assets/pins.jpg";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 

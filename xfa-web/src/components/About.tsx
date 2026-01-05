@@ -90,11 +90,11 @@ const About = () => {
                 <img
                   src={hwrap}
                   alt="Wrap"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-lg"
                 />
               </div>
 
-            <a href="/sobre" >
+            <a href="/sobre" className="mt-[5px] inline-block">
             <Button variant="archery" size="lg" className="group">
               Conheça Nossa História
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
