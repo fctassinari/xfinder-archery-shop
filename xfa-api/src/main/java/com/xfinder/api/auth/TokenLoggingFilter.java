@@ -88,18 +88,24 @@ public class TokenLoggingFilter implements ContainerRequestFilter {
                         if (roles instanceof java.util.List) {
                             java.util.List<?> rolesList = (java.util.List<?>) roles;
                             System.err.println("realm_access.roles (lista): " + rolesList);
-                            if (!rolesList.isEmpty() && rolesList.get(0) != null) {
-                                System.err.println("Tipo dos elementos: " + rolesList.get(0).getClass().getName());
+                            if (!rolesList.isEmpty()) {
+                                Object firstRole = rolesList.get(0);
+                                if (firstRole != null) {
+                                    System.err.println("Tipo dos elementos: " + firstRole.getClass().getName());
+                                }
                             }
                             // Verificar se contém "customer" (pode ser String ou outro tipo)
                             boolean containsCustomer = rolesList.stream()
                                 .filter(role -> role != null)
-                                .anyMatch(role -> "customer".equals(role.toString()));
+                                .anyMatch(role -> {
+                                    String roleStr = role != null ? role.toString() : null;
+                                    return "customer".equals(roleStr);
+                                });
                             System.err.println("Contém 'customer'? " + containsCustomer);
                             // Listar todas as roles como string para debug
                             System.err.println("Roles como strings: " + rolesList.stream()
                                 .filter(role -> role != null)
-                                .map(Object::toString)
+                                .map(role -> role != null ? role.toString() : "null")
                                 .toList());
                         } else {
                             System.err.println("⚠️  roles não é uma List, é: " + (roles != null ? roles.getClass().getName() : "null"));
