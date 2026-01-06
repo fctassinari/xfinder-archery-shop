@@ -36,8 +36,6 @@ ENV KC_HOSTNAME_ADMIN='xfinder-archery.com.br'
 ENV KC_HOSTNAME_STRICT=false
 # Habilitar proxy forwarding (importante para funcionar atrás do nginx)
 ENV KC_PROXY='edge'
-# O protocolo externo (HTTPS, já que o nginx cuida do SSL)
-ENV KC_HTTP_RELATIVE_PATH='/'
 # Habilitar HTTP (sem SSL, pois o nginx cuida do SSL)
 ENV KC_HTTP_ENABLED=true
 # Porta HTTP customizada
