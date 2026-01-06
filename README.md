@@ -13,11 +13,11 @@
 
 **Criar volume postgres**
 ```bash
-  podman volume create vl-xfinder-postgres
+  podman volume create postgres
 ```
 **Criar container postres**
 ```bash
-  podman run --tz=America/Sao_Paulo name xfinder-postgres --network nt-xfinder -p 5432:5432 -e POSTGRES_PASSWORD=XFA@2025 --volume vl-xfinder-postgres:/var/lib/postgresql -d postgres:18.0
+  podman run --tz=America/Sao_Paulo name xfinder-postgres --network nt-xfinder -p 5432:5432 -e POSTGRES_PASSWORD=XFA@2025 --volume postgres:/var/lib/postgresql -d postgres:18.0
 ```
 **Criar Data Base**
 ```bash
