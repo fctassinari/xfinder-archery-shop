@@ -6,27 +6,16 @@ Write-Host "Iniciando Keycloak em Produção" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Verificar se a imagem existe
-$imageExists = podman image exists xfinder-keycloak:prod 2>$null
-if (-not $imageExists) {
-    Write-Host "Imagem xfinder-keycloak:prod não encontrada. Fazendo build..." -ForegroundColor Yellow
-    podman build -f Dockerfile.prod -t xfinder-keycloak:prod .
-}
+# Fazer rebuild forçado da imagem (sem cache) para garantir configurações atualizadas
+Write-Host "Fazendo rebuild da imagem (sem cache) para garantir configurações atualizadas..." -ForegroundColor Yellow
+podman build --no-cache -f Dockerfile.prod -t xfinder-keycloak:prod .
 
-# Verificar se o container já existe
+# Parar e remover container existente (se houver)
 $containerExists = podman ps -a --format "{{.Names}}" | Select-String -Pattern "^xfinder-keycloak-prod$"
 if ($containerExists) {
-    Write-Host "Container xfinder-keycloak-prod já existe." -ForegroundColor Yellow
-    $response = Read-Host "Deseja remover e recriar? (s/N)"
-    if ($response -eq "s" -or $response -eq "S") {
-        Write-Host "Parando e removendo container existente..." -ForegroundColor Yellow
-        podman stop xfinder-keycloak-prod 2>$null
-        podman rm xfinder-keycloak-prod 2>$null
-    } else {
-        Write-Host "Iniciando container existente..." -ForegroundColor Green
-        podman start xfinder-keycloak-prod
-        exit 0
-    }
+    Write-Host "Parando e removendo container existente..." -ForegroundColor Yellow
+    podman stop xfinder-keycloak-prod 2>$null
+    podman rm xfinder-keycloak-prod 2>$null
 }
 
 # Verificar se o arquivo realm-export-prod.json existe

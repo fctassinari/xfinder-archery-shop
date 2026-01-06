@@ -9,26 +9,15 @@ echo "=========================================="
 echo "Iniciando Keycloak em Produção"
 echo "=========================================="
 
-# Verificar se a imagem existe
-if ! podman image exists xfinder-keycloak:prod; then
-    echo "Imagem xfinder-keycloak:prod não encontrada. Fazendo build..."
-    podman build -f Dockerfile.prod -t xfinder-keycloak:prod .
-fi
+# Verificar se a imagem existe e fazer rebuild forçado
+echo "Fazendo rebuild da imagem (sem cache) para garantir configurações atualizadas..."
+podman build --no-cache -f Dockerfile.prod -t xfinder-keycloak:prod .
 
-# Verificar se o container já existe
+# Parar e remover container existente (se houver)
 if podman ps -a --format "{{.Names}}" | grep -q "^xfinder-keycloak-prod$"; then
-    echo "Container xfinder-keycloak-prod já existe."
-    read -p "Deseja remover e recriar? (s/N): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Ss]$ ]]; then
-        echo "Parando e removendo container existente..."
-        podman stop xfinder-keycloak-prod 2>/dev/null || true
-        podman rm xfinder-keycloak-prod 2>/dev/null || true
-    else
-        echo "Iniciando container existente..."
-        podman start xfinder-keycloak-prod
-        exit 0
-    fi
+    echo "Parando e removendo container existente..."
+    podman stop xfinder-keycloak-prod 2>/dev/null || true
+    podman rm xfinder-keycloak-prod 2>/dev/null || true
 fi
 
 # Verificar se o arquivo realm-export-prod.json existe
