@@ -54,7 +54,6 @@ $command = "podman run -d " +
     "xfinder-keycloak:prod start " +
     "--optimized " +
     "--http-enabled=true " +
-    "--proxy=edge " +
     "--hostname=xfinder-archery.com.br " +
     "--hostname-strict=false " +
     "--import-realm"

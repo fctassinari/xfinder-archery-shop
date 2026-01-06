@@ -52,7 +52,6 @@ podman run -d \
     xfinder-keycloak:prod start \
     --optimized \
     --http-enabled=true \
-    --proxy=edge \
     --hostname=xfinder-archery.com.br \
     --hostname-strict=false \
     --import-realm
@@ -60,10 +59,11 @@ podman run -d \
 
 **Parâmetros importantes:**
 - `--http-enabled=true`: Habilita HTTP (sem SSL)
-- `--proxy=edge`: Configura para funcionar atrás de proxy reverso
 - `--hostname=xfinder-archery.com.br`: Define o hostname externo
 - `--hostname-strict=false`: Permite que o Keycloak aceite requisições do nginx
 - `-p 8084:8084`: Expõe apenas a porta HTTP
+
+**Nota:** A configuração de proxy (`KC_PROXY=edge`) é feita através de variável de ambiente no `Dockerfile.prod`, não precisa ser passada como argumento de linha de comando.
 
 ### Opção B: Usando Docker Compose
 
@@ -92,7 +92,7 @@ services:
       - "8084:8084"
     networks:
       - nt-xfinder
-    command: start --optimized --http-enabled=true --proxy=edge --hostname=xfinder-archery.com.br --hostname-strict=false
+    command: start --optimized --http-enabled=true --hostname=xfinder-archery.com.br --hostname-strict=false
     volumes:
       - ./realm-export-prod.json:/opt/keycloak/data/import/realm-export.json:Z
     restart: unless-stopped
