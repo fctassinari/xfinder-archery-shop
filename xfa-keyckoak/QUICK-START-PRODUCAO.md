@@ -11,8 +11,6 @@ podman build -f Dockerfile.prod -t xfinder-keycloak:prod .
 ### 2. Iniciar Keycloak
 ```bash
 # Linux/Mac
-podman stop xfinder-keycloak-prod
-podman rm xfinder-keycloak-prod
 ./start-producao.sh
 
 # Windows PowerShell
