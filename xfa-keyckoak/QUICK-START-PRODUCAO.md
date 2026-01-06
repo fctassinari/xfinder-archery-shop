@@ -53,4 +53,4 @@ sudo systemctl reload nginx
 
 ## Documentação Completa
 
-Veja `README-PRODUCAO.md` para detalhes completos.
+Veja [README-PRODUCAO.md](README-PRODUCAO.md) para detalhes completos.

@@ -38,25 +38,4 @@
 ```
 ---
 ## **Keycloak**
-**Build da imagem**
-``` bash
-    cd xfa-keycloak
-    podman build -t xfinder-keycloak:latest .
-```
-
-**Subir Keycloak (primeira vez - com import do realm)**
-
-**No Git Bash (usando caminho absoluto fixo):**
-```bash
-    # Substitua pelo seu caminho completo no formato Windows
-    podman run -d \
-        --tz=America/Sao_Paulo \
-        --name xfinder-keycloak \
-        --network nt-xfinder \
-        -p 8443:8443 -p 9000:9000 \
-        -v "/root/git/xfinder-archery-shop/xfa-keyckoak/realm-export-prod.json:/opt/keycloak/data/import/realm-export-prod.json:Z" \
-        xfinder-keycloak:latest start \
-        --optimized \
-        --http-enabled=true \
-        --import-realm
-```
+[Quick Start](xfa-keyckoak/QUICK-START-PRODUCAO.md)
