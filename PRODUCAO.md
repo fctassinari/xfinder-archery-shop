@@ -37,5 +37,48 @@
   podman start xfinder-postgres 
 ```
 ---
-## **Keycloak**
+## **xfa-keycloak**
 [Quick Start](xfa-keyckoak/QUICK-START-PRODUCAO.md)
+
+---
+## **xfa-api**
+**Ajustar application.properties**
+
+**Executar em container**
+
+```bash
+  podman stop xfinder-api
+```
+```bash
+  podman rm xfinder-api
+```
+```shell script
+  ./mvnw package -DskipTests=true
+```
+```bash
+  podman build -f src/main/docker/Dockerfile.jvm -t xfinder-api:latest .
+```    
+```bash
+  podman run -d  --tz=America/Sao_Paulo --name xfinder-api --network nt-xfinder -p 8085:8085 xfinder-api:latest
+```
+```bash
+  podman start xfinder-api
+```
+
+**Cadastrar Produtos**
+```bash
+    jq -c '.[]' product.json | while read produto; do 
+      nome=$(echo "$produto" | jq -r '.name')
+      echo "Enviando produto: $nome..."
+      curl -s -X POST "http://localhost:8085/api/products" \
+        -H "Content-Type: application/json" \
+        -d "$produto"
+      echo -e "\n---"
+    done
+```
+
+
+
+---
+## **xfa-web**
+
