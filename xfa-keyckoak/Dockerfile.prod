@@ -28,14 +28,12 @@ ENV KC_DB_USERNAME='postgres'
 ENV KC_DB_PASSWORD='XFA@2025'
 
 # Configurações para funcionar atrás de proxy reverso (nginx)
-# O hostname externo que os usuários acessam
-ENV KC_HOSTNAME='xfinder-archery.com.br'
-# O hostname admin (pode ser diferente, mas geralmente é o mesmo)
-ENV KC_HOSTNAME_ADMIN='xfinder-archery.com.br'
-# Desabilitar hostname strict (necessário para proxy reverso)
-ENV KC_HOSTNAME_STRICT=false
-# Habilitar proxy forwarding (importante para funcionar atrás do nginx)
-ENV KC_PROXY='edge'
+# O hostname externo que os usuários acessam (URL completa)
+ENV KC_HOSTNAME='https://xfinder-archery.com.br'
+# O hostname admin (URL completa para o console de administração)
+ENV KC_HOSTNAME_ADMIN='https://xfinder-archery.com.br'
+# Configurar proxy headers (novo formato - substitui KC_PROXY=edge)
+ENV KC_PROXY_HEADERS='xforwarded'
 # Habilitar HTTP (sem SSL, pois o nginx cuida do SSL)
 ENV KC_HTTP_ENABLED=true
 # Porta HTTP customizada

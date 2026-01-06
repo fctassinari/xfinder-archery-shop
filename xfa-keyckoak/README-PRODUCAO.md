@@ -52,18 +52,20 @@ podman run -d \
     xfinder-keycloak:prod start \
     --optimized \
     --http-enabled=true \
-    --hostname=xfinder-archery.com.br \
-    --hostname-strict=false \
+    --hostname=https://xfinder-archery.com.br \
+    --hostname-admin=https://xfinder-archery.com.br \
+    --proxy-headers=xforwarded \
     --import-realm
 ```
 
 **Parâmetros importantes:**
 - `--http-enabled=true`: Habilita HTTP (sem SSL)
-- `--hostname=xfinder-archery.com.br`: Define o hostname externo
-- `--hostname-strict=false`: Permite que o Keycloak aceite requisições do nginx
+- `--hostname=https://xfinder-archery.com.br`: Define o hostname externo (deve ser URL completa)
+- `--hostname-admin=https://xfinder-archery.com.br`: Define o hostname do admin console (deve ser URL completa)
+- `--proxy-headers=xforwarded`: Configura o Keycloak para usar headers X-Forwarded-* do nginx
 - `-p 8084:8084`: Expõe apenas a porta HTTP
 
-**Nota:** A configuração de proxy (`KC_PROXY=edge`) é feita através de variável de ambiente no `Dockerfile.prod`, não precisa ser passada como argumento de linha de comando.
+**Nota:** As configurações de proxy (`KC_PROXY_HEADERS=xforwarded`) e hostname são feitas através de variáveis de ambiente no `Dockerfile.prod` e também podem ser passadas como argumentos de linha de comando.
 
 ### Opção B: Usando Docker Compose
 
@@ -81,10 +83,11 @@ services:
       - KC_DB_URL=jdbc:postgresql://xfinder-postgres:5432/keycloak
       - KC_DB_USERNAME=postgres
       - KC_DB_PASSWORD=XFA@2025
-      - KC_HOSTNAME=xfinder-archery.com.br
-      - KC_HOSTNAME_STRICT=false
-      - KC_PROXY=edge
+      - KC_HOSTNAME=https://xfinder-archery.com.br
+      - KC_HOSTNAME_ADMIN=https://xfinder-archery.com.br
+      - KC_PROXY_HEADERS=xforwarded
       - KC_HTTP_ENABLED=true
+      - KC_HTTP_PORT=8084
       - KC_HTTPS_ENABLED=false
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=XFA@2025
@@ -92,7 +95,7 @@ services:
       - "8084:8084"
     networks:
       - nt-xfinder
-    command: start --optimized --http-enabled=true --hostname=xfinder-archery.com.br --hostname-strict=false
+    command: start --optimized --http-enabled=true --hostname=https://xfinder-archery.com.br --hostname-admin=https://xfinder-archery.com.br --proxy-headers=xforwarded
     volumes:
       - ./realm-export-prod.json:/opt/keycloak/data/import/realm-export.json:Z
     restart: unless-stopped

@@ -9,9 +9,9 @@ services:
       - KC_DB_URL=jdbc:postgresql://xfinder-postgres:5432/keycloak
       - KC_DB_USERNAME=postgres
       - KC_DB_PASSWORD=XFA@2025
-      - KC_HOSTNAME=xfinder-archery.com.br
-      - KC_HOSTNAME_STRICT=false
-      - KC_PROXY=edge
+      - KC_HOSTNAME=https://xfinder-archery.com.br
+      - KC_HOSTNAME_ADMIN=https://xfinder-archery.com.br
+      - KC_PROXY_HEADERS=xforwarded
       - KC_HTTP_ENABLED=true
       - KC_HTTP_PORT=8084
       - KC_HTTPS_ENABLED=false
@@ -27,8 +27,9 @@ services:
       start
       --optimized
       --http-enabled=true
-      --hostname=xfinder-archery.com.br
-      --hostname-strict=false
+      --hostname=https://xfinder-archery.com.br
+      --hostname-admin=https://xfinder-archery.com.br
+      --proxy-headers=xforwarded
     volumes:
       # Ajuste o caminho conforme necessário
       - ./realm-export-prod.json:/opt/keycloak/data/import/realm-export.json:Z

@@ -48,8 +48,9 @@ eval "podman run -d \
     xfinder-keycloak:prod start \
     --optimized \
     --http-enabled=true \
-    --hostname=xfinder-archery.com.br \
-    --hostname-strict=false \
+    --hostname=https://xfinder-archery.com.br \
+    --hostname-admin=https://xfinder-archery.com.br \
+    --proxy-headers=xforwarded \
     --import-realm"
 
 echo ""
