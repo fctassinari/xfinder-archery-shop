@@ -28,8 +28,8 @@ Adicione as locations do arquivo `nginx-keycloak.conf` dentro do bloco `server` 
 Substitua o conteúdo do arquivo de configuração do nginx pelo conteúdo de `nginx-keycloak-completo.conf`.
 
 **Importante:** Ajuste o upstream conforme necessário:
-- Mesmo servidor: `server localhost:8080;`
-- Servidor remoto: `server vpsking15907.publiccloud.com.br:8080;`
+- Mesmo servidor: `server localhost:8084;`
+- Servidor remoto: `server vpsking15907.publiccloud.com.br:8084;`
 
 ### 4. Recarregar Nginx
 ```bash
@@ -46,7 +46,7 @@ sudo systemctl reload nginx
 | Item | Desenvolvimento | Produção |
 |------|----------------|----------|
 | Dockerfile | `Dockerfile` | `Dockerfile.prod` |
-| Porta | 8443 (HTTPS) | 8080 (HTTP) |
+| Porta | 8443 (HTTPS) | 8084 (HTTP) |
 | Certificado | Auto-assinado | Nginx (Let's Encrypt) |
 | Proxy | Não | Sim (edge) |
 | Hostname | localhost | xfinder-archery.com.br |

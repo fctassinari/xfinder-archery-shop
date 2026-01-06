@@ -54,7 +54,7 @@ eval "podman run -d \
     --tz=America/Sao_Paulo \
     --name xfinder-keycloak-prod \
     --network nt-xfinder \
-    -p 8080:8080 \
+    -p 8084:8084 \
     $REALM_VOLUME \
     xfinder-keycloak:prod start \
     --optimized \
@@ -70,7 +70,7 @@ echo "Keycloak iniciado com sucesso!"
 echo "=========================================="
 echo ""
 echo "Container: xfinder-keycloak-prod"
-echo "Porta: 8080 (HTTP)"
+echo "Porta: 8084 (HTTP)"
 echo "URL Admin: https://xfinder-archery.com.br/admin"
 echo "URL Realm: https://xfinder-archery.com.br/realms/xfinder"
 echo ""

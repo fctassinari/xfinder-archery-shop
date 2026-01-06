@@ -49,7 +49,7 @@ $command = "podman run -d " +
     "--tz=America/Sao_Paulo " +
     "--name xfinder-keycloak-prod " +
     "--network nt-xfinder " +
-    "-p 8080:8080 " +
+    "-p 8084:8084 " +
     "$realmVolume " +
     "xfinder-keycloak:prod start " +
     "--optimized " +
@@ -67,7 +67,7 @@ Write-Host "Keycloak iniciado com sucesso!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Container: xfinder-keycloak-prod" -ForegroundColor White
-Write-Host "Porta: 8080 (HTTP)" -ForegroundColor White
+Write-Host "Porta: 8084 (HTTP)" -ForegroundColor White
 Write-Host "URL Admin: https://xfinder-archery.com.br/admin" -ForegroundColor White
 Write-Host "URL Realm: https://xfinder-archery.com.br/realms/xfinder" -ForegroundColor White
 Write-Host ""

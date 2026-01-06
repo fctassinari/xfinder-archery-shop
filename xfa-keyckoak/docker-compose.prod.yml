@@ -13,13 +13,14 @@ services:
       - KC_HOSTNAME_STRICT=false
       - KC_PROXY=edge
       - KC_HTTP_ENABLED=true
+      - KC_HTTP_PORT=8084
       - KC_HTTPS_ENABLED=false
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=XFA@2025
       - KC_HEALTH_ENABLED=true
       - KC_METRICS_ENABLED=true
     ports:
-      - "8080:8080"
+      - "8084:8084"
     networks:
       - nt-xfinder
     command: >
@@ -36,7 +37,7 @@ services:
     depends_on:
       - postgres
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8084/health/ready || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

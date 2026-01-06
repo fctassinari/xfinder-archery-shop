@@ -6,7 +6,7 @@ Este guia descreve como configurar o Keycloak em produção com nginx fazendo pr
 
 - **Domínio**: `https://xfinder-archery.com.br`
 - **Nginx**: Gerencia SSL/TLS com certificado Let's Encrypt
-- **Keycloak**: Roda em HTTP internamente (porta 8080), acessível via `https://xfinder-archery.com.br/realms/*`
+- **Keycloak**: Roda em HTTP internamente (porta 8084), acessível via `https://xfinder-archery.com.br/realms/*`
 - **Aplicação Principal**: Roda na porta 8083, acessível via `https://xfinder-archery.com.br/`
 
 ## Por que não usar certificado auto-assinado em produção?
@@ -47,7 +47,7 @@ podman run -d \
     --tz=America/Sao_Paulo \
     --name xfinder-keycloak-prod \
     --network nt-xfinder \
-    -p 8080:8080 \
+    -p 8084:8084 \
     -v "C:/caminho/para/realm-export-prod.json:/opt/keycloak/data/import/realm-export.json:Z" \
     xfinder-keycloak:prod start \
     --optimized \
@@ -63,7 +63,7 @@ podman run -d \
 - `--proxy=edge`: Configura para funcionar atrás de proxy reverso
 - `--hostname=xfinder-archery.com.br`: Define o hostname externo
 - `--hostname-strict=false`: Permite que o Keycloak aceite requisições do nginx
-- `-p 8080:8080`: Expõe apenas a porta HTTP
+- `-p 8084:8084`: Expõe apenas a porta HTTP
 
 ### Opção B: Usando Docker Compose
 
@@ -89,7 +89,7 @@ services:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=XFA@2025
     ports:
-      - "8080:8080"
+      - "8084:8084"
     networks:
       - nt-xfinder
     command: start --optimized --http-enabled=true --proxy=edge --hostname=xfinder-archery.com.br --hostname-strict=false
@@ -115,8 +115,8 @@ Edite o arquivo de configuração do nginx (geralmente em `/etc/nginx/sites-avai
 Substitua o conteúdo do arquivo de configuração do nginx pelo conteúdo do arquivo `nginx-keycloak-completo.conf`.
 
 **Importante**: Ajuste o upstream do Keycloak conforme necessário:
-- Se o Keycloak estiver no mesmo servidor: `server localhost:8080;`
-- Se estiver em outro servidor: `server vpsking15907.publiccloud.com.br:8080;`
+- Se o Keycloak estiver no mesmo servidor: `server localhost:8084;`
+- Se estiver em outro servidor: `server vpsking15907.publiccloud.com.br:8084;`
 
 ### Validar e recarregar o nginx
 
@@ -225,7 +225,7 @@ sudo tail -f /var/log/nginx/error.log
 
 - Verifique os logs: `podman logs xfinder-keycloak-prod`
 - Verifique se o banco de dados está acessível
-- Verifique se a porta 8080 está disponível
+- Verifique se a porta 8084 está disponível
 
 ### Nginx retorna 502 Bad Gateway
 
@@ -243,7 +243,7 @@ sudo tail -f /var/log/nginx/error.log
 
 | Aspecto | Desenvolvimento | Produção |
 |---------|----------------|----------|
-| **Protocolo** | HTTPS (porta 8443) | HTTP (porta 8080) |
+| **Protocolo** | HTTPS (porta 8443) | HTTP (porta 8084) |
 | **Certificado** | Auto-assinado | Gerenciado pelo nginx |
 | **Hostname** | `localhost` | `xfinder-archery.com.br` |
 | **Proxy** | Não | Sim (nginx) |
