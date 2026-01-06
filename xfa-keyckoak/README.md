@@ -35,6 +35,7 @@
     podman start xfinder-keycloak
 ```
 
+
 **Importar realm manualmente (após Keycloak estar rodando)**
 
 Se você precisar importar o realm após o Keycloak já estar em execução:

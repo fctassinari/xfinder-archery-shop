@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: xfinder-keycloak:prod
+    container_name: xfinder-keycloak-prod
+    environment:
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://xfinder-postgres:5432/keycloak
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=XFA@2025
+      - KC_HOSTNAME=xfinder-archery.com.br
+      - KC_HOSTNAME_STRICT=false
+      - KC_PROXY=edge
+      - KC_HTTP_ENABLED=true
+      - KC_HTTPS_ENABLED=false
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=XFA@2025
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+    ports:
+      - "8080:8080"
+    networks:
+      - nt-xfinder
+    command: >
+      start
+      --optimized
+      --http-enabled=true
+      --proxy=edge
+      --hostname=xfinder-archery.com.br
+      --hostname-strict=false
+    volumes:
+      # Ajuste o caminho conforme necessário
+      - ./realm-export-prod.json:/opt/keycloak/data/import/realm-export.json:Z
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Se você quiser incluir o PostgreSQL no mesmo compose (opcional)
+  # postgres:
+  #   image: postgres:18.0
+  #   container_name: xfinder-postgres
+  #   environment:
+  #     - POSTGRES_PASSWORD=XFA@2025
+  #     - TZ=America/Sao_Paulo
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - nt-xfinder
+  #   ports:
+  #     - "5432:5432"
+  #   restart: unless-stopped
+
+networks:
+  nt-xfinder:
+    external: true
+
+# volumes:
+#   postgres_data:
