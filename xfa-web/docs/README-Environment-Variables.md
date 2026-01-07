@@ -68,13 +68,6 @@ Este documento descreve todas as variáveis de ambiente necessárias para config
 - **Descrição**: URL do projeto Supabase
 - **Exemplo**: `https://eerwibydxuihmlgranok.supabase.co`
 
-### `VITE_SUPABASE_PUBLISHABLE_KEY`
-- **Descrição**: Chave pública (anon) do Supabase
-- **Nota**: Valor sensível - obter no painel Supabase
-
-### `VITE_SUPABASE_PROJECT_ID`
-- **Descrição**: ID do projeto Supabase
-- **Exemplo**: `eerwibydxuihmlgranok`
 
 ## Exemplo de Arquivo .env para Produção
 
@@ -95,10 +88,6 @@ VITE_MAIL_API_URL="https://api.seudominio.com.br/api/mail"
 VITE_CHECKOUT_BASE_URL="https://checkout.infinitepay.io/fctassinari"
 VITE_PAYMENT_CHECK_URL="https://api.infinitepay.io/invoices/public/checkout/payment_check/fctassinari"
 
-# Supabase (se utilizado)
-VITE_SUPABASE_URL="https://seu-projeto.supabase.co"
-VITE_SUPABASE_PUBLISHABLE_KEY="sua-chave-publica"
-VITE_SUPABASE_PROJECT_ID="seu-project-id"
 ```
 
 ## Notas Importantes

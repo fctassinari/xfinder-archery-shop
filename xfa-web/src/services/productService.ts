@@ -3,7 +3,8 @@ import { Product } from '@/types/cart';
 
 const API_BASE_URL = import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
 // se as imagens forem servidas em outra pasta, ajuste aqui:
-const IMAGE_BASE_URL = import.meta.env.VITE_PRODUCTS_IMAGE_URL || `http://localhost:8080`;
+const IMAGE_BASE_URL = import.meta.env.
+VITE_PRODUCTS_IMAGE_URL || `http://localhost:8080`;
 
 export interface ProductDetails {
   originalPrice?: number;
