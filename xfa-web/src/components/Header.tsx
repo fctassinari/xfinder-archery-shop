@@ -17,7 +17,7 @@ const Header = () => {
     isAuthenticated = authContext?.isAuthenticated ?? false;
     isLoading = authContext?.isLoading ?? true;
   } catch (error) {
-    console.error('Erro ao acessar contexto de autenticação:', error);
+    // console.error('Erro ao acessar contexto de autenticação:', error);
     // Valores padrão seguros em caso de erro
     isAuthenticated = false;
     isLoading = false;

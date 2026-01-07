@@ -45,7 +45,7 @@ O script irá:
 - Criar o arquivo `.env` com as configurações corretas
 - Instalar todas as dependências
 
-Depois, pule para o **Passo 4** (Executar o servidor).
+Depois, pule para o **Passo 3** (Executar o servidor).
 
 ---
 
@@ -59,29 +59,7 @@ Abra o PowerShell ou Terminal e navegue até o diretório do projeto:
 cd C:\Users\integ\Downloads\dev\git\xfinder-archery-shop\xfa-web
 ```
 
-### 2. Criar arquivo .env
-
-Crie o arquivo `.env` na raiz do diretório `xfa-web` com as variáveis de ambiente baseadas no Dockerfile.
-
-**Opção 1 - Copiar do exemplo** (se existir `.env.example`):
-```powershell
-copy .env.example .env
-```
-
-**Opção 2 - Criar manualmente**:
-Crie um arquivo chamado `.env` na raiz de `xfa-web` com o seguinte conteúdo:
-
-```env
-VITE_API_BASE_URL=http://localhost:8081
-VITE_KEYCLOAK_URL=https://localhost:8443
-VITE_KEYCLOAK_REALM=xfinder
-VITE_KEYCLOAK_CLIENT_ID=xfinder-web
-VITE_APP_BASE_URL=http://localhost:8080
-```
-
-**Nota**: O arquivo `.env` não deve ser commitado (já está no `.gitignore`). Se precisar alterar alguma variável, edite o arquivo `.env` na raiz do diretório `xfa-web`.
-
-### 3. Instalar dependências
+### 2. Instalar dependências
 
 Execute o comando para instalar todas as dependências do projeto:
 
@@ -93,7 +71,7 @@ npm install --legacy-peer-deps
 
 **Nota**: A flag `--legacy-peer-deps` é necessária devido a algumas incompatibilidades de versão entre pacotes.
 
-### 4. Executar o servidor de desenvolvimento
+### 3. Executar o servidor de desenvolvimento
 
 Execute o comando para iniciar o servidor de desenvolvimento:
 

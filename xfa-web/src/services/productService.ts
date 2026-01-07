@@ -1,10 +1,27 @@
 import axios from 'axios';
 import { Product } from '@/types/cart';
+import { getApiConfig, getAppUrls } from '@/config/appConfig';
 
-const API_BASE_URL = import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
-// se as imagens forem servidas em outra pasta, ajuste aqui:
-const IMAGE_BASE_URL = import.meta.env.
-VITE_PRODUCTS_IMAGE_URL || `http://localhost:8080`;
+// Função para obter URL da API de produtos (com fallback)
+function getProductsApiUrl(): string {
+  try {
+    return getApiConfig().productsUrl;
+  } catch (error) {
+    return import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
+  }
+}
+
+// Função para obter URL base de imagens (com fallback)
+function getImageBaseUrl(): string {
+  try {
+    return getAppUrls().imageUrl;
+  } catch (error) {
+    return import.meta.env.VITE_PRODUCTS_IMAGE_URL || 'http://localhost:8080';
+  }
+}
+
+const API_BASE_URL = getProductsApiUrl();
+const IMAGE_BASE_URL = getImageBaseUrl();
 
 export interface ProductDetails {
   originalPrice?: number;
@@ -33,7 +50,7 @@ class ProductService {
       const response = await axios.get(`${API_BASE_URL}${endpoint}`);
       return response.data;
     } catch (error) {
-      console.error(`Erro ao buscar dados da API: ${endpoint}`, error);
+      // console.error(`Erro ao buscar dados da API: ${endpoint}`, error);
       throw error;
     }
   }

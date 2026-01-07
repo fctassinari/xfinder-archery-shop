@@ -94,7 +94,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           dispatch({ type: 'LOAD_CART', payload: parsedCart });
           //console.log('📦 Carrinho carregado do localStorage');
         } catch (error) {
-          console.error('Erro ao carregar carrinho:', error);
+          // console.error('Erro ao carregar carrinho:', error);
           localStorage.removeItem('xfinder-cart');
         }
       }

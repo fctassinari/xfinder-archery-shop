@@ -1,11 +1,20 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
 import keycloak from '@/config/keycloak';
+import { getApiConfig } from '@/config/appConfig';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+// Função para obter URL base da API (com fallback)
+function getApiBaseUrl(): string {
+  try {
+    return getApiConfig().baseUrl;
+  } catch (error) {
+    // Fallback para desenvolvimento
+    return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+  }
+}
 
-// Criar instância do axios
+// Criar instância do axios (baseURL será atualizado dinamicamente)
 const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -17,7 +26,7 @@ apiClient.interceptors.request.use(
     // IMPORTANTE: Só adicionar token se a URL for da nossa API interna
     // URLs externas (SuperFrete, InfinitePay, etc.) não devem receber token
     const requestUrl = config.url || '';
-    const baseUrl = config.baseURL || API_BASE_URL;
+    const baseUrl = config.baseURL || getApiBaseUrl();
     const fullUrl = requestUrl.startsWith('http') ? requestUrl : `${baseUrl}${requestUrl}`;
     
     // Verificar se é uma chamada para API externa (não deve adicionar token)
@@ -45,19 +54,19 @@ apiClient.interceptors.request.use(
             token = keycloak.token || null;
           } else {
             // Se não há refresh token, tentar usar token do sessionStorage
-            console.warn('[apiClient] Keycloak não inicializado, tentando usar token do sessionStorage');
+            // console.warn('[apiClient] Keycloak não inicializado, tentando usar token do sessionStorage');
             const savedAuthState = sessionStorage.getItem('keycloak_auth_state');
             if (savedAuthState) {
               try {
                 const authState = JSON.parse(savedAuthState);
                 token = authState.token || null;
               } catch (e) {
-                console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
+                // console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
               }
             }
           }
         } catch (error) {
-          console.error('Erro ao atualizar token:', error);
+          // console.error('Erro ao atualizar token:', error);
           // Tentar usar token do sessionStorage como fallback
           const savedAuthState = sessionStorage.getItem('keycloak_auth_state');
           if (savedAuthState) {
@@ -65,7 +74,7 @@ apiClient.interceptors.request.use(
               const authState = JSON.parse(savedAuthState);
               token = authState.token || null;
             } catch (e) {
-              console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
+              // console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
             }
           }
         }
@@ -80,7 +89,7 @@ apiClient.interceptors.request.use(
           const authState = JSON.parse(savedAuthState);
           token = authState.token || null;
         } catch (e) {
-          console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
+          // console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
         }
       }
     }
@@ -89,10 +98,10 @@ apiClient.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
       // Debug: logar qual token está sendo enviado
-      if (import.meta.env.DEV) {
-        console.log('[apiClient] Enviando ACCESS TOKEN para API interna (primeiros 50 chars):', 
-          token.substring(0, 50) + '...');
-      }
+      // if (import.meta.env.DEV) {
+      //   console.log('[apiClient] Enviando ACCESS TOKEN para API interna (primeiros 50 chars):', 
+      //     token.substring(0, 50) + '...');
+      // }
     }
 
     return config;
@@ -112,7 +121,7 @@ apiClient.interceptors.response.use(
 
     // Verificar se é uma chamada para API externa (não deve processar erros de autenticação)
     const requestUrl = originalRequest?.url || '';
-    const baseUrl = originalRequest?.baseURL || API_BASE_URL;
+    const baseUrl = originalRequest?.baseURL || getApiBaseUrl();
     const fullUrl = requestUrl.startsWith('http') ? requestUrl : `${baseUrl}${requestUrl}`;
     
     const isExternalApi = fullUrl.includes('superfrete.com') || 
@@ -148,7 +157,7 @@ apiClient.interceptors.response.use(
           }
         } else {
           // Se não há refresh token, tentar usar token do sessionStorage
-          console.warn('[apiClient] Keycloak não inicializado ou sem refresh token, tentando usar token do sessionStorage');
+          // console.warn('[apiClient] Keycloak não inicializado ou sem refresh token, tentando usar token do sessionStorage');
           const savedAuthState = sessionStorage.getItem('keycloak_auth_state');
           if (savedAuthState) {
             try {
@@ -157,12 +166,12 @@ apiClient.interceptors.response.use(
                 originalRequest.headers.Authorization = `Bearer ${authState.token}`;
               }
             } catch (e) {
-              console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
+              // console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
               return Promise.reject(error);
             }
           } else {
             // Se não há token no sessionStorage, rejeitar o erro
-            console.error('[apiClient] Não há token disponível para renovar');
+            // console.error('[apiClient] Não há token disponível para renovar');
             return Promise.reject(error);
           }
         }
@@ -172,14 +181,14 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         // Se falhar ao atualizar, apenas logar o erro
         // Não fazer logout automático para não interromper fluxos em andamento
-        console.error('Erro ao atualizar token:', refreshError);
+        // console.error('Erro ao atualizar token:', refreshError);
         return Promise.reject(refreshError);
       }
     }
 
     // Se receber 403 (Proibido), pode ser problema de permissão
     if (error.response?.status === 403) {
-      console.error('Acesso negado: você não tem permissão para esta ação');
+      // console.error('Acesso negado: você não tem permissão para esta ação');
     }
 
     return Promise.reject(error);

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, ArrowLeft, Loader2, AlertTriangle, Package, Ruler, Scale } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/types/cart";
+import { getApiConfig } from "@/config/appConfig";
 
 // Re-define a interface ApiProduct baseada na estrutura da API Java
 interface ApiProduct extends Product {
@@ -65,7 +66,7 @@ const ProdutoDetalhesPage = () => {
       return;
     }
 
-    const BASE_API_URL = import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
+    const BASE_API_URL = getApiConfig().productsUrl;
     const apiUrl = `${BASE_API_URL}/${productId}`;
 
     const fetchProductDetails = async () => {
@@ -87,7 +88,7 @@ const ProdutoDetalhesPage = () => {
         try {
             data = await response.json();
         } catch (jsonError) {
-            console.error("Erro ao analisar JSON. Resposta pode não ser JSON:", jsonError);
+            // console.error("Erro ao analisar JSON. Resposta pode não ser JSON:", jsonError);
             throw new Error("Resposta inesperada do servidor. O formato de dados está incorreto (esperado JSON).");
         }
 
@@ -101,7 +102,7 @@ const ProdutoDetalhesPage = () => {
         setProduct(safeProductData);
 
       } catch (err: any) {
-        console.error("Erro ao buscar detalhes do produto:", err);
+        // console.error("Erro ao buscar detalhes do produto:", err);
         setError(err.message || "Não foi possível carregar os detalhes do produto devido a um erro desconhecido.");
       } finally {
         setLoading(false);

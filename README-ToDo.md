@@ -107,9 +107,8 @@ location.reload();
   * ✅ Ver o que fazer com a newsletter
   * ✅ Implementar Login
   * ✅ SSL
-  * Tirar variaveis do .env e passar para recuperar de api backend
-  * Como criar um .env de dev e de prod
-  * Configurar o Dockerfile
+  * ✅ Tirar variaveis do .env e passar para recuperar de api backend
+  * ✅ Comentar os console.*
   
   
 * Implementar Meus pedidos

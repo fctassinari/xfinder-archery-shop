@@ -14,6 +14,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { LoginButton } from "@/components/auth/LoginButton";
 import apiClient from "@/services/apiClient";
+import { getApiConfig, getAppUrls, getPaymentConfig, getFeaturesConfig } from "@/config/appConfig";
 
 const Cart = () => {
   const { cart, removeItem, updateQuantity, clearCart } = useCart();
@@ -45,17 +46,15 @@ const Cart = () => {
     state: ""
   });
 
-  const cleanUrl = (value: string | undefined, fallback: string) => {
-    if (!value) return fallback;
-    let v = value.trim();
-    v = v.replace(/^['"][\s]*/g, "").replace(/[\s]*['";]+$/g, "");
-    v = v.replace(/\\"/g, '"').replace(/\\'/g, "'");
-    return v || fallback;
-  };
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
-  const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL || "http://localhost:8080";
-  const SUPERFRETE_API_URL = cleanUrl(import.meta.env.VITE_SUPERFRETE_API_URL, `${API_BASE_URL}/api/superfrete/calculate-freight`);
+  // Obter configurações do backend
+  const apiConfig = getApiConfig();
+  const appUrls = getAppUrls();
+  const paymentConfig = getPaymentConfig();
+  const featuresConfig = getFeaturesConfig();
+  
+  const API_BASE_URL = apiConfig.baseUrl;
+  const APP_BASE_URL = appUrls.baseUrl;
+  const SUPERFRETE_API_URL = apiConfig.superfreteUrl;
 
   const calculateFreight = async () => {
     const sanitizedCep = cep.replace(/\D/g, "");
@@ -162,7 +161,7 @@ const Cart = () => {
         alert("Nenhuma opção de frete encontrada para o CEP informado.");
       }
     } catch (error: any) {
-      console.error("Erro ao calcular frete:", error);
+      // console.error("Erro ao calcular frete:", error);
       setFreightOptions([]);
       setSelectedFreight(null);
       setSuperfreteLabelInfo(null);
@@ -200,18 +199,18 @@ const Cart = () => {
       return;
     }
 
-    console.log('🛒 Abrindo checkout, customer:', customer);
-    console.log('🛒 isAuthenticated:', isAuthenticated);
+    // console.log('🛒 Abrindo checkout, customer:', customer);
+    // console.log('🛒 isAuthenticated:', isAuthenticated);
 
     // Se customer não está disponível, tentar sincronizar primeiro
     if (!customer) {
-      console.log('🔄 Customer não disponível, sincronizando...');
+      // console.log('🔄 Customer não disponível, sincronizando...');
       setIsLoadingCustomer(true);
       try {
         await syncCustomer();
-        console.log('✅ Sincronização iniciada, aguardando customer ser carregado...');
+        // console.log('✅ Sincronização iniciada, aguardando customer ser carregado...');
       } catch (error) {
-        console.error('❌ Erro ao sincronizar customer:', error);
+        // console.error('❌ Erro ao sincronizar customer:', error);
         setIsLoadingCustomer(false);
       }
     }
@@ -229,11 +228,11 @@ const Cart = () => {
   // Carregar dados do cliente quando o popup de checkout abre e o customer está disponível
   useEffect(() => {
     if (showCheckoutPopup && isAuthenticated) {
-      console.log('📦 Popup de checkout aberto, verificando customer:', customer);
+      // console.log('📦 Popup de checkout aberto, verificando customer:', customer);
       
       // Se customer está disponível, carregar os dados
       if (customer && customer.id) {
-        console.log('✅ Customer encontrado, carregando dados:', customer);
+        // console.log('✅ Customer encontrado, carregando dados:', customer);
         const loadedData = {
           name: customer.name || "",
           email: customer.email || "",
@@ -248,13 +247,13 @@ const Cart = () => {
           state: customer.state || ""
         };
 
-        console.log('📦 Dados carregados no popup:', loadedData);
+        // console.log('📦 Dados carregados no popup:', loadedData);
         setCustomerData(loadedData);
         setOriginalCustomerData(loadedData);
         setCustomerId(customer.id);
         setCustomerExists(true);
       } else if (!customer) {
-        console.log('⚠️ Customer não disponível ainda (pode estar sincronizando)');
+        // console.log('⚠️ Customer não disponível ainda (pode estar sincronizando)');
         // Se o customer não está disponível, pode estar sendo sincronizado
         // O useEffect vai executar novamente quando o customer for carregado
       }
@@ -338,7 +337,7 @@ const Cart = () => {
   const checkExistingCustomer = async (cpf: string) => {
     setIsLoadingCustomer(true);
     try {
-      const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+      const customersApiUrl = apiConfig.customersUrl;
       const response = await fetch(`${customersApiUrl}/cpf/${cpf}`);
 
       if (response.ok) {
@@ -385,7 +384,7 @@ const Cart = () => {
         //console.log('ℹ️ Cliente não cadastrado, preencha os dados');
       }
     } catch (error) {
-      console.error('❌ Erro ao verificar cliente:', error);
+      // console.error('❌ Erro ao verificar cliente:', error);
       setCustomerExists(false);
       setOriginalCustomerData(null);
       setCustomerId(null);
@@ -463,12 +462,11 @@ const Cart = () => {
     if (!validateCheckoutData()) return;
 
     // ========== MOCK PARA TESTE DE ETIQUETAS ==========
-    // Para ativar o mock, defina VITE_USE_MOCK_CHECKOUT=true no .env
-    // ou altere a linha abaixo para: const USE_MOCK = true;
-    const USE_MOCK = import.meta.env.VITE_USE_MOCK_CHECKOUT === 'true' || false;
+    // Para ativar o mock, defina useMockCheckout=true no backend
+    const USE_MOCK = featuresConfig.useMockCheckout;
     
     if (USE_MOCK) {
-      console.log('🧪 MODO MOCK ATIVADO - Testando fluxo de etiquetas');
+      // console.log('🧪 MODO MOCK ATIVADO - Testando fluxo de etiquetas');
       
       try {
         // Processar cliente (criar ou atualizar) - mesma lógica do original
@@ -488,7 +486,7 @@ const Cart = () => {
               state: customerData.state
             };
 
-            const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+            const customersApiUrl = apiConfig.customersUrl;
             const headers: HeadersInit = { 'Content-Type': 'application/json' };
             if (token) {
               headers['Authorization'] = `Bearer ${token}`;
@@ -501,7 +499,7 @@ const Cart = () => {
 
             if (!updateResponse.ok) {
               const errorText = await updateResponse.text();
-              console.error('❌ Erro na resposta (texto):', errorText);
+              // console.error('❌ Erro na resposta (texto):', errorText);
               try {
                 const errorData = errorText ? JSON.parse(errorText) : { error: 'Erro desconhecido' };
                 alert(`Erro ao atualizar cadastro: ${errorData.error || 'Erro desconhecido'}`);
@@ -526,7 +524,7 @@ const Cart = () => {
             state: customerData.state
           };
 
-          const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+          const customersApiUrl = apiConfig.customersUrl;
           const headers: HeadersInit = { 'Content-Type': 'application/json' };
           if (token) {
             headers['Authorization'] = `Bearer ${token}`;
@@ -539,7 +537,7 @@ const Cart = () => {
 
           if (!customerResponse.ok) {
             const errorText = await customerResponse.text();
-            console.error('❌ Erro na resposta (texto):', errorText);
+            // console.error('❌ Erro na resposta (texto):', errorText);
             try {
               const errorData = JSON.parse(errorText);
               alert(`Erro ao cadastrar cliente: ${errorData.error || 'Erro desconhecido'}`);
@@ -576,11 +574,11 @@ const Cart = () => {
 
         // Redirecionar para a página de compra com parâmetros mockados
         const mockCheckoutUrl = `${APP_BASE_URL}/compra?${mockPaymentParams.toString()}`;
-        console.log('🧪 Redirecionando para:', mockCheckoutUrl);
+        // console.log('🧪 Redirecionando para:', mockCheckoutUrl);
         window.location.href = mockCheckoutUrl;
         return;
       } catch (error) {
-        console.error('❌ Erro no mock de checkout:', error);
+        // console.error('❌ Erro no mock de checkout:', error);
         alert('Erro ao processar checkout mock. Tente novamente.');
         return;
       }
@@ -609,7 +607,7 @@ const Cart = () => {
 
           //console.log('📤 Enviando atualização:', customerPayload);
 
-          const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+          const customersApiUrl = apiConfig.customersUrl;
           const headers: HeadersInit = { 'Content-Type': 'application/json' };
           if (token) {
             headers['Authorization'] = `Bearer ${token}`;
@@ -622,7 +620,7 @@ const Cart = () => {
 
           if (!updateResponse.ok) {
             const errorText = await updateResponse.text();
-            console.error('❌ Erro na resposta (texto):', errorText);
+            // console.error('❌ Erro na resposta (texto):', errorText);
             try {
               const errorData = errorText ? JSON.parse(errorText) : { error: 'Erro desconhecido' };
               alert(`Erro ao atualizar cadastro: ${errorData.error || 'Erro desconhecido'}`);
@@ -661,7 +659,7 @@ const Cart = () => {
 
         //console.log('📤 Enviando novo cliente:', customerPayload);
 
-        const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+        const customersApiUrl = apiConfig.customersUrl;
         const headers: HeadersInit = { 'Content-Type': 'application/json' };
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
@@ -676,7 +674,7 @@ const Cart = () => {
 
         if (!customerResponse.ok) {
           const errorText = await customerResponse.text();
-          console.error('❌ Erro na resposta (texto):', errorText);
+          // console.error('❌ Erro na resposta (texto):', errorText);
           try {
             const errorData = JSON.parse(errorText);
             alert(`Erro ao cadastrar cliente: ${errorData.error || 'Erro desconhecido'}`);
@@ -724,7 +722,7 @@ const Cart = () => {
       }
 
       // Monta a URL usando URLSearchParams para encoding correto
-      const baseUrl = import.meta.env.VITE_CHECKOUT_BASE_URL || "https://checkout.infinitepay.io/fctassinari";
+      const baseUrl = paymentConfig.checkoutBaseUrl;
       const searchParams = new URLSearchParams();
 
       searchParams.append('items', JSON.stringify(items));
@@ -743,7 +741,7 @@ const Cart = () => {
 
       window.location.href = checkoutUrl;
     } catch (error) {
-      console.error('❌ Erro ao processar checkout:', error);
+      // console.error('❌ Erro ao processar checkout:', error);
       alert('Erro ao processar o checkout. Tente novamente.');
     }
     // ========== FIM DO CÓDIGO ORIGINAL ==========
@@ -763,7 +761,7 @@ const Cart = () => {
   // Carregar CEP do cliente quando o carrinho abre e o cliente está logado
   useEffect(() => {
     if (isOpen && isAuthenticated && customer?.cep) {
-      console.log('📍 Carregando CEP do cliente no carrinho:', customer.cep);
+      // console.log('📍 Carregando CEP do cliente no carrinho:', customer.cep);
       const formattedCep = formatCEP(customer.cep);
       setCep(formattedCep);
     }

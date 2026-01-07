@@ -93,6 +93,7 @@
 # Arquivos de dados grandes
 **/*.json.bak
 **/product.json
+**/product.json.tudo
 **/email.json
 
 # Docker
