@@ -19,6 +19,15 @@ services:
       - KC_BOOTSTRAP_ADMIN_PASSWORD=XFA@2025
       - KC_HEALTH_ENABLED=true
       - KC_METRICS_ENABLED=true
+      # Configuração SMTP para envio de emails
+      - KC_SMTP_HOST=smtp.gmail.com
+      - KC_SMTP_PORT=465
+      - KC_SMTP_FROM=contato.xfinder@gmail.com
+      - KC_SMTP_FROM_DISPLAY_NAME=X-Finder Archery Shop
+      - KC_SMTP_USERNAME=contato.xfinder@gmail.com
+      - KC_SMTP_PASSWORD=bpir kvyk osew qxkz
+      - KC_SMTP_SSL_ENABLED=true
+      - KC_SMTP_STARTTLS_ENABLED=false
     ports:
       - "8084:8084"
     networks:

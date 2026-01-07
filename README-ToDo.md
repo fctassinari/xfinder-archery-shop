@@ -109,8 +109,9 @@ location.reload();
   * ✅ SSL
   * ✅ Tirar variaveis do .env e passar para recuperar de api backend
   * ✅ Comentar os console.*
-  
-  
+  * ✅ Configurar email no keycloak
+
+
 * Implementar Meus pedidos
   * Listar todos os pedidos do cliente
 
