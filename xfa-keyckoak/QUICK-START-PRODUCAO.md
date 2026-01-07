@@ -36,8 +36,10 @@ Substitua o conteúdo do arquivo de configuração do nginx pelo conteúdo de `n
 sudo nginx -t
 sudo systemctl reload nginx
 ```
+### 5. Configurar Email
+[KEYCLOAK-EMAIL-SETUP](KEYCLOAK-EMAIL-SETUP.md)
 
-### 5. Acessar
+### 6. Acessar
 - Admin Console: `https://xfinder-archery.com.br/admin`
 - Realm: `https://xfinder-archery.com.br/realms/xfinder`
 
