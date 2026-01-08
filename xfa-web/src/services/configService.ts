@@ -52,12 +52,20 @@ function getConfigApiUrl(): string {
   if (import.meta.env.DEV) {
     return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
   }
-  // Em produção, tenta detectar a URL base automaticamente
+  // Em produção, usa a mesma origem (a API está na mesma origem que o frontend)
+  // O nginx ou proxy reverso roteia as requisições para a API
   const protocol = window.location.protocol;
-  const host = window.location.host;
-  // Se estiver na mesma origem, usa a origem atual
-  // Caso contrário, tenta inferir a URL da API
-  return `${protocol}//${host.replace(':8080', ':8085').replace(':8080', ':8081')}`;
+  const hostname = window.location.hostname;
+  const port = window.location.port;
+  
+  // Se houver porta explícita, mantém a mesma porta (API está na mesma origem)
+  if (port) {
+    return `${protocol}//${hostname}:${port}`;
+  }
+  
+  // Se não houver porta (porta padrão do protocolo), usa a mesma origem
+  // Em produção com HTTPS, a API geralmente está na mesma origem
+  return `${protocol}//${hostname}`;
 }
 
 /**

@@ -20,9 +20,6 @@ function getImageBaseUrl(): string {
   }
 }
 
-const API_BASE_URL = getProductsApiUrl();
-const IMAGE_BASE_URL = getImageBaseUrl();
-
 export interface ProductDetails {
   originalPrice?: number;
   rating: number;
@@ -47,7 +44,9 @@ export interface ApiProduct extends Omit<Product, 'image'> {
 class ProductService {
   private async request<T>(endpoint: string): Promise<T> {
     try {
-      const response = await axios.get(`${API_BASE_URL}${endpoint}`);
+      // Obter URL dinamicamente para garantir que use as configurações carregadas
+      const apiUrl = getProductsApiUrl();
+      const response = await axios.get(`${apiUrl}${endpoint}`);
       return response.data;
     } catch (error) {
       // console.error(`Erro ao buscar dados da API: ${endpoint}`, error);
@@ -87,7 +86,9 @@ class ProductService {
     if (image.startsWith('http://') || image.startsWith('https://')) {
       return image; // já é URL completa
     }
-    return `${IMAGE_BASE_URL}/${image}`; // só nome do arquivo
+    // Obter URL dinamicamente para garantir que use as configurações carregadas
+    const imageBaseUrl = getImageBaseUrl();
+    return `${imageBaseUrl}/${image}`; // só nome do arquivo
   }
 
   // Converter ApiProduct para o formato esperado pelo frontend

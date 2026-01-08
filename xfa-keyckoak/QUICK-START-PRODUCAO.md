@@ -4,8 +4,9 @@
 
 ### 1. Build da Imagem
 ```bash
-cd xfa-keyckoak
-podman build -f Dockerfile.prod -t xfinder-keycloak:prod .
+#cd xfa-keyckoak
+#podman build -f Dockerfile.prod -t xfinder-keycloak:prod .
+o script abaixo já executa o build
 ```
 
 ### 2. Iniciar Keycloak
@@ -37,6 +38,11 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 ### 5. Configurar Email
+
+Se você está seguindo este roteiro, no documento abaixo é preciso somente configurar a senha de acesso ao email no item ``` Passo 2: Configurar SMTP / **Password**```
+
+A senha pode ser resgatada no arquivo application.properties no atributo quarkus.mailer.password
+
 [KEYCLOAK-EMAIL-SETUP](KEYCLOAK-EMAIL-SETUP.md)
 
 ### 6. Acessar
