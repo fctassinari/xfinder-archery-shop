@@ -82,12 +82,7 @@
 
 ```shell
   podman build -t xfinder-web:latest .
-```
-```bash
   podman stop xfinder-web
-  systemctl stop xfinder-web # em prod
-```
-```bash
   podman rm xfinder-web
 ```
 ```bash
