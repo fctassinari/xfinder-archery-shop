@@ -48,11 +48,14 @@ function getKeycloakConfigWithFallback() {
 
 // Instância do Keycloak (criada dinamicamente)
 let keycloakInstance: Keycloak | null = null;
-// Armazenar a URL usada para criar a instância atual
-let keycloakInstanceUrl: string | null = null;
 
 // Função para obter ou criar a instância do Keycloak
 function getKeycloakInstance(): Keycloak {
+  // Se já existe uma instância, retornar ela
+  if (keycloakInstance) {
+    return keycloakInstance;
+  }
+  
   // Obter configuração (com fallback se necessário)
   const keycloakConfig = getKeycloakConfigWithFallback();
   
@@ -62,24 +65,6 @@ function getKeycloakInstance(): Keycloak {
     throw new Error('Configuração do Keycloak incompleta');
   }
   
-  // Se já existe uma instância, verificar se a URL mudou
-  if (keycloakInstance && keycloakInstanceUrl) {
-    const newUrl = keycloakConfig.url;
-    
-    // Se a URL mudou (por exemplo, configurações foram carregadas), recriar a instância
-    if (keycloakInstanceUrl !== newUrl) {
-      // console.log('URL do Keycloak mudou, recriando instância:', { 
-      //   oldUrl: keycloakInstanceUrl, 
-      //   newUrl 
-      // });
-      keycloakInstance = null; // Limpar instância antiga
-      keycloakInstanceUrl = null; // Limpar URL armazenada
-    } else {
-      // Se a URL é a mesma, retornar a instância existente
-      return keycloakInstance;
-    }
-  }
-  
   // Criar nova instância do Keycloak
   try {
     keycloakInstance = new Keycloak({
@@ -87,8 +72,6 @@ function getKeycloakInstance(): Keycloak {
       realm: keycloakConfig.realm,
       clientId: keycloakConfig.clientId,
     });
-    // Armazenar a URL usada para criar esta instância
-    keycloakInstanceUrl = keycloakConfig.url;
     // console.log('Keycloak configurado:', {
     //   url: keycloakConfig.url,
     //   realm: keycloakConfig.realm,
@@ -103,7 +86,6 @@ function getKeycloakInstance(): Keycloak {
       realm: keycloakConfig.realm || 'xfinder',
       clientId: keycloakConfig.clientId || 'xfinder-web',
     });
-    keycloakInstanceUrl = keycloakConfig.url || 'https://localhost:8443';
     return keycloakInstance;
   }
 }
@@ -129,30 +111,12 @@ const keycloakProxy = new Proxy({} as Keycloak, {
 });
 
 // Função para reconfigurar Keycloak quando as configurações estiverem disponíveis
-// NOTA: Keycloak não permite reconfiguração dinâmica, então precisamos recriar a instância
 export function reconfigureKeycloak() {
   try {
     if (isConfigLoaded()) {
       const config = getKeycloakConfig();
-      // Sempre recriar a instância se as configurações estiverem disponíveis
-      // Isso garante que use a URL correta do backend
-      if (keycloakInstance && keycloakInstanceUrl) {
-        // Se a URL mudou, recriar
-        if (keycloakInstanceUrl !== config.url) {
-          // console.log('Configuração do Keycloak disponível, recriando instância...', {
-          //   oldUrl: keycloakInstanceUrl,
-          //   newUrl: config.url
-          // });
-          keycloakInstance = null; // Limpar instância antiga
-          keycloakInstanceUrl = null; // Limpar URL armazenada
-          getKeycloakInstance(); // Criar nova instância com configuração atualizada
-        }
-      } else {
-        // Se não existe instância ainda, criar uma com as configurações corretas
-        keycloakInstance = null; // Garantir que não há instância antiga
-        keycloakInstanceUrl = null;
-        getKeycloakInstance();
-      }
+      // Keycloak não permite reconfiguração dinâmica, mas podemos logar
+      // console.log('Keycloak reconfigurado com:', config);
     }
   } catch (error) {
     // console.warn('Não foi possível reconfigurar Keycloak:', error);
