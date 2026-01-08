@@ -1,46 +1,34 @@
 import Keycloak from 'keycloak-js';
 import { getKeycloakConfig, isConfigLoaded } from './appConfig';
 
-// Função para obter configuração do Keycloak (com fallback)
+// Função para obter configuração do Keycloak (sem fallbacks hardcoded)
 function getKeycloakConfigWithFallback() {
   // Priorizar sempre as configurações carregadas do backend
   try {
     if (isConfigLoaded()) {
       const config = getKeycloakConfig();
-      // console.log('Usando configuração do backend:', config);
       return config;
     }
   } catch (error) {
-    // console.warn('Configurações não carregadas ainda, usando fallback para Keycloak');
+    // Se não estiver carregado, tentar inferir da URL atual
   }
   
-  // Fallback para valores padrão (apenas em desenvolvimento)
-  if (import.meta.env.DEV) {
-    return {
-      url: 'https://localhost:8443',
-      realm: 'xfinder',
-      clientId: 'xfinder-web',
-    };
-  }
-  
-  // Em produção, tentar inferir a URL do Keycloak da URL atual
-  // O Keycloak geralmente está na mesma origem que o frontend
+  // Se não estiver carregado, inferir da URL atual do navegador
+  // Em produção, Keycloak geralmente está na mesma origem
   const protocol = window.location.protocol;
   const hostname = window.location.hostname;
   const port = window.location.port;
   
-  // Se houver porta explícita, usar a mesma origem (Keycloak está na mesma origem)
+  // Usar sempre a mesma origem do navegador
+  let keycloakUrl: string;
   if (port) {
-    return {
-      url: `${protocol}//${hostname}:${port}`,
-      realm: 'xfinder',
-      clientId: 'xfinder-web',
-    };
+    keycloakUrl = `${protocol}//${hostname}:${port}`;
+  } else {
+    keycloakUrl = `${protocol}//${hostname}`;
   }
   
-  // Se não houver porta, usar a mesma origem
   return {
-    url: `${protocol}//${hostname}`,
+    url: keycloakUrl,
     realm: 'xfinder',
     clientId: 'xfinder-web',
   };
@@ -79,12 +67,12 @@ function getKeycloakInstance(): Keycloak {
     // });
     return keycloakInstance;
   } catch (error) {
-    // console.error('Erro ao criar instância do Keycloak:', error);
-    // Em caso de erro, criar uma instância com valores padrão para evitar quebra da aplicação
+    console.error('Erro ao criar instância do Keycloak:', error);
+    // Em caso de erro, usar os valores da configuração (já tem fallback)
     keycloakInstance = new Keycloak({
-      url: keycloakConfig.url || 'https://localhost:8443',
-      realm: keycloakConfig.realm || 'xfinder',
-      clientId: keycloakConfig.clientId || 'xfinder-web',
+      url: keycloakConfig.url,
+      realm: keycloakConfig.realm,
+      clientId: keycloakConfig.clientId,
     });
     return keycloakInstance;
   }

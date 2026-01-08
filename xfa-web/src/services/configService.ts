@@ -45,25 +45,25 @@ let configPromise: Promise<FrontendConfig> | null = null;
 
 /**
  * Obtém a URL base da API para buscar configurações
- * Usa fallback para desenvolvimento local
+ * Detecta automaticamente baseado na URL atual do navegador
+ * 
+ * A API deve estar acessível na mesma origem que o frontend.
+ * Em produção, o nginx/proxy reverso roteia as requisições para a API.
+ * Em desenvolvimento, se a API estiver em outra porta, deve ser configurado
+ * um proxy reverso ou a URL deve ser acessada diretamente.
  */
 function getConfigApiUrl(): string {
-  // Em desenvolvimento, tenta usar variável de ambiente ou fallback
-  if (import.meta.env.DEV) {
-    return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
-  }
-  // Em produção, usa a mesma origem (a API está na mesma origem que o frontend)
-  // O nginx ou proxy reverso roteia as requisições para a API
   const protocol = window.location.protocol;
   const hostname = window.location.hostname;
   const port = window.location.port;
   
-  // Se houver porta explícita, mantém a mesma porta (API está na mesma origem)
+  // Sempre usar a mesma origem do navegador
+  // Se houver porta explícita, incluir na URL
   if (port) {
     return `${protocol}//${hostname}:${port}`;
   }
   
-  // Se não houver porta (porta padrão do protocolo), usa a mesma origem
+  // Se não houver porta (porta padrão do protocolo), usar a mesma origem
   // Em produção com HTTPS, a API geralmente está na mesma origem
   return `${protocol}//${hostname}`;
 }
@@ -90,26 +90,59 @@ async function fetchConfig(): Promise<FrontendConfig> {
     const config = await response.json();
     return config as FrontendConfig;
   } catch (error) {
-    // console.error('Erro ao buscar configurações do backend:', error);
+    console.error('Erro ao buscar configurações do backend:', error);
     
-    // Fallback para valores padrão em caso de erro
+    // Em caso de erro, tentar inferir valores baseados na URL atual
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+    
+    // Determinar URL base da API (fallback apenas se endpoint falhar)
+    // Usar sempre a mesma origem do navegador
+    let apiBaseUrl: string;
+    if (port) {
+      apiBaseUrl = `${protocol}//${hostname}:${port}`;
+    } else {
+      apiBaseUrl = `${protocol}//${hostname}`;
+    }
+    
+    // Determinar URL base do app (fallback apenas se endpoint falhar)
+    // Usar sempre a mesma origem do navegador
+    let appBaseUrl: string;
+    if (port) {
+      appBaseUrl = `${protocol}//${hostname}:${port}`;
+    } else {
+      appBaseUrl = `${protocol}//${hostname}`;
+    }
+    
+    // Determinar URL do Keycloak (fallback apenas se endpoint falhar)
+    // Em produção, geralmente está na mesma origem. Em desenvolvimento local,
+    // pode estar em outra porta, mas tentamos inferir da URL atual primeiro
+    let keycloakUrl: string;
+    if (port) {
+      keycloakUrl = `${protocol}//${hostname}:${port}`;
+    } else {
+      keycloakUrl = `${protocol}//${hostname}`;
+    }
+    
+    // Retornar configuração inferida (apenas como fallback de emergência)
     return {
       keycloak: {
-        url: 'https://localhost:8443',
+        url: keycloakUrl,
         realm: 'xfinder',
         clientId: 'xfinder-web',
       },
       api: {
-        baseUrl: 'http://localhost:8081',
-        productsUrl: 'http://localhost:8081/api/products',
-        customersUrl: 'http://localhost:8081/api/customers',
-        ordersUrl: 'http://localhost:8081/api/orders',
-        mailUrl: 'http://localhost:8081/api/mail',
-        superfreteUrl: 'http://localhost:8081/api/superfrete/calculate-freight',
+        baseUrl: apiBaseUrl,
+        productsUrl: `${apiBaseUrl}/api/products`,
+        customersUrl: `${apiBaseUrl}/api/customers`,
+        ordersUrl: `${apiBaseUrl}/api/orders`,
+        mailUrl: `${apiBaseUrl}/api/mail`,
+        superfreteUrl: `${apiBaseUrl}/api/superfrete/calculate-freight`,
       },
       app: {
-        baseUrl: 'http://localhost:8080',
-        imageUrl: 'http://localhost:8080',
+        baseUrl: appBaseUrl,
+        imageUrl: appBaseUrl,
       },
       payment: {
         checkoutBaseUrl: 'https://checkout.infinitepay.io/fctassinari',

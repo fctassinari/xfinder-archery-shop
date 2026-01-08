@@ -2,21 +2,42 @@ import axios from 'axios';
 import { Product } from '@/types/cart';
 import { getApiConfig, getAppUrls } from '@/config/appConfig';
 
-// Função para obter URL da API de produtos (com fallback)
+// Função para obter URL da API de produtos
+// Tenta usar configurações do backend primeiro. Fallback usa a URL atual do navegador.
 function getProductsApiUrl(): string {
   try {
     return getApiConfig().productsUrl;
   } catch (error) {
-    return import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
+    // Fallback: usar a mesma origem do navegador
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+    
+    let apiBaseUrl: string;
+    if (port) {
+      apiBaseUrl = `${protocol}//${hostname}:${port}`;
+    } else {
+      apiBaseUrl = `${protocol}//${hostname}`;
+    }
+    
+    return `${apiBaseUrl}/api/products`;
   }
 }
 
-// Função para obter URL base de imagens (com fallback)
+// Função para obter URL base de imagens (sem fallbacks hardcoded)
 function getImageBaseUrl(): string {
   try {
     return getAppUrls().imageUrl;
   } catch (error) {
-    return import.meta.env.VITE_PRODUCTS_IMAGE_URL || 'http://localhost:8080';
+    // Se não estiver carregado, inferir da URL atual
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+    
+    if (port) {
+      return `${protocol}//${hostname}:${port}`;
+    }
+    return `${protocol}//${hostname}`;
   }
 }
 

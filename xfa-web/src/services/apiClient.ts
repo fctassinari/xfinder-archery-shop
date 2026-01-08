@@ -2,13 +2,21 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'ax
 import keycloak from '@/config/keycloak';
 import { getApiConfig } from '@/config/appConfig';
 
-// Função para obter URL base da API (com fallback)
+// Função para obter URL base da API
+// Tenta usar configurações do backend primeiro. Fallback usa a URL atual do navegador.
 function getApiBaseUrl(): string {
   try {
     return getApiConfig().baseUrl;
   } catch (error) {
-    // Fallback para desenvolvimento
-    return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+    // Fallback: usar a mesma origem do navegador
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+    
+    if (port) {
+      return `${protocol}//${hostname}:${port}`;
+    }
+    return `${protocol}//${hostname}`;
   }
 }
 

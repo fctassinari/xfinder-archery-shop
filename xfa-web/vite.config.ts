@@ -8,6 +8,14 @@
       server: {
         host: "::",
         port: 8080,
+        // Proxy para redirecionar requisições /api/* para o backend em desenvolvimento
+        proxy: {
+          '/api': {
+            target: 'http://localhost:8081',
+            changeOrigin: true,
+            secure: false,
+          },
+        },
       },
       plugins: [
         react(),
