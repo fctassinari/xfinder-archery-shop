@@ -29,7 +29,7 @@ No nginx.conf, adicione:
 **Impacto**: Scripts maliciosos podem ser injetados
 **Solução** - Adicionar ao nginx.conf:
 ```nginx
-✅ add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://eerwibydxuihmlgranok.supabase.co https://wa.me http://localhost:8081; frame-src https://www.google.com;" always;
+✅ add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://eerwibydxuihmlgranok.supabase.co https://wa.me http://localhost:8081; frame-src https://www.google.com;" always;
 ```
 
 ### 4. Rate Limiting

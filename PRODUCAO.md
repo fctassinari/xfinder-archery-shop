@@ -73,11 +73,9 @@
 ## **xfa-web**
 
 ```shell
-  podman build -t xfinder-web:latest .
   podman stop xfinder-web
   podman rm xfinder-web
-```
-```bash
+  podman build -t xfinder-web:latest .
   podman run -d  --tz=America/Sao_Paulo --name xfinder-web -p 8083:8080 --network nt-xfinder --restart unless-stopped xfinder-web:latest
 ```
 ```bash
