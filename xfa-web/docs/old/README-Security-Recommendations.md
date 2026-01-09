@@ -29,7 +29,7 @@ No nginx.conf, adicione:
 **Impacto**: Scripts maliciosos podem ser injetados
 **Solução** - Adicionar ao nginx.conf:
 ```nginx
-✅ add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://eerwibydxuihmlgranok.supabase.co https://wa.me http://localhost:8081; frame-src https://www.google.com;" always;
+✅ add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self'  https://wa.me http://localhost:8081; frame-src https://www.google.com;" always;
 ```
 
 ### 4. Rate Limiting
@@ -80,7 +80,6 @@ Se a API Java estiver em domínio diferente, configure CORS adequadamente:
 ### 8. Environment Variables
 **Problema**: .env com dados sensíveis no repositório
 **Solução**:
-- ✅ Chaves públicas do Supabase podem ficar no .env (já estão corretas)
 - ❌ Nunca commitar .env no git
 - Use variáveis de ambiente do servidor em produção
 - Rotacione chaves se foram expostas
@@ -89,7 +88,6 @@ Se a API Java estiver em domínio diferente, configure CORS adequadamente:
 
 ### 9. Autenticação (Futuro)
 Se implementar login de usuários:
-- Use Supabase Auth (já configurado)
 - Implemente RLS (Row Level Security) nas tabelas
 - Use JWT tokens
 - Implemente refresh tokens
@@ -162,7 +160,6 @@ Se você controla a API Java:
 ## 📞 Recursos Adicionais
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [Supabase Security Best Practices](https://supabase.com/docs/guides/auth/security)
 - [React Security Best Practices](https://react.dev/learn/security)
 - [Nginx Security Guide](https://nginx.org/en/docs/http/ngx_http_ssl_module.html)
 

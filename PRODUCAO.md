@@ -47,11 +47,13 @@
 **Executar em container**
 
 ```bash
+  cd xfa-api
   podman stop xfinder-api
   podman rm xfinder-api
   ./mvnw package -DskipTests=true
   podman build -f src/main/docker/Dockerfile.jvm -t xfinder-api:latest .
   podman run -d  --tz=America/Sao_Paulo --name xfinder-api --network nt-xfinder -p 8085:8085 xfinder-api:latest
+  cd ..
 ```
 ```bash
   podman start xfinder-api
@@ -73,10 +75,12 @@
 ## **xfa-web**
 
 ```shell
+  cd xfa-web
   podman stop xfinder-web
   podman rm xfinder-web
   podman build -t xfinder-web:latest .
   podman run -d  --tz=America/Sao_Paulo --name xfinder-web -p 8083:8080 --network nt-xfinder --restart unless-stopped xfinder-web:latest
+  cd ..
 ```
 ```bash
   podman start xfinder-web
