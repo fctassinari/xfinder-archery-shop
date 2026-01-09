@@ -48,17 +48,9 @@
 
 ```bash
   podman stop xfinder-api
-```
-```bash
   podman rm xfinder-api
-```
-```shell script
   ./mvnw package -DskipTests=true
-```
-```bash
   podman build -f src/main/docker/Dockerfile.jvm -t xfinder-api:latest .
-```    
-```bash
   podman run -d  --tz=America/Sao_Paulo --name xfinder-api --network nt-xfinder -p 8085:8085 xfinder-api:latest
 ```
 ```bash
