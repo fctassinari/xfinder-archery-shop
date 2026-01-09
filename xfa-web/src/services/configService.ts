@@ -38,6 +38,9 @@ export interface FrontendConfig {
   features: {
     useMockCheckout: boolean;
   };
+  googleMaps: {
+    apiKey: string;
+  };
 }
 
 let cachedConfig: FrontendConfig | null = null;
@@ -161,6 +164,9 @@ async function fetchConfig(): Promise<FrontendConfig> {
       },
       features: {
         useMockCheckout: false,
+      },
+      googleMaps: {
+        apiKey: '',
       },
     };
   }

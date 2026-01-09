@@ -90,5 +90,12 @@ export function getFeaturesConfig() {
   return getAppConfig().features;
 }
 
+/**
+ * Obtém configuração do Google Maps
+ */
+export function getGoogleMapsConfig() {
+  return getAppConfig().googleMaps;
+}
+
 // Exportar tipos
 export type { FrontendConfig };

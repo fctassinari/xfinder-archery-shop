@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import { Button } from '@/components/ui/button';
 import { MapPin } from 'lucide-react';
+import { getGoogleMapsConfig, isConfigLoaded, initConfig } from '@/config/appConfig';
 
 interface GoogleMapProps {
   address?: string;
@@ -60,7 +61,9 @@ const MapComponent: React.FC<{ address: string }> = ({ address }) => {
   return <div ref={mapRef} className="w-full h-full rounded-lg" />;
 };
 
-const render = (status: Status) => {
+const render = (status: Status, address: string) => {
+  const encodedAddress = encodeURIComponent(address);
+  
   switch (status) {
     case Status.LOADING:
       return (
@@ -80,8 +83,12 @@ const render = (status: Status) => {
             </div>
             <h3 className="font-semibold text-foreground mb-2">Localização</h3>
             <p className="text-muted-foreground text-sm">
-              Mooca<br/>
-              São Paulo / SP - Brasil
+              {address.split(',').map((part, i) => (
+                <React.Fragment key={i}>
+                  {part.trim()}
+                  {i < address.split(',').length - 1 && <br />}
+                </React.Fragment>
+              ))}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
               Mapa temporariamente indisponível
@@ -93,7 +100,7 @@ const render = (status: Status) => {
               className="mt-3 group"
             >
               <a 
-                href="https://maps.google.com/?q=Mooca,+São+Paulo,+SP,+Brasil" 
+                href={`https://maps.google.com/?q=${encodedAddress}`}
                 target="_blank" 
                 rel="noopener noreferrer"
               >
@@ -105,7 +112,7 @@ const render = (status: Status) => {
         </div>
       );
     case Status.SUCCESS:
-      return <MapComponent address="Mooca, São Paulo, SP, Brazil" />;
+      return <MapComponent address={address} />;
   }
 };
 
@@ -114,13 +121,34 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ address = "Mooca, São Paulo, SP,
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try to use a different API key or show fallback
-    //console.log('🗺️ Attempting to load Google Maps');
-    // For development, we'll show the fallback directly
-    setApiKey(''); // Set API key to empty to force fallback for demonstration
-    setLoading(false);
+    const loadApiKey = async () => {
+      try {
+        // Garantir que as configurações foram carregadas
+        if (!isConfigLoaded()) {
+          await initConfig();
+        }
+
+        // Obter a API key do backend
+        const googleMapsConfig = getGoogleMapsConfig();
+        const key = googleMapsConfig?.apiKey || '';
+
+        if (!key) {
+          console.warn('Google Maps API key não configurada no backend. Configure frontend.google-maps.api-key no application.properties');
+        }
+
+        setApiKey(key);
+      } catch (error) {
+        console.error('Erro ao carregar configuração do Google Maps:', error);
+        setApiKey('');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadApiKey();
   }, []);
 
+  // Se ainda está carregando, mostrar loading
   if (loading) {
     return (
       <div className={className}>
@@ -131,10 +159,24 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ address = "Mooca, São Paulo, SP,
     );
   }
 
-  // Show fallback instead of trying to load Google Maps
+  // Se não houver API key, mostrar fallback
+  if (!apiKey) {
+    return (
+      <div className={className}>
+        {render(Status.FAILURE, address)}
+      </div>
+    );
+  }
+
+  // Usar o Wrapper do @googlemaps/react-wrapper para carregar o script do Google Maps
+  // Passar address para a função render através de uma closure
+  const renderWithAddress = (status: Status) => render(status, address);
+
   return (
     <div className={className}>
-      {render(Status.FAILURE)} {/* Force rendering the fallback for demonstration */}
+      <Wrapper apiKey={apiKey} render={renderWithAddress}>
+        <MapComponent address={address} />
+      </Wrapper>
     </div>
   );
 };

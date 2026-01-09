@@ -68,6 +68,15 @@ Este documento descreve todas as variáveis de ambiente necessárias para config
 - **Descrição**: URL do projeto Supabase
 - **Exemplo**: `https://eerwibydxuihmlgranok.supabase.co`
 
+## Google Maps
+
+### `VITE_GOOGLE_MAPS_API_KEY`
+- **Descrição**: Chave da API do Google Maps para exibir mapas interativos
+- **Onde obter**: [Google Cloud Console](https://console.cloud.google.com/google/maps-apis/credentials)
+- **Nota**: Esta é uma chave pública que será exposta no código do cliente. Configure restrições de API no Google Cloud Console para limitar o uso apenas ao seu domínio.
+- **Restrições recomendadas**:
+  - Restringir por HTTP referrer (domínios permitidos)
+  - Habilitar apenas as APIs necessárias (Maps JavaScript API, Geocoding API)
 
 ## Exemplo de Arquivo .env para Produção
 
@@ -87,6 +96,9 @@ VITE_MAIL_API_URL="https://api.seudominio.com.br/api/mail"
 # Gateway de Pagamento (NÃO ALTERAR)
 VITE_CHECKOUT_BASE_URL="https://checkout.infinitepay.io/fctassinari"
 VITE_PAYMENT_CHECK_URL="https://api.infinitepay.io/invoices/public/checkout/payment_check/fctassinari"
+
+# Google Maps
+VITE_GOOGLE_MAPS_API_KEY="sua-chave-api-google-maps-aqui"
 
 ```
 

@@ -96,6 +96,10 @@ public class ConfigResource {
     @ConfigProperty(name = "frontend.features.use-mock-checkout", defaultValue = "false")
     String useMockCheckout;
 
+    // Google Maps
+    @ConfigProperty(name = "frontend.google-maps.api-key", defaultValue = "")
+    String googleMapsApiKey;
+
     @GET
     @Path("/frontend")
     @Operation(summary = "Obter configurações do frontend", description = "Retorna todas as configurações necessárias para o frontend")
@@ -150,6 +154,11 @@ public class ConfigResource {
         Map<String, Boolean> features = new HashMap<>();
         features.put("useMockCheckout", Boolean.parseBoolean(useMockCheckout));
         config.put("features", features);
+
+        // Google Maps
+        Map<String, String> googleMaps = new HashMap<>();
+        googleMaps.put("apiKey", googleMapsApiKey);
+        config.put("googleMaps", googleMaps);
 
         return Response.ok(config)
                 .header("Cache-Control", "public, max-age=3600")
