@@ -17,7 +17,7 @@ export const useRequireAuth = () => {
   useEffect(() => {
     // Inicializar Keycloak quando o hook é usado (componente monta)
     if (!isInitialized) {
-      // console.log('🔐 useRequireAuth: Inicializando Keycloak...');
+      console.log('🔐 useRequireAuth: Inicializando Keycloak...');
       initializeKeycloak();
     }
   }, [isInitialized, initializeKeycloak]);

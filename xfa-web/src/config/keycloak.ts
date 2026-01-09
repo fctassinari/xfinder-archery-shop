@@ -49,7 +49,7 @@ function getKeycloakInstance(): Keycloak {
   
   // Validar configuração antes de criar instância
   if (!keycloakConfig.url || !keycloakConfig.realm || !keycloakConfig.clientId) {
-    // console.warn('Configuração do Keycloak incompleta. Verifique as variáveis de ambiente.');
+    console.warn('Configuração do Keycloak incompleta. Verifique as variáveis de ambiente.');
     throw new Error('Configuração do Keycloak incompleta');
   }
   
@@ -60,11 +60,11 @@ function getKeycloakInstance(): Keycloak {
       realm: keycloakConfig.realm,
       clientId: keycloakConfig.clientId,
     });
-    // console.log('Keycloak configurado:', {
-    //   url: keycloakConfig.url,
-    //   realm: keycloakConfig.realm,
-    //   clientId: keycloakConfig.clientId,
-    // });
+    console.log('Keycloak configurado:', {
+      url: keycloakConfig.url,
+      realm: keycloakConfig.realm,
+      clientId: keycloakConfig.clientId,
+    });
     return keycloakInstance;
   } catch (error) {
     console.error('Erro ao criar instância do Keycloak:', error);
@@ -104,10 +104,10 @@ export function reconfigureKeycloak() {
     if (isConfigLoaded()) {
       const config = getKeycloakConfig();
       // Keycloak não permite reconfiguração dinâmica, mas podemos logar
-      // console.log('Keycloak reconfigurado com:', config);
+      console.log('Keycloak reconfigurado com:', config);
     }
   } catch (error) {
-    // console.warn('Não foi possível reconfigurar Keycloak:', error);
+    console.warn('Não foi possível reconfigurar Keycloak:', error);
   }
 }
 

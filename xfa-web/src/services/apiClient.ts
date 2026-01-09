@@ -62,19 +62,19 @@ apiClient.interceptors.request.use(
             token = keycloak.token || null;
           } else {
             // Se não há refresh token, tentar usar token do sessionStorage
-            // console.warn('[apiClient] Keycloak não inicializado, tentando usar token do sessionStorage');
+            console.warn('[apiClient] Keycloak não inicializado, tentando usar token do sessionStorage');
             const savedAuthState = sessionStorage.getItem('keycloak_auth_state');
             if (savedAuthState) {
               try {
                 const authState = JSON.parse(savedAuthState);
                 token = authState.token || null;
               } catch (e) {
-                // console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
+                console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
               }
             }
           }
         } catch (error) {
-          // console.error('Erro ao atualizar token:', error);
+          console.error('Erro ao atualizar token:', error);
           // Tentar usar token do sessionStorage como fallback
           const savedAuthState = sessionStorage.getItem('keycloak_auth_state');
           if (savedAuthState) {
@@ -107,8 +107,8 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
       // Debug: logar qual token está sendo enviado
       // if (import.meta.env.DEV) {
-      //   console.log('[apiClient] Enviando ACCESS TOKEN para API interna (primeiros 50 chars):', 
-      //     token.substring(0, 50) + '...');
+      console.log('[apiClient] Enviando ACCESS TOKEN para API interna (primeiros 50 chars):', 
+        token.substring(0, 50) + '...');
       // }
     }
 
@@ -165,7 +165,7 @@ apiClient.interceptors.response.use(
           }
         } else {
           // Se não há refresh token, tentar usar token do sessionStorage
-          // console.warn('[apiClient] Keycloak não inicializado ou sem refresh token, tentando usar token do sessionStorage');
+          console.warn('[apiClient] Keycloak não inicializado ou sem refresh token, tentando usar token do sessionStorage');
           const savedAuthState = sessionStorage.getItem('keycloak_auth_state');
           if (savedAuthState) {
             try {
@@ -179,7 +179,7 @@ apiClient.interceptors.response.use(
             }
           } else {
             // Se não há token no sessionStorage, rejeitar o erro
-            // console.error('[apiClient] Não há token disponível para renovar');
+            console.error('[apiClient] Não há token disponível para renovar');
             return Promise.reject(error);
           }
         }
@@ -189,14 +189,14 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         // Se falhar ao atualizar, apenas logar o erro
         // Não fazer logout automático para não interromper fluxos em andamento
-        // console.error('Erro ao atualizar token:', refreshError);
+        console.error('Erro ao atualizar token:', refreshError);
         return Promise.reject(refreshError);
       }
     }
 
     // Se receber 403 (Proibido), pode ser problema de permissão
     if (error.response?.status === 403) {
-      // console.error('Acesso negado: você não tem permissão para esta ação');
+      console.error('Acesso negado: você não tem permissão para esta ação');
     }
 
     return Promise.reject(error);
