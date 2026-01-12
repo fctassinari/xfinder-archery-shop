@@ -674,8 +674,8 @@ const Compra = () => {
       // console.log('🔗 URL:', checkoutUrl);
       // console.log('📤 Método: POST');
       // console.log('📤 Headers:', {
-        'Content-Type': 'application/json'
-      });
+      //   'Content-Type': 'application/json'
+      // });
       // console.log('📤 Body:', JSON.stringify(checkoutRequest, null, 2));
 
       const finishResponse = await fetch(checkoutUrl, {
@@ -726,8 +726,8 @@ const Compra = () => {
         // console.log('🔗 URL:', getOrderUrl);
         // console.log('📤 Método: GET');
         // console.log('📤 Headers:', {
-          'Content-Type': 'application/json'
-        });
+        //   'Content-Type': 'application/json'
+        // });
 
         const getOrderResponse = await fetch(getOrderUrl, {
           method: 'GET',
@@ -800,12 +800,12 @@ const Compra = () => {
       };
     } catch (error: any) {
       console.error('❌ Erro ao gerar etiqueta na SuperFrete:', error);
-      // if (error.message) {
+       if (error.message) {
         console.error('❌ Mensagem de erro:', error.message);
       }
       if (error.stack) {
         console.error('❌ Stack trace:', error.stack);
-      // }
+      }
       return null;
     }
   };
@@ -907,8 +907,8 @@ const Compra = () => {
       // console.log('🔗 URL:', ordersApiUrl);
       // console.log('📤 Método: POST');
       // console.log('📤 Headers:', {
-        'Content-Type': 'application/json'
-      });
+      //   'Content-Type': 'application/json'
+      // });
       // console.log('📤 Body:', JSON.stringify(orderPayload, null, 2));
 
       const orderResponse = await fetch(ordersApiUrl, {
