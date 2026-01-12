@@ -108,8 +108,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      console.log('🔐 Inicializando Keycloak sob demanda...');
-      console.log('🔍 Hash da URL:', window.location.hash);
+      // console.log('🔐 Inicializando Keycloak sob demanda...');
+      // console.log('🔍 Hash da URL:', window.location.hash);
       
       // Se há código na URL, usar 'login-required' em vez de 'check-sso' para processar o código
       const hash = window.location.hash;
@@ -119,13 +119,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         : keycloakInitOptions;
       
       if (hasCode) {
-        console.log('🔍 Detectado código na URL, usando login-required para processar...');
+        // console.log('🔍 Detectado código na URL, usando login-required para processar...');
       }
       
       const authenticated = await keycloak.init(initOptions);
-      console.log('🔍 Resultado do init:', authenticated);
-      console.log('🔍 keycloak.authenticated:', keycloak.authenticated);
-      console.log('🔍 keycloak.token:', keycloak.token ? 'Token presente' : 'Token ausente');
+      // console.log('🔍 Resultado do init:', authenticated);
+      // console.log('🔍 keycloak.authenticated:', keycloak.authenticated);
+      // console.log('🔍 keycloak.token:', keycloak.token ? 'Token presente' : 'Token ausente');
       
       // Aguardar um pouco para garantir que o token seja processado
       if (hasCode && authenticated) {
@@ -144,12 +144,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           // Sincronizar customer APENAS quando o usuário faz login
           // Aguardar um pouco para garantir que o token foi processado
           setTimeout(() => {
-            console.log('antes hasSyncedCustomer:', hasSyncedCustomer());
+            // console.log('antes hasSyncedCustomer:', hasSyncedCustomer());
             // Sincronizar apenas se ainda não foi sincronizado nesta sessão
             if (!hasSyncedCustomer()) {
-              console.log('🔄 Sincronizando keycloakId após login...');
+              // console.log('🔄 Sincronizando keycloakId após login...');
               setSyncedCustomer(true);
-              console.log('depois hasSyncedCustomer:', hasSyncedCustomer());
+              // console.log('depois hasSyncedCustomer:', hasSyncedCustomer());
               syncCustomerMutation.mutate();
             } else {
               // console.log('ℹ️ Customer já foi sincronizado nesta sessão, pulando...');
@@ -178,13 +178,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.error('❌ Erro ao configurar refresh automático do token:', error);
         }
         
-        console.log('✅ Keycloak inicializado - Usuário autenticado');
-        console.log('👤 Usuário:', keycloak.tokenParsed?.name || keycloak.tokenParsed?.email);
+        // console.log('✅ Keycloak inicializado - Usuário autenticado');
+        // console.log('👤 Usuário:', keycloak.tokenParsed?.name || keycloak.tokenParsed?.email);
         
         // Limpar hash da URL após processar o código de autorização
         try {
           if (hasAuthorizationCode()) {
-            console.log('🧹 Limpando hash da URL...');
+            // console.log('🧹 Limpando hash da URL...');
             // Remover apenas o hash, mantendo o pathname
             window.history.replaceState(null, '', window.location.pathname + window.location.search);
           }
@@ -196,11 +196,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(null);
         setToken(null);
         setIsAuthenticated(false);
-        console.log('✅ Keycloak inicializado - Usuário não autenticado');
+        // console.log('✅ Keycloak inicializado - Usuário não autenticado');
         
         // Se há erro na URL (ex: login_required), limpar hash
         if (window.location.hash.includes('error=')) {
-          console.log('🧹 Limpando hash de erro da URL...');
+          // console.log('🧹 Limpando hash de erro da URL...');
           window.history.replaceState(null, '', window.location.pathname + window.location.search);
         }
       }
@@ -230,13 +230,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const hasLoginRequiredError = hash.includes('error=login_required');
     
     if ((hasCode || (hasError && !hasLoginRequiredError) || hasState) && !isInitialized && !isInitializing) {
-      console.log('🔍 Detectado código/erro/state na URL:', { hasCode, hasError, hasState, hash });
-      console.log('🔍 Inicializando Keycloak para processar...');
+      // console.log('🔍 Detectado código/erro/state na URL:', { hasCode, hasError, hasState, hash });
+      // console.log('🔍 Inicializando Keycloak para processar...');
       initializeKeycloak();
     } else if (hasLoginRequiredError && !isInitialized && !isInitializing) {
       // Se há apenas error=login_required, limpar a URL mas não inicializar
       // Isso evita o erro aparecer na URL
-      console.log('🧹 Limpando error=login_required da URL (não é um erro real)...');
+      // console.log('🧹 Limpando error=login_required da URL (não é um erro real)...');
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
   }, [isInitialized, isInitializing]); // Re-executar se os estados mudarem
@@ -276,7 +276,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           
           // Só logar na primeira vez que restaurar o estado
           if (!hasInitializedKeycloak.current) {
-            console.log('🔍 Estado de autenticação encontrado no sessionStorage, restaurando...');
+            // console.log('🔍 Estado de autenticação encontrado no sessionStorage, restaurando...');
           }
           
           setIsAuthenticated(true);
@@ -296,7 +296,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             // Marcar que já tentou inicializar para não tentar novamente
             hasInitializedKeycloak.current = true;
             
-            console.log('🔍 Inicializando Keycloak silenciosamente para permitir refresh de tokens...');
+            // console.log('🔍 Inicializando Keycloak silenciosamente para permitir refresh de tokens...');
             setIsInitializing(true);
             
             keycloak.init({
@@ -305,7 +305,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               checkLoginIframe: false,
             })
               .then((authenticated) => {
-                console.log('🔍 Keycloak inicializado silenciosamente:', authenticated);
+                // console.log('🔍 Keycloak inicializado silenciosamente:', authenticated);
                 setIsInitialized(true);
                 setIsInitializing(false);
                 
@@ -470,7 +470,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       // Se já está inicializado, usar keycloak.login() diretamente
       if (isInitialized) {
-        console.log('🔐 Redirecionando para login do Keycloak...');
+        // console.log('🔐 Redirecionando para login do Keycloak...');
         keycloak.login({
           redirectUri: window.location.origin + window.location.pathname,
         });
@@ -479,7 +479,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       // Se não está inicializado, inicializar com 'login-required'
       // Isso força o redirect direto para o login sem tentar check-sso
-      console.log('🔐 Inicializando Keycloak com login-required para redirect direto...');
+      // console.log('🔐 Inicializando Keycloak com login-required para redirect direto...');
       setIsInitializing(true);
       setIsLoading(true);
       
@@ -501,18 +501,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           // Sincronizar customer APENAS quando o usuário faz login
           setTimeout(() => {
             if (!hasSyncedCustomer()) {
-              console.log('🔄 Sincronizando keycloakId após login...');
+              // console.log('🔄 Sincronizando keycloakId após login...');
               setSyncedCustomer(true);
               syncCustomerMutation.mutate();
             } else {
               // console.log('ℹ️ Customer já foi sincronizado nesta sessão, pulando...');
             }
           }, 500);
-          console.log('✅ Usuário já estava autenticado');
+          // console.log('✅ Usuário já estava autenticado');
         } else {
           // Se não autenticado, o init com login-required já fez o redirect
           // Não precisamos fazer nada mais
-          console.log('🔐 Redirect para login do Keycloak já foi feito pelo init');
+          // console.log('🔐 Redirect para login do Keycloak já foi feito pelo init');
         }
       } catch (error) {
         console.error('❌ Erro ao inicializar Keycloak para login:', error);
@@ -551,7 +551,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         queryClient.clear();
         // Resetar flag de sincronização para permitir sincronização no próximo login
         setSyncedCustomer(false);
-        console.log('hasSyncedCustomer false: 01');
+        // console.log('hasSyncedCustomer false: 01');
         try {
           sessionStorage.removeItem('keycloak_auth_state');
         } catch (error) {
@@ -569,7 +569,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       queryClient.clear();
       // Resetar flag de sincronização para permitir sincronização no próximo login
       setSyncedCustomer(false);
-      console.log('hasSyncedCustomer false: 02');
+      // console.log('hasSyncedCustomer false: 02');
 
       
       // Limpar estado do sessionStorage
@@ -598,7 +598,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       queryClient.clear();
       // Resetar flag de sincronização para permitir sincronização no próximo login
       setSyncedCustomer(false);
-      console.log('hasSyncedCustomer false: 03');
+      // console.log('hasSyncedCustomer false: 03');
 
       try {
         sessionStorage.removeItem('keycloak_auth_state');

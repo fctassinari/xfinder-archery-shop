@@ -174,7 +174,7 @@ const ProductsPage = () => {
       const baseUrl = getApiConfig().productsUrl;
       const apiUrl = `${baseUrl}?${params}`;
 
-      console.log('🔍 Buscando produtos da API...', apiUrl);
+      // console.log('🔍 Buscando produtos da API...', apiUrl);
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -183,7 +183,7 @@ const ProductsPage = () => {
         },
       });
 
-      console.log('📡 Status da resposta:', response.status);
+        // console.log('📡 Status da resposta:', response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -191,7 +191,7 @@ const ProductsPage = () => {
 
       const apiProducts = await response.json();
 
-      console.log('✅ Produtos recebidos da API:', apiProducts);
+        // console.log('✅ Produtos recebidos da API:', apiProducts);
 
       if (!Array.isArray(apiProducts)) {
         throw new Error('Resposta da API não é um array');

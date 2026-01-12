@@ -107,7 +107,7 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
       // Debug: logar qual token está sendo enviado
       // if (import.meta.env.DEV) {
-      console.log('[apiClient] Enviando ACCESS TOKEN para API interna (primeiros 50 chars):', 
+      // console.log('[apiClient] Enviando ACCESS TOKEN para API interna (primeiros 50 chars):', 
         token.substring(0, 50) + '...');
       // }
     }
