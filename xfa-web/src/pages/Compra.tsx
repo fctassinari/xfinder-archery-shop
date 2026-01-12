@@ -468,12 +468,12 @@ const Compra = () => {
       // console.log('🔗 URL:', mailUrl);
       // console.log('📤 Método: POST');
       // console.log('📤 Headers:', {
-        'Content-Type': 'application/json'
-      });
+      //   'Content-Type': 'application/json'
+      // });
       // console.log('📤 Body:', JSON.stringify({
-        ...emailData,
-        htmlContent: emailData.htmlContent ? '[HTML Content - ' + emailData.htmlContent.length + ' caracteres]' : null
-      }, null, 2));
+      //   ...emailData,
+      //   htmlContent: emailData.htmlContent ? '[HTML Content - ' + emailData.htmlContent.length + ' caracteres]' : null
+      // }, null, 2));
       
       const response = await fetch(mailUrl, {
         method: 'POST',
