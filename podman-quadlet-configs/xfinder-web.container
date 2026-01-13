@@ -4,7 +4,7 @@ After=network-online.target xfinder-api.service
 Wants=network-online.target
 
 [Container]
-Image=docker.io/fctassinari/xfinder-web:latest
+Image=localhost/xfinder-web:latest
 ContainerName=xfinder-web
 Network=nt-xfinder.network
 PublishPort=8083:8080

@@ -5,7 +5,7 @@ Wants=network-online.target
 Requires=xfinder-postgres.service
 
 [Container]
-Image=docker.io/fctassinari/xfinder-api:latest
+Image=localhost/xfinder-api:latest
 ContainerName=xfinder-api
 Network=nt-xfinder.network
 PublishPort=8085:8085

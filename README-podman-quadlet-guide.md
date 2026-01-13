@@ -72,7 +72,7 @@ Wants=network-online.target
 Requires=psycho-mysql.service
 
 [Container]
-Image=docker.io/fctassinari/psychomanager:backend-3.0.5
+Image=localhost/psychomanager:backend-3.0.5
 ContainerName=psycho-backend
 Network=nt-psycho.network
 PublishPort=8080:8080
@@ -102,7 +102,7 @@ Wants=network-online.target
 Requires=psycho-backend.service
 
 [Container]
-Image=docker.io/fctassinari/psychomanager:frontend-3.0.5
+Image=localhost/psychomanager:frontend-3.0.5
 ContainerName=psycho-frontend
 Network=nt-psycho.network
 PublishPort=8081:8080
@@ -168,7 +168,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Container]
-Image=docker.io/fctassinari/xfinder-archery:commingsoon
+Image=localhost/xfinder-archery:commingsoon
 ContainerName=xfinder-web
 PublishPort=8083:80
 
@@ -371,7 +371,7 @@ sudo podman volume import mysql mysql-backup.tar
 sudo systemctl stop psycho-backend.service
 
 # Atualizar imagem
-sudo podman pull docker.io/fctassinari/psychomanager:backend-3.0.5
+sudo podman pull localhost/psychomanager:backend-3.0.5
 
 # Reiniciar serviço
 sudo systemctl start psycho-backend.service

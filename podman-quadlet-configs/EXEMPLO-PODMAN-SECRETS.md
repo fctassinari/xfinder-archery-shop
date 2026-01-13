@@ -63,7 +63,7 @@ Wants=network-online.target
 Requires=xfinder-postgres.service
 
 [Container]
-Image=docker.io/fctassinari/xfinder-keycloak:prod
+Image=localhost/xfinder-keycloak:prod
 ContainerName=xfinder-keycloak
 Network=nt-xfinder.network
 PublishPort=8084:8084

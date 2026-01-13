@@ -20,9 +20,9 @@ Antes de usar, verifique e ajuste:
 
 - **Imagens Docker**: Certifique-se de que as imagens referenciadas existem:
   - `docker.io/library/postgres:18.0`
-  - `docker.io/fctassinari/xfinder-keycloak:prod`
-  - `docker.io/fctassinari/xfinder-api:latest`
-  - `docker.io/fctassinari/xfinder-web:latest`
+  - `localhost/xfinder-keycloak:prod`
+  - `localhost/xfinder-api:latest`
+  - `localhost/xfinder-web:latest`
 
 - **Senhas**: Considere usar Podman Secrets ao invés de variáveis de ambiente para maior segurança (veja o README principal)
 

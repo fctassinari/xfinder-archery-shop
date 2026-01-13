@@ -327,7 +327,7 @@ sudo journalctl -xeu xfinder-api.service
 sudo systemctl status xfinder-api.service
 
 # Testar manualmente
-sudo podman run --rm -it docker.io/fctassinari/xfinder-api:latest /bin/bash
+sudo podman run --rm -it localhost/xfinder-api:latest /bin/bash
 ```
 
 ### Problemas com rede
