@@ -40,11 +40,29 @@ Siga as instruções no `README-PODMAN-QUADLET-XFINDER.md` para habilitar e inic
 
 ## Estrutura de Arquivos
 
+### Arquivos de Configuração
 - `nt-xfinder.network` - Configuração da rede Docker
 - `xfinder-postgres.container` - Container do PostgreSQL
 - `xfinder-keycloak.container` - Container do Keycloak
 - `xfinder-api.container` - Container da API Backend
 - `xfinder-web.container` - Container do Frontend Web
+
+### Scripts Auxiliares
+- `install-quadlet.sh` - Script de instalação automática
+- `fix-transient-error.sh` - Script para corrigir erro "Unit is transient or generated"
+- `check-status.sh` - Script para verificar status dos serviços
+
+## Solução de Problemas
+
+### Erro "Unit is transient or generated"
+
+Se você receber este erro ao tentar `systemctl enable`, execute:
+
+```bash
+sudo bash fix-transient-error.sh
+```
+
+Ou siga os passos manuais no `README-PODMAN-QUADLET-XFINDER.md` na seção "Troubleshooting".
 
 ## Notas Importantes
 
@@ -59,6 +77,8 @@ Siga as instruções no `README-PODMAN-QUADLET-XFINDER.md` para habilitar e inic
    - 8085 (API Backend)
 
 4. **Bancos de dados**: Após a primeira inicialização do PostgreSQL, será necessário criar os bancos `xfa` e `keycloak` manualmente
+
+5. **daemon-reload**: Sempre execute `sudo systemctl daemon-reload` ANTES de tentar habilitar os serviços
 
 ## Segurança
 

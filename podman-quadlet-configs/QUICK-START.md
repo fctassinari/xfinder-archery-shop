@@ -27,13 +27,30 @@ cd podman-quadlet-configs
 sudo bash install-quadlet.sh
 ```
 
-### 2. Recarregar systemd
+### 2. Verificar arquivos copiados
+
+```bash
+# Verificar se os arquivos estão no local correto
+ls -la /etc/containers/systemd/*.container
+ls -la /etc/containers/systemd/*.network
+
+# Ajustar permissões (se necessário)
+sudo chmod 644 /etc/containers/systemd/*.container
+sudo chmod 644 /etc/containers/systemd/*.network
+```
+
+### 3. Recarregar systemd
+
+**IMPORTANTE**: Execute este comando ANTES de tentar habilitar os serviços.
 
 ```bash
 sudo systemctl daemon-reload
+
+# Verificar se os serviços foram reconhecidos
+sudo systemctl list-unit-files | grep xfinder
 ```
 
-### 3. Habilitar serviços
+### 4. Habilitar serviços
 
 ```bash
 sudo systemctl enable xfinder-postgres.service
@@ -42,7 +59,7 @@ sudo systemctl enable xfinder-api.service
 sudo systemctl enable xfinder-web.service
 ```
 
-### 4. Iniciar serviços
+### 5. Iniciar serviços
 
 ```bash
 # PostgreSQL primeiro
@@ -65,7 +82,7 @@ sleep 10
 sudo systemctl start xfinder-web.service
 ```
 
-### 5. Verificar status
+### 6. Verificar status
 
 ```bash
 # Usar o script de verificação
@@ -114,6 +131,24 @@ podman logs xfinder-api
 ```
 
 ## Troubleshooting Rápido
+
+### Erro "Unit is transient or generated"
+
+Se receber este erro ao tentar `systemctl enable`:
+
+```bash
+# 1. Verificar localização dos arquivos
+ls -la /etc/containers/systemd/*.container
+
+# 2. Parar serviços temporários
+sudo systemctl stop xfinder-*.service 2>/dev/null || true
+sudo systemctl daemon-reload
+sudo systemctl reset-failed
+
+# 3. Recarregar e tentar novamente
+sudo systemctl daemon-reload
+sudo systemctl enable xfinder-postgres.service
+```
 
 ### Serviço não inicia
 

@@ -49,11 +49,29 @@ chmod 644 "$TARGET_DIR"/*.container
 echo "✅ Permissões ajustadas!"
 echo ""
 
+# Ajustar permissões
+echo "🔒 Ajustando permissões dos arquivos..."
+chmod 644 "$TARGET_DIR"/*.network
+chmod 644 "$TARGET_DIR"/*.container
+
+echo "✅ Permissões ajustadas!"
+echo ""
+
 # Recarregar systemd
 echo "🔄 Recarregando configurações do systemd..."
 systemctl daemon-reload
 
 echo "✅ Systemd recarregado!"
+echo ""
+
+# Verificar se os serviços foram reconhecidos
+echo "🔍 Verificando se os serviços foram reconhecidos..."
+if systemctl list-unit-files | grep -q xfinder; then
+    echo "✅ Serviços reconhecidos pelo systemd:"
+    systemctl list-unit-files | grep xfinder
+else
+    echo "⚠️  Aviso: Nenhum serviço xfinder encontrado. Verifique os arquivos."
+fi
 echo ""
 
 echo "=========================================="

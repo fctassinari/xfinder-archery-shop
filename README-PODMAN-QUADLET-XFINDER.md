@@ -129,20 +129,46 @@ sudo cp podman-quadlet-configs/xfinder-web.container /etc/containers/systemd/
 
 **Nota**: O frontend precisa ser construído com as variáveis de ambiente VITE_* corretas para produção. Essas variáveis são definidas no build-time, não no runtime.
 
-### 4. Parar Containers Existentes (se houver)
+### 4. Parar Containers e Serviços Existentes (se houver)
 
 ```bash
-sudo podman stop xfinder-postgres xfinder-keycloak xfinder-api xfinder-web
-sudo podman rm xfinder-postgres xfinder-keycloak xfinder-api xfinder-web
+# Parar serviços systemd (se existirem)
+sudo systemctl stop xfinder-postgres.service 2>/dev/null || true
+sudo systemctl stop xfinder-keycloak.service 2>/dev/null || true
+sudo systemctl stop xfinder-api.service 2>/dev/null || true
+sudo systemctl stop xfinder-web.service 2>/dev/null || true
+
+# Desabilitar serviços (se estiverem habilitados)
+sudo systemctl disable xfinder-postgres.service 2>/dev/null || true
+sudo systemctl disable xfinder-keycloak.service 2>/dev/null || true
+sudo systemctl disable xfinder-api.service 2>/dev/null || true
+sudo systemctl disable xfinder-web.service 2>/dev/null || true
+
+# Parar containers Podman diretamente (se existirem)
+sudo podman stop xfinder-postgres xfinder-keycloak-prod xfinder-keycloak xfinder-api xfinder-web 2>/dev/null || true
+sudo podman rm xfinder-postgres xfinder-keycloak-prod xfinder-keycloak xfinder-api xfinder-web 2>/dev/null || true
+
+# Limpar unidades systemd geradas
+sudo systemctl daemon-reload
+sudo systemctl reset-failed
 ```
 
 ### 5. Recarregar Systemd e Iniciar Serviços
 
+**IMPORTANTE**: Execute `daemon-reload` ANTES de tentar habilitar os serviços.
+
 ```bash
-# Recarregar configurações do systemd
+# 1. Verificar se os arquivos estão no local correto
+ls -la /etc/containers/systemd/*.container
+ls -la /etc/containers/systemd/*.network
+
+# 2. Recarregar configurações do systemd (CRÍTICO - deve ser feito primeiro)
 sudo systemctl daemon-reload
 
-# Habilitar para iniciar no boot
+# 3. Verificar se os serviços foram reconhecidos
+sudo systemctl list-unit-files | grep xfinder
+
+# 4. Habilitar para iniciar no boot
 sudo systemctl enable xfinder-postgres.service
 sudo systemctl enable xfinder-keycloak.service
 sudo systemctl enable xfinder-api.service
@@ -326,6 +352,45 @@ sudo journalctl -u xfinder-postgres.service -f
 # Verificar se os bancos foram criados
 sudo podman exec -it xfinder-postgres psql -U postgres -l
 ```
+
+### Erro "Unit is transient or generated"
+
+Se você receber o erro `Failed to enable unit: Unit /run/systemd/generator/xfinder-postgres.service is transient or generated`:
+
+```bash
+# 1. Verificar se os arquivos estão no local correto
+ls -la /etc/containers/systemd/*.container
+ls -la /etc/containers/systemd/*.network
+
+# 2. Parar qualquer serviço temporário que possa estar rodando
+sudo systemctl stop xfinder-postgres.service 2>/dev/null || true
+sudo systemctl stop xfinder-keycloak.service 2>/dev/null || true
+sudo systemctl stop xfinder-api.service 2>/dev/null || true
+sudo systemctl stop xfinder-web.service 2>/dev/null || true
+
+# 3. Limpar unidades geradas temporariamente (se existirem)
+sudo systemctl daemon-reload
+sudo systemctl reset-failed
+
+# 4. Verificar permissões dos arquivos
+sudo chmod 644 /etc/containers/systemd/*.container
+sudo chmod 644 /etc/containers/systemd/*.network
+
+# 5. Recarregar novamente
+sudo systemctl daemon-reload
+
+# 6. Verificar se os serviços foram reconhecidos
+sudo systemctl list-unit-files | grep xfinder
+
+# 7. Agora tentar habilitar novamente
+sudo systemctl enable xfinder-postgres.service
+```
+
+**Causas comuns deste erro:**
+- Arquivos não estão em `/etc/containers/systemd/` (estão em outro local)
+- `daemon-reload` não foi executado após copiar os arquivos
+- Arquivos têm permissões incorretas
+- Serviços temporários ainda estão ativos
 
 ## Backup e Restore
 
