@@ -1,0 +1,42 @@
+[Unit]
+Description=X-Finder Archery Shop Keycloak Authentication Server
+After=network-online.target xfinder-postgres.service
+Wants=network-online.target
+Requires=xfinder-postgres.service
+
+[Container]
+Image=docker.io/fctassinari/xfinder-keycloak:prod
+ContainerName=xfinder-keycloak
+Network=nt-xfinder.network
+PublishPort=8084:8084
+Volume=xfinder-keycloak-realm:/opt/keycloak/data/import
+Environment=KC_DB=postgres
+Environment=KC_DB_URL=jdbc:postgresql://xfinder-postgres:5432/keycloak
+Environment=KC_DB_USERNAME=postgres
+Environment=KC_DB_PASSWORD=XFA@2025
+Environment=KC_HOSTNAME=https://xfinder-archery.com.br
+Environment=KC_HOSTNAME_ADMIN=https://xfinder-archery.com.br
+Environment=KC_PROXY_HEADERS=xforwarded
+Environment=KC_HTTP_ENABLED=true
+Environment=KC_HTTP_PORT=8084
+Environment=KC_HTTPS_ENABLED=false
+Environment=KC_BOOTSTRAP_ADMIN_USERNAME=admin
+Environment=KC_BOOTSTRAP_ADMIN_PASSWORD=XFA@2025
+Environment=KC_HEALTH_ENABLED=true
+Environment=KC_METRICS_ENABLED=true
+Environment=KC_SMTP_HOST=smtp.gmail.com
+Environment=KC_SMTP_PORT=465
+Environment=KC_SMTP_FROM=contato.xfinder@gmail.com
+Environment=KC_SMTP_FROM_DISPLAY_NAME=X-Finder Archery Shop
+Environment=KC_SMTP_USERNAME=contato.xfinder@gmail.com
+Environment=KC_SMTP_PASSWORD=bpir kvyk osew qxkz
+Environment=KC_SMTP_SSL_ENABLED=true
+Environment=KC_SMTP_STARTTLS_ENABLED=false
+Timezone=America/Sao_Paulo
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target default.target

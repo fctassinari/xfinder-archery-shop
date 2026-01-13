@@ -1,0 +1,20 @@
+[Unit]
+Description=X-Finder Archery Shop Backend API
+After=network-online.target xfinder-postgres.service xfinder-keycloak.service
+Wants=network-online.target
+Requires=xfinder-postgres.service
+
+[Container]
+Image=docker.io/fctassinari/xfinder-api:latest
+ContainerName=xfinder-api
+Network=nt-xfinder.network
+PublishPort=8085:8085
+Environment=QUARKUS_PROFILE=prod
+Timezone=America/Sao_Paulo
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target default.target

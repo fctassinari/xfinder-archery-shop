@@ -118,6 +118,9 @@ location.reload();
 * Implementar tela Administração
   * Buscar pedidos em aberto 
   * Imprimir etiqueta
+  
+* Implementar Brechó
+* Implementar produtos de parceiros
 ```  
   The P.R.O.M.P.T
   # P.ersona - Eu sou um engenheiro de software
