@@ -8,9 +8,8 @@ Image=docker.io/library/postgres:18.0
 ContainerName=xfinder-postgres
 Network=nt-xfinder.network
 PublishPort=5432:5432
-Volume=xfinder-postgres:/var/lib/postgresql/data
+Volume=postgres:/var/lib/postgresql
 Environment=POSTGRES_PASSWORD=XFA@2025
-Environment=TZ=America/Sao_Paulo
 Timezone=America/Sao_Paulo
 
 [Service]

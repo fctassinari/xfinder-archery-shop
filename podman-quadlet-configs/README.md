@@ -49,6 +49,7 @@ Siga as instruções no `README-PODMAN-QUADLET-XFINDER.md` para habilitar e inic
 
 ### Scripts Auxiliares
 - `install-quadlet.sh` - Script de instalação automática
+- `start-services.sh` - Script para iniciar todos os serviços na ordem correta
 - `fix-transient-error.sh` - Script para corrigir erro "Unit is transient or generated"
 - `check-status.sh` - Script para verificar status dos serviços
 
@@ -56,13 +57,25 @@ Siga as instruções no `README-PODMAN-QUADLET-XFINDER.md` para habilitar e inic
 
 ### Erro "Unit is transient or generated"
 
-Se você receber este erro ao tentar `systemctl enable`, execute:
+**Este erro é normal e esperado!** Com Podman Quadlet, não use `systemctl enable` para unidades geradas.
+
+**Solução**: Apenas inicie os serviços diretamente:
 
 ```bash
-sudo bash fix-transient-error.sh
+# Opção 1: Usar o script auxiliar (recomendado)
+sudo bash start-services.sh
+
+# Opção 2: Iniciar manualmente
+sudo systemctl daemon-reload
+sudo systemctl start xfinder-postgres.service
+sudo systemctl start xfinder-keycloak.service
+sudo systemctl start xfinder-api.service
+sudo systemctl start xfinder-web.service
 ```
 
-Ou siga os passos manuais no `README-PODMAN-QUADLET-XFINDER.md` na seção "Troubleshooting".
+Os serviços iniciarão automaticamente no boot porque a seção `[Install]` está configurada nos arquivos `.container`.
+
+Para mais detalhes, veja `README-PODMAN-QUADLET-XFINDER.md` na seção "Troubleshooting".
 
 ## Notas Importantes
 

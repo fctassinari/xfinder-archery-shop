@@ -9,7 +9,6 @@ Image=docker.io/fctassinari/xfinder-api:latest
 ContainerName=xfinder-api
 Network=nt-xfinder.network
 PublishPort=8085:8085
-Environment=QUARKUS_PROFILE=prod
 Timezone=America/Sao_Paulo
 
 [Service]

@@ -6,7 +6,7 @@ Requires=xfinder-postgres.service
 
 [Container]
 Image=docker.io/fctassinari/xfinder-keycloak:prod
-ContainerName=xfinder-keycloak
+ContainerName=xfinder-keycloak-prod
 Network=nt-xfinder.network
 PublishPort=8084:8084
 Volume=xfinder-keycloak-realm:/opt/keycloak/data/import
@@ -33,6 +33,7 @@ Environment=KC_SMTP_PASSWORD=bpir kvyk osew qxkz
 Environment=KC_SMTP_SSL_ENABLED=true
 Environment=KC_SMTP_STARTTLS_ENABLED=false
 Timezone=America/Sao_Paulo
+Arguments=start --optimized --http-enabled=true --hostname=https://xfinder-archery.com.br --hostname-admin=https://xfinder-archery.com.br --proxy-headers=xforwarded --import-realm
 
 [Service]
 Restart=on-failure

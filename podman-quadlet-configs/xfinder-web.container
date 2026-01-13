@@ -8,11 +8,10 @@ Image=docker.io/fctassinari/xfinder-web:latest
 ContainerName=xfinder-web
 Network=nt-xfinder.network
 PublishPort=8083:8080
-Volume=xfinder-web-logs:/var/log/nginx
 Timezone=America/Sao_Paulo
 
 [Service]
-Restart=always
+Restart=unless-stopped
 TimeoutStartSec=300
 
 [Install]

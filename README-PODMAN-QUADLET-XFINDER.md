@@ -87,9 +87,13 @@ sudo cp podman-quadlet-configs/xfinder-postgres.container /etc/containers/system
 
 Conteúdo completo está disponível em `podman-quadlet-configs/xfinder-postgres.container`.
 
-**Nota**: Após a primeira inicialização, será necessário criar os bancos de dados `xfa` e `keycloak` manualmente.
+**Nota**: 
+- O volume usado é `postgres` (não `xfinder-postgres`) para corresponder ao comando em produção
+- Após a primeira inicialização, será necessário criar os bancos de dados `xfa` e `keycloak` manualmente
 
 #### 3.2 Keycloak (xfinder-keycloak.container)
+
+**Nota**: O container name é `xfinder-keycloak-prod` (não `xfinder-keycloak`) para corresponder ao script de produção.
 
 ```bash
 sudo vim /etc/containers/systemd/xfinder-keycloak.container
@@ -113,7 +117,7 @@ sudo vim /etc/containers/systemd/xfinder-api.container
 sudo cp podman-quadlet-configs/xfinder-api.container /etc/containers/systemd/
 ```
 
-**Nota**: A API usa o perfil `prod` que está configurado no `application.properties` para conectar ao PostgreSQL e Keycloak via hostnames da rede Docker.
+**Nota**: A API detecta automaticamente o perfil `prod` baseado nas configurações do `application.properties` para conectar ao PostgreSQL e Keycloak via hostnames da rede Docker.
 
 #### 3.4 Frontend Web (xfinder-web.container)
 
@@ -127,7 +131,9 @@ sudo vim /etc/containers/systemd/xfinder-web.container
 sudo cp podman-quadlet-configs/xfinder-web.container /etc/containers/systemd/
 ```
 
-**Nota**: O frontend precisa ser construído com as variáveis de ambiente VITE_* corretas para produção. Essas variáveis são definidas no build-time, não no runtime.
+**Nota**: 
+- O frontend precisa ser construído com as variáveis de ambiente VITE_* corretas para produção. Essas variáveis são definidas no build-time, não no runtime.
+- O restart está configurado como `unless-stopped` (não `always`) para corresponder ao comando em produção.
 
 ### 4. Parar Containers e Serviços Existentes (se houver)
 
@@ -145,8 +151,8 @@ sudo systemctl disable xfinder-api.service 2>/dev/null || true
 sudo systemctl disable xfinder-web.service 2>/dev/null || true
 
 # Parar containers Podman diretamente (se existirem)
-sudo podman stop xfinder-postgres xfinder-keycloak-prod xfinder-keycloak xfinder-api xfinder-web 2>/dev/null || true
-sudo podman rm xfinder-postgres xfinder-keycloak-prod xfinder-keycloak xfinder-api xfinder-web 2>/dev/null || true
+sudo podman stop xfinder-postgres xfinder-keycloak-prod xfinder-api xfinder-web 2>/dev/null || true
+sudo podman rm xfinder-postgres xfinder-keycloak-prod xfinder-api xfinder-web 2>/dev/null || true
 
 # Limpar unidades systemd geradas
 sudo systemctl daemon-reload
@@ -155,7 +161,7 @@ sudo systemctl reset-failed
 
 ### 5. Recarregar Systemd e Iniciar Serviços
 
-**IMPORTANTE**: Execute `daemon-reload` ANTES de tentar habilitar os serviços.
+**IMPORTANTE**: Com Podman Quadlet, as unidades são geradas dinamicamente. Não use `systemctl enable` - a seção `[Install]` nos arquivos `.container` já configura o início automático no boot.
 
 ```bash
 # 1. Verificar se os arquivos estão no local correto
@@ -168,13 +174,11 @@ sudo systemctl daemon-reload
 # 3. Verificar se os serviços foram reconhecidos
 sudo systemctl list-unit-files | grep xfinder
 
-# 4. Habilitar para iniciar no boot
-sudo systemctl enable xfinder-postgres.service
-sudo systemctl enable xfinder-keycloak.service
-sudo systemctl enable xfinder-api.service
-sudo systemctl enable xfinder-web.service
+# 4. NOTA: Não use 'systemctl enable' para unidades geradas pelo Quadlet!
+# A seção [Install] nos arquivos .container já configura o início automático.
+# Apenas inicie os serviços diretamente:
 
-# Iniciar os serviços na ordem correta
+# 5. Iniciar os serviços na ordem correta (sem usar enable)
 sudo systemctl start xfinder-postgres.service
 sleep 15  # Aguardar PostgreSQL inicializar
 
@@ -192,6 +196,9 @@ sleep 10  # Aguardar API inicializar
 
 # Iniciar Frontend
 sudo systemctl start xfinder-web.service
+
+# OU usar o script auxiliar que faz tudo automaticamente:
+# sudo bash podman-quadlet-configs/start-services.sh
 ```
 
 ### 6. Verificar Status dos Serviços
@@ -355,42 +362,35 @@ sudo podman exec -it xfinder-postgres psql -U postgres -l
 
 ### Erro "Unit is transient or generated"
 
-Se você receber o erro `Failed to enable unit: Unit /run/systemd/generator/xfinder-postgres.service is transient or generated`:
+**IMPORTANTE**: Este erro é esperado e normal com Podman Quadlet! 
+
+Unidades geradas pelo Podman Quadlet não podem (e não devem) ser habilitadas com `systemctl enable`. A seção `[Install]` nos arquivos `.container` já configura o início automático no boot.
+
+**Solução**: Não use `systemctl enable`. Apenas inicie os serviços diretamente:
 
 ```bash
-# 1. Verificar se os arquivos estão no local correto
-ls -la /etc/containers/systemd/*.container
-ls -la /etc/containers/systemd/*.network
-
-# 2. Parar qualquer serviço temporário que possa estar rodando
-sudo systemctl stop xfinder-postgres.service 2>/dev/null || true
-sudo systemctl stop xfinder-keycloak.service 2>/dev/null || true
-sudo systemctl stop xfinder-api.service 2>/dev/null || true
-sudo systemctl stop xfinder-web.service 2>/dev/null || true
-
-# 3. Limpar unidades geradas temporariamente (se existirem)
-sudo systemctl daemon-reload
-sudo systemctl reset-failed
-
-# 4. Verificar permissões dos arquivos
-sudo chmod 644 /etc/containers/systemd/*.container
-sudo chmod 644 /etc/containers/systemd/*.network
-
-# 5. Recarregar novamente
+# Recarregar systemd
 sudo systemctl daemon-reload
 
-# 6. Verificar se os serviços foram reconhecidos
-sudo systemctl list-unit-files | grep xfinder
-
-# 7. Agora tentar habilitar novamente
-sudo systemctl enable xfinder-postgres.service
+# Iniciar os serviços diretamente (sem enable)
+sudo systemctl start xfinder-postgres.service
+sudo systemctl start xfinder-keycloak.service
+sudo systemctl start xfinder-api.service
+sudo systemctl start xfinder-web.service
 ```
 
-**Causas comuns deste erro:**
-- Arquivos não estão em `/etc/containers/systemd/` (estão em outro local)
-- `daemon-reload` não foi executado após copiar os arquivos
-- Arquivos têm permissões incorretas
-- Serviços temporários ainda estão ativos
+Os serviços serão iniciados automaticamente no boot porque a seção `[Install]` com `WantedBy=default.target` está configurada nos arquivos `.container`.
+
+**Para verificar se o início automático está configurado:**
+
+```bash
+# Verificar a seção [Install] nos arquivos
+grep -A 2 "\[Install\]" /etc/containers/systemd/xfinder-postgres.container
+
+# Verificar se os serviços são iniciados no boot
+sudo systemctl is-enabled xfinder-postgres.service
+# Se retornar "indirect" ou "generated", está correto!
+```
 
 ## Backup e Restore
 
@@ -401,7 +401,7 @@ sudo systemctl enable xfinder-postgres.service
 sudo podman volume export xfinder-postgres -o postgres-backup-$(date +%Y%m%d).tar
 
 # Backup de todos os volumes
-for vol in xfinder-postgres xfinder-keycloak-realm xfinder-web-logs; do
+for vol in postgres xfinder-keycloak-realm; do
     sudo podman volume export $vol -o ${vol}-backup-$(date +%Y%m%d).tar 2>/dev/null || echo "Volume $vol não existe ou está vazio"
 done
 ```
@@ -410,7 +410,7 @@ done
 
 ```bash
 # Restaurar um volume
-sudo podman volume import xfinder-postgres postgres-backup-20250120.tar
+sudo podman volume import postgres postgres-backup-20250120.tar
 ```
 
 ## Atualizando Imagens
@@ -439,7 +439,7 @@ sudo systemctl start xfinder-api.service
 - [ ] Construir imagens Docker customizadas (keycloak, api, web)
 - [ ] Parar e remover containers antigos
 - [ ] Executar `daemon-reload`
-- [ ] Habilitar serviços com `enable`
+- [ ] **NÃO** usar `systemctl enable` (unidades geradas não precisam)
 - [ ] Iniciar PostgreSQL e criar bancos de dados
 - [ ] Iniciar serviços na ordem correta
 - [ ] Verificar status de todos os serviços
