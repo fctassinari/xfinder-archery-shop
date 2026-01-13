@@ -278,7 +278,8 @@ const ProdutoDetalhesPage = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                {/* TODO: Implementar sistema de avaliações e rating no futuro */}
+                {/* <div className="flex items-center space-x-2">
                   <div className="flex">
                     {Array.from({ length: 5 }).map((_, index) => (
                       <Star
@@ -294,7 +295,7 @@ const ProdutoDetalhesPage = () => {
                   <span className="text-sm font-medium text-gray-700">
                     {selectedProduct.rating.toFixed(1)} ({selectedProduct.reviews} avaliações)
                   </span>
-                </div>
+                </div> */}
 
                 <p className="text-gray-600 leading-relaxed pt-2">{selectedProduct.description}</p>
 
