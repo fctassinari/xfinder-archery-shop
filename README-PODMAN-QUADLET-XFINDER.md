@@ -93,7 +93,9 @@ Conteúdo completo está disponível em `podman-quadlet-configs/xfinder-postgres
 
 #### 3.2 Keycloak (xfinder-keycloak.container)
 
-**Nota**: O container name é `xfinder-keycloak-prod` (não `xfinder-keycloak`) para corresponder ao script de produção.
+**Nota**: 
+- O container name é `xfinder-keycloak-prod` (não `xfinder-keycloak`) para corresponder ao script de produção.
+- Os argumentos de comando (`start --optimized ...`) do script `start-producao.sh` não são necessários no Quadlet, pois as variáveis de ambiente já configuram o Keycloak corretamente.
 
 ```bash
 sudo vim /etc/containers/systemd/xfinder-keycloak.container

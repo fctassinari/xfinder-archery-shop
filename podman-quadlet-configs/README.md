@@ -50,7 +50,7 @@ Siga as instruções no `README-PODMAN-QUADLET-XFINDER.md` para habilitar e inic
 ### Scripts Auxiliares
 - `install-quadlet.sh` - Script de instalação automática
 - `start-services.sh` - Script para iniciar todos os serviços na ordem correta
-- `fix-transient-error.sh` - Script para corrigir erro "Unit is transient or generated"
+- `verify-keycloak.sh` - Script para diagnosticar problemas com o serviço Keycloak
 - `check-status.sh` - Script para verificar status dos serviços
 
 ## Solução de Problemas
