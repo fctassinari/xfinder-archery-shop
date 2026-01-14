@@ -90,3 +90,26 @@
   podman start xfinder-web
 ```
 ---
+
+## **Stop / Start**
+    systemctl stop xfinder-web.service 2>/dev/null || true
+    systemctl stop xfinder-keycloak.service 2>/dev/null || true
+    systemctl stop xfinder-api.service 2>/dev/null || true
+    systemctl stop xfinder-postgres.service 2>/dev/null || true
+
+
+    systemctl start xfinder-postgres.service 2>/dev/null || true
+    systemctl start xfinder-keycloak.service 2>/dev/null || true
+    systemctl start xfinder-api.service 2>/dev/null || true
+    systemctl start xfinder-web.service 2>/dev/null || true
+
+
+
+
+
+
+
+sudo firewall-cmd  --permanente --add-rich-rule='rule family="ipv4" source address="173.245.48.0/20" port port="80" protocol="tcp" accept'
+sudo firewall-cmd  --permanente --add-rich-rule='rule family="ipv4" source address="173.245.48.0/20" port port="443" protocol="tcp" accept'
+sudo firewall-cmd --reload
+

@@ -131,8 +131,7 @@ location.reload();
 
 * Implementar
   * rich rules:
-    rule family="ipv4" source address="179.118.137.6/32" port port="9090" protocol="tcp" accept
-fail2ban 
+    rule family="ipv4" source address="179.118.137.6/32" port port="9090" protocol="tcp" accept fail2ban 
 
 
 

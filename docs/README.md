@@ -48,7 +48,7 @@
 Para configurar o Podman Quadlet no servidor de produção e garantir inicialização automática dos containers:
 
 - **[Roteiro Completo](README-PODMAN-QUADLET-XFINDER.md)** - Documentação detalhada
-- **[Quick Start](podman-quadlet-configs/QUICK-START.md)** - Guia rápido de instalação
+- **[Quick Start](../podman-quadlet-configs/QUICK-START.md)** - Guia rápido de instalação
 - **[Arquivos de Configuração](podman-quadlet-configs/)** - Templates prontos para uso
 
 ---
