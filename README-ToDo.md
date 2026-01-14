@@ -112,9 +112,9 @@ location.reload();
   * ✅ Configurar email no keycloak
   * Permitir fretes somente dos correios
   * ✅ banner de consentimento de cookies
-  * aceite email promocional
+  * ✅ aceite email promocional
   * botao de excluir conta
-
+    https://nextjs.org/blog/CVE-2025-66478
 
 * Implementar Meus pedidos
   * Listar todos os pedidos do cliente

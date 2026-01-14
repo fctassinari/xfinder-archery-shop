@@ -8,18 +8,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import apiClient from '@/services/apiClient';
-import { Loader2, User } from 'lucide-react';
+import { Loader2, User, Trash2 } from 'lucide-react';
 import heroImage from '@/assets/lubepuller.jpg';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   // useRequireAuth garante que Keycloak seja inicializado quando acessa esta página
   useRequireAuth();
-  const { customer, user, syncCustomer } = useAuth();
+  const { customer, user, syncCustomer, logout } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
 
   const [formData, setFormData] = useState({
     name: customer?.name || '',
@@ -61,11 +76,73 @@ const Profile = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const validateForm = (): string | null => {
+    const requiredFields = [
+      { key: 'name', label: 'Nome Completo' },
+      { key: 'phone', label: 'Telefone' },
+      { key: 'cpf', label: 'CPF' },
+      { key: 'cep', label: 'CEP' },
+      { key: 'address', label: 'Endereço' },
+      { key: 'number', label: 'Número' },
+      { key: 'neighborhood', label: 'Bairro' },
+      { key: 'city', label: 'Cidade' },
+      { key: 'state', label: 'Estado' },
+    ];
+
+    for (const field of requiredFields) {
+      const value = formData[field.key as keyof typeof formData];
+      if (!value || (typeof value === 'string' && value.trim() === '')) {
+        return `O campo "${field.label}" é obrigatório`;
+      }
+    }
+
+    // Validação de CPF (deve ter 11 dígitos)
+    const cpfNumbers = formData.cpf.replace(/\D/g, '');
+    if (cpfNumbers.length !== 11) {
+      return 'CPF deve ter 11 dígitos';
+    }
+
+    // Validação de telefone (deve ter 10 ou 11 dígitos)
+    const phoneNumbers = formData.phone.replace(/\D/g, '');
+    if (phoneNumbers.length < 10 || phoneNumbers.length > 11) {
+      return 'Telefone deve ter 10 ou 11 dígitos (com DDD)';
+    }
+
+    // Validação de CEP (deve ter 8 dígitos)
+    const cepNumbers = formData.cep.replace(/\D/g, '');
+    if (cepNumbers.length !== 8) {
+      return 'CEP deve ter 8 dígitos';
+    }
+
+    // Validação de estado (deve ter 2 caracteres)
+    if (formData.state.length !== 2) {
+      return 'Estado deve ter 2 caracteres (ex: SP, RJ)';
+    }
+
+    // Validação de email
+    if (formData.email && !formData.email.includes('@')) {
+      return 'E-mail inválido';
+    }
+
+    return null;
+  };
+
   const handleSave = async () => {
     if (!customer) {
       toast({
         title: 'Erro',
         description: 'Customer não encontrado. Tente sincronizar primeiro.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validar campos obrigatórios
+    const validationError = validateForm();
+    if (validationError) {
+      toast({
+        title: 'Validação',
+        description: validationError,
         variant: 'destructive',
       });
       return;
@@ -204,7 +281,7 @@ const Profile = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="name" className="text-sm font-medium text-foreground mb-2 block">
-                      Nome Completo
+                      Nome Completo <span className="text-destructive">*</span>
                     </label>
                     <Input
                       id="name"
@@ -229,7 +306,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <label htmlFor="phone" className="text-sm font-medium text-foreground mb-2 block">
-                      Telefone
+                      Telefone <span className="text-destructive">*</span>
                     </label>
                     <Input
                       id="phone"
@@ -244,7 +321,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <label htmlFor="cpf" className="text-sm font-medium text-foreground mb-2 block">
-                      CPF
+                      CPF <span className="text-destructive">*</span>
                     </label>
                     <Input
                       id="cpf"
@@ -259,7 +336,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <label htmlFor="cep" className="text-sm font-medium text-foreground mb-2 block">
-                      CEP
+                      CEP <span className="text-destructive">*</span>
                     </label>
                     <Input
                       id="cep"
@@ -274,7 +351,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <label htmlFor="state" className="text-sm font-medium text-foreground mb-2 block">
-                      Estado
+                      Estado <span className="text-destructive">*</span>
                     </label>
                     <Input
                       id="state"
@@ -288,7 +365,7 @@ const Profile = () => {
                   </div>
                   <div className="md:col-span-2">
                     <label htmlFor="address" className="text-sm font-medium text-foreground mb-2 block">
-                      Endereço
+                      Endereço <span className="text-destructive">*</span>
                     </label>
                     <Input
                       id="address"
@@ -300,7 +377,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <label htmlFor="number" className="text-sm font-medium text-foreground mb-2 block">
-                      Número
+                      Número <span className="text-destructive">*</span>
                     </label>
                     <Input
                       id="number"
@@ -324,7 +401,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <label htmlFor="neighborhood" className="text-sm font-medium text-foreground mb-2 block">
-                      Bairro
+                      Bairro <span className="text-destructive">*</span>
                     </label>
                     <Input
                       id="neighborhood"
@@ -336,7 +413,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <label htmlFor="city" className="text-sm font-medium text-foreground mb-2 block">
-                      Cidade
+                      Cidade <span className="text-destructive">*</span>
                     </label>
                     <Input
                       id="city"
@@ -365,65 +442,176 @@ const Profile = () => {
                     </label>
                   </div>
                 </div>
-                <div className="flex justify-end space-x-4 pt-4">
-                  {isEditing ? (
-                    <>
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
                       <Button
-                        variant="outline"
+                        variant="destructive"
                         size="lg"
-                        onClick={() => {
-                          setIsEditing(false);
-                          // Resetar formData
-                          setFormData({
-                            name: customer?.name || '',
-                            email: customer?.email || user?.email || '',
-                            phone: customer?.phone || '',
-                            cpf: customer?.cpf || '',
-                            cep: customer?.cep || '',
-                            address: customer?.address || '',
-                            number: customer?.number || '',
-                            complement: customer?.complement || '',
-                            neighborhood: customer?.neighborhood || '',
-                            city: customer?.city || '',
-                            state: customer?.state || '',
-                            acceptsPromotionalEmails: customer?.acceptsPromotionalEmails || false,
-                          });
-                        }}
-                        disabled={isLoading}
-                      >
-                        Cancelar
-                      </Button>
-                      <Button 
-                        variant="archery" 
-                        size="lg" 
-                        onClick={handleSave} 
-                        disabled={isLoading}
+                        disabled={isDeleting || isLoading}
                         className="group"
                       >
-                        {isLoading ? (
+                        {isDeleting ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Salvando...
+                            Excluindo...
                           </>
                         ) : (
                           <>
-                            <User className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                            Salvar
+                            <Trash2 className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                            Excluir Meus Dados
                           </>
                         )}
                       </Button>
-                    </>
-                  ) : (
-                    <Button 
-                      variant="archery" 
-                      size="lg" 
-                      onClick={() => setIsEditing(true)}
-                      className="group"
-                    >
-                      <User className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                      Editar Perfil
-                    </Button>
-                  )}
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirmar Exclusão de Dados</AlertDialogTitle>
+                        <AlertDialogDescription className="space-y-2">
+                          <p>
+                            Esta ação é <strong>irreversível</strong> e irá:
+                          </p>
+                          <ul className="list-disc list-inside space-y-1 text-sm">
+                            <li>Anonimizar todos os seus dados pessoais no sistema</li>
+                            <li>Excluir sua conta provedor de identidade</li>
+                            <li>Você será desconectado automaticamente</li>
+                          </ul>
+                          <p className="mt-2">
+                            <strong>Importante:</strong> Seu histórico de pedidos será mantido para fins contábeis e fiscais, 
+                            mas seus dados pessoais serão removidos.
+                          </p>
+                          <p className="mt-4 font-semibold">
+                            Digite <strong className="text-destructive">EXCLUIR</strong> para confirmar:
+                          </p>
+                          <Input
+                            value={deleteConfirmation}
+                            onChange={(e) => setDeleteConfirmation(e.target.value)}
+                            placeholder="Digite EXCLUIR"
+                            className="mt-2"
+                          />
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setDeleteConfirmation('')}>
+                          Cancelar
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={async () => {
+                            if (deleteConfirmation !== 'EXCLUIR') {
+                              toast({
+                                title: 'Confirmação inválida',
+                                description: 'Por favor, digite EXCLUIR para confirmar.',
+                                variant: 'destructive',
+                              });
+                              return;
+                            }
+
+                            if (!customer?.id) {
+                              toast({
+                                title: 'Erro',
+                                description: 'Cliente não encontrado.',
+                                variant: 'destructive',
+                              });
+                              return;
+                            }
+
+                            setIsDeleting(true);
+                            try {
+                              await apiClient.delete(`/api/customers/${customer.id}/lgpd`);
+                              toast({
+                                title: 'Dados excluídos',
+                                description: 'Seus dados foram excluídos com sucesso conforme LGPD.',
+                              });
+                              // Aguardar um pouco antes de fazer logout para o toast aparecer
+                              setTimeout(() => {
+                                logout();
+                                navigate('/');
+                              }, 1000);
+                            } catch (error: any) {
+                              console.error('Erro ao excluir dados:', error);
+                              toast({
+                                title: 'Erro',
+                                description: error.response?.data?.error || 'Erro ao excluir dados. Tente novamente.',
+                                variant: 'destructive',
+                              });
+                              setIsDeleting(false);
+                            }
+                          }}
+                          disabled={isDeleting || deleteConfirmation !== 'EXCLUIR'}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {isDeleting ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Excluindo...
+                            </>
+                          ) : (
+                            'Confirmar Exclusão'
+                          )}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  <div className="flex space-x-4">
+                    {isEditing ? (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          onClick={() => {
+                            setIsEditing(false);
+                            // Resetar formData
+                            setFormData({
+                              name: customer?.name || '',
+                              email: customer?.email || user?.email || '',
+                              phone: customer?.phone || '',
+                              cpf: customer?.cpf || '',
+                              cep: customer?.cep || '',
+                              address: customer?.address || '',
+                              number: customer?.number || '',
+                              complement: customer?.complement || '',
+                              neighborhood: customer?.neighborhood || '',
+                              city: customer?.city || '',
+                              state: customer?.state || '',
+                              acceptsPromotionalEmails: customer?.acceptsPromotionalEmails || false,
+                            });
+                          }}
+                          disabled={isLoading}
+                        >
+                          Cancelar
+                        </Button>
+                        <Button 
+                          variant="archery" 
+                          size="lg" 
+                          onClick={handleSave} 
+                          disabled={isLoading}
+                          className="group"
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Salvando...
+                            </>
+                          ) : (
+                            <>
+                              <User className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                              Salvar
+                            </>
+                          )}
+                        </Button>
+                      </>
+                    ) : (
+                      <Button 
+                        variant="archery" 
+                        size="lg" 
+                        onClick={() => setIsEditing(true)}
+                        className="group"
+                      >
+                        <User className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                        Editar Perfil
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </>
             )}

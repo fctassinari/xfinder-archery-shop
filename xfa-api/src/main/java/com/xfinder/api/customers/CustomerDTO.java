@@ -18,6 +18,7 @@ public class CustomerDTO {
     public LocalDateTime createdAt;
     public LocalDateTime updatedAt;
     public Boolean active;
+    public String keycloakId;
     public Boolean acceptsPromotionalEmails;
 
     public CustomerDTO() {}
