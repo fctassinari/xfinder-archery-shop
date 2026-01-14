@@ -96,8 +96,11 @@ public class SuperfreteService {
                     return Response.ok(fallbackResponse).build();
                 }
 
-                // 2. Se a lista não estiver vazia, adicionar apenas a opção "Em Mãos"
-                String modifiedResponse = addHandDeliveryOption(responseBody);
+                // 2. Filtrar apenas os serviços permitidos (1=PAC, 2=SEDEX, 17=Mini Envios)
+                String filteredResponse = filterAllowedServices(responseBody);
+                
+                // 3. Se a lista não estiver vazia após filtro, adicionar apenas a opção "Em Mãos"
+                String modifiedResponse = addHandDeliveryOption(filteredResponse);
 
                 return Response.ok(modifiedResponse).build();
                 //return Response.ok(response.readEntity(String.class)).build();
@@ -119,6 +122,35 @@ public class SuperfreteService {
                         .build();
             }
         }
+    }
+
+    /**
+     * Filtra os serviços de frete para retornar apenas os permitidos (1=PAC, 2=SEDEX, 17=Mini Envios)
+     */
+    private String filterAllowedServices(String originalResponse) throws JsonProcessingException {
+        // IDs dos serviços permitidos
+        int[] allowedServiceIds = {1, 2, 17};
+        
+        // Converter a resposta original para um array de JsonNode
+        JsonNode[] shippingOptions = objectMapper.readValue(originalResponse, JsonNode[].class);
+        
+        // Filtrar apenas os serviços permitidos
+        List<JsonNode> filteredOptions = new ArrayList<>();
+        for (JsonNode option : shippingOptions) {
+            if (option.has("id")) {
+                int serviceId = option.get("id").asInt();
+                // Verificar se o ID está na lista de permitidos
+                for (int allowedId : allowedServiceIds) {
+                    if (serviceId == allowedId) {
+                        filteredOptions.add(option);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Converter de volta para JSON string
+        return objectMapper.writeValueAsString(filteredOptions);
     }
 
     /**
@@ -166,7 +198,7 @@ public class SuperfreteService {
 	        {
 	            "id": 999,
 	            "name": "Correios",
-	            "price": "10.0",
+	            "price": "13.0",
 	            "delivery_time": "3",
 	            "company": {
 	                "id": 999,
@@ -208,7 +240,7 @@ public class SuperfreteService {
 	        {
 	            "id": 999,
 	            "name": "Correios",
-	            "price": "10.0",
+	            "price": "13.0",
 	            "delivery_time": "3",
 	            "company": {
 	                "id": 999,
