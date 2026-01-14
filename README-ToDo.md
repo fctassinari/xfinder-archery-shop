@@ -114,7 +114,13 @@ location.reload();
   * ✅ banner de consentimento de cookies
   * ✅ aceite email promocional
   * ✅ botao de excluir conta
-    https://nextjs.org/blog/CVE-2025-66478
+
+* Implementar regras firewall
+  * ✅ Só aceita do cloudfare
+
+* Implementar failban
+  * ✅ rich rules:
+    ✅ rule family="ipv4" source address="179.118.137.6/32" port port="9090" protocol="tcp" accept fail2ban
 
 * Implementar Meus pedidos
   * Listar todos os pedidos do cliente
@@ -126,12 +132,7 @@ location.reload();
 * Implementar Brechó
 * Implementar produtos de parceiros
 
-* Implementar regras firewall
-  * so aceita do cloudfare
 
-* Implementar
-  * rich rules:
-    rule family="ipv4" source address="179.118.137.6/32" port port="9090" protocol="tcp" accept fail2ban 
 
 
 
