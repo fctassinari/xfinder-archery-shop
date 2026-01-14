@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ShoppingCart, Minus, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Sheet,
   SheetContent,
@@ -43,7 +44,8 @@ const Cart = () => {
     complement: "",
     neighborhood: "",
     city: "",
-    state: ""
+    state: "",
+    acceptsPromotionalEmails: false
   });
 
   // Obter configurações do backend
@@ -244,7 +246,8 @@ const Cart = () => {
           complement: customer.complement || "",
           neighborhood: customer.neighborhood || "",
           city: customer.city || "",
-          state: customer.state || ""
+          state: customer.state || "",
+          acceptsPromotionalEmails: customer.acceptsPromotionalEmails || false
         };
 
         // console.log('📦 Dados carregados no popup:', loadedData);
@@ -454,7 +457,8 @@ const Cart = () => {
       customerData.complement !== originalCustomerData.complement ||
       customerData.neighborhood !== originalCustomerData.neighborhood ||
       customerData.city !== originalCustomerData.city ||
-      customerData.state !== originalCustomerData.state
+      customerData.state !== originalCustomerData.state ||
+      customerData.acceptsPromotionalEmails !== originalCustomerData.acceptsPromotionalEmails
     );
   };
 
@@ -483,7 +487,8 @@ const Cart = () => {
               complement: customerData.complement,
               neighborhood: customerData.neighborhood,
               city: customerData.city,
-              state: customerData.state
+              state: customerData.state,
+              acceptsPromotionalEmails: customerData.acceptsPromotionalEmails
             };
 
             const customersApiUrl = apiConfig.customersUrl;
@@ -521,7 +526,8 @@ const Cart = () => {
             complement: customerData.complement,
             neighborhood: customerData.neighborhood,
             city: customerData.city,
-            state: customerData.state
+            state: customerData.state,
+            acceptsPromotionalEmails: customerData.acceptsPromotionalEmails
           };
 
           const customersApiUrl = apiConfig.customersUrl;
@@ -602,7 +608,8 @@ const Cart = () => {
             complement: customerData.complement,
             neighborhood: customerData.neighborhood,
             city: customerData.city,
-            state: customerData.state
+            state: customerData.state,
+            acceptsPromotionalEmails: customerData.acceptsPromotionalEmails
           };
 
           // console.log('📤 Enviando atualização:', customerPayload);
@@ -1074,6 +1081,24 @@ const Cart = () => {
                       onChange={(e) => handleCustomerDataChange('neighborhood', e.target.value)}
                     />
                   </div>
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="acceptsPromotionalEmails"
+                    checked={customerData.acceptsPromotionalEmails}
+                    onCheckedChange={(checked) => 
+                      setCustomerData(prev => ({ ...prev, acceptsPromotionalEmails: checked === true }))
+                    }
+                  />
+                  <label
+                    htmlFor="acceptsPromotionalEmails"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    Aceito receber emails promocionais
+                  </label>
                 </div>
               </div>
 

@@ -14,6 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Path("/api/config")
 @Produces(MediaType.APPLICATION_JSON)
@@ -97,8 +98,8 @@ public class ConfigResource {
     String useMockCheckout;
 
     // Google Maps
-    @ConfigProperty(name = "frontend.google-maps.api-key", defaultValue = "")
-    String googleMapsApiKey;
+    @ConfigProperty(name = "frontend.google-maps.api-key")
+    Optional<String> googleMapsApiKey;
 
     @GET
     @Path("/frontend")
@@ -157,7 +158,7 @@ public class ConfigResource {
 
         // Google Maps
         Map<String, String> googleMaps = new HashMap<>();
-        googleMaps.put("apiKey", googleMapsApiKey);
+        googleMaps.put("apiKey", googleMapsApiKey.orElse(""));
         config.put("googleMaps", googleMaps);
 
         return Response.ok(config)

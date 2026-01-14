@@ -18,6 +18,7 @@ public class CustomerDTO {
     public LocalDateTime createdAt;
     public LocalDateTime updatedAt;
     public Boolean active;
+    public Boolean acceptsPromotionalEmails;
 
     public CustomerDTO() {}
 }

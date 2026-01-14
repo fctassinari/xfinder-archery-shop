@@ -110,6 +110,10 @@ location.reload();
   * ✅ Tirar variaveis do .env e passar para recuperar de api backend
   * ✅ Comentar os console.*
   * ✅ Configurar email no keycloak
+  * Permitir fretes somente dos correios
+  * ✅ banner de consentimento de cookies
+  * aceite email promocional
+  * botao de excluir conta
 
 
 * Implementar Meus pedidos
@@ -121,6 +125,17 @@ location.reload();
   
 * Implementar Brechó
 * Implementar produtos de parceiros
+
+* Implementar regras firewall
+  * so aceita do cloudfare
+
+* Implementar
+  * rich rules:
+    rule family="ipv4" source address="179.118.137.6/32" port port="9090" protocol="tcp" accept
+fail2ban 
+
+
+
 ```  
   The P.R.O.M.P.T
   # P.ersona - Eu sou um engenheiro de software

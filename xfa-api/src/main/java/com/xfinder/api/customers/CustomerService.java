@@ -164,6 +164,7 @@ public class CustomerService {
         dto.createdAt = customer.createdAt;
         dto.updatedAt = customer.updatedAt;
         dto.active = customer.active;
+        dto.acceptsPromotionalEmails = customer.acceptsPromotionalEmails;
 
         return dto;
     }
@@ -186,5 +187,6 @@ public class CustomerService {
         customer.neighborhood = dto.neighborhood;
         customer.city = dto.city;
         customer.state = dto.state.toUpperCase();
+        customer.acceptsPromotionalEmails = dto.acceptsPromotionalEmails != null ? dto.acceptsPromotionalEmails : false;
     }
 }

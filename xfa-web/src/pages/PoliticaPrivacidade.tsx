@@ -107,7 +107,6 @@ const PoliticaPrivacidade = () => {
                     <li><strong>Essenciais:</strong> necessários para o funcionamento do site</li>
                     <li><strong>Performance:</strong> ajudam a entender como você usa o site</li>
                     <li><strong>Funcionais:</strong> lembram suas preferências</li>
-                    <li><strong>Marketing:</strong> personalizam anúncios (apenas com seu consentimento)</li>
                   </ul>
                 </section>
 

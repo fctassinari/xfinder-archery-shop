@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
@@ -7,6 +7,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import apiClient from '@/services/apiClient';
 import { Loader2, User } from 'lucide-react';
@@ -32,7 +33,28 @@ const Profile = () => {
     neighborhood: customer?.neighborhood || '',
     city: customer?.city || '',
     state: customer?.state || '',
+    acceptsPromotionalEmails: customer?.acceptsPromotionalEmails || false,
   });
+
+  // Atualizar formData quando customer mudar
+  useEffect(() => {
+    if (customer && !isEditing) {
+      setFormData({
+        name: customer.name || '',
+        email: customer.email || user?.email || '',
+        phone: customer.phone || '',
+        cpf: customer.cpf || '',
+        cep: customer.cep || '',
+        address: customer.address || '',
+        number: customer.number || '',
+        complement: customer.complement || '',
+        neighborhood: customer.neighborhood || '',
+        city: customer.city || '',
+        state: customer.state || '',
+        acceptsPromotionalEmails: customer.acceptsPromotionalEmails || false,
+      });
+    }
+  }, [customer, user?.email, isEditing]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -325,6 +347,24 @@ const Profile = () => {
                     />
                   </div>
                 </div>
+                <div className="pt-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="acceptsPromotionalEmails"
+                      checked={formData.acceptsPromotionalEmails}
+                      onCheckedChange={(checked) => 
+                        setFormData((prev) => ({ ...prev, acceptsPromotionalEmails: checked === true }))
+                      }
+                      disabled={!isEditing}
+                    />
+                    <label
+                      htmlFor="acceptsPromotionalEmails"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      Aceito receber emails promocionais
+                    </label>
+                  </div>
+                </div>
                 <div className="flex justify-end space-x-4 pt-4">
                   {isEditing ? (
                     <>
@@ -346,6 +386,7 @@ const Profile = () => {
                             neighborhood: customer?.neighborhood || '',
                             city: customer?.city || '',
                             state: customer?.state || '',
+                            acceptsPromotionalEmails: customer?.acceptsPromotionalEmails || false,
                           });
                         }}
                         disabled={isLoading}
