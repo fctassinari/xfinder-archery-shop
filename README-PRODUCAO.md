@@ -48,11 +48,13 @@
 
 ```bash
   cd xfa-api
-  podman stop xfinder-api
-  podman rm xfinder-api
+  # podman stop xfinder-api
+  systemctl stop xfinder-api.service 2>/dev/null || true
+  # podman rm xfinder-api
   ./mvnw package -DskipTests=true
   podman build -f src/main/docker/Dockerfile.jvm -t xfinder-api:latest .
-  podman run -d  --tz=America/Sao_Paulo --name xfinder-api --network nt-xfinder -p 8085:8085 xfinder-api:latest
+  # podman run -d  --tz=America/Sao_Paulo --name xfinder-api --network nt-xfinder -p 8085:8085 xfinder-api:latest
+  systemctl start xfinder-api.service
   cd ..
 ```
 ```bash
@@ -76,10 +78,12 @@
 
 ```shell
   cd xfa-web
-  podman stop xfinder-web
-  podman rm xfinder-web
+  # podman stop xfinder-web
+  systemctl stop xfinder-web.service 2>/dev/null || true
+  # podman rm xfinder-web
   podman build -t xfinder-web:latest .
-  podman run -d  --tz=America/Sao_Paulo --name xfinder-web -p 8083:8080 --network nt-xfinder --restart unless-stopped xfinder-web:latest
+  # podman run -d  --tz=America/Sao_Paulo --name xfinder-web -p 8083:8080 --network nt-xfinder --restart unless-stopped xfinder-web:latest
+  systemctl start xfinder-web.service
   cd ..
 ```
 ```bash

@@ -110,10 +110,10 @@ location.reload();
   * ✅ Tirar variaveis do .env e passar para recuperar de api backend
   * ✅ Comentar os console.*
   * ✅ Configurar email no keycloak
-  * Permitir fretes somente dos correios
+  * ✅ Permitir fretes somente dos correios
   * ✅ banner de consentimento de cookies
   * ✅ aceite email promocional
-  * botao de excluir conta
+  * ✅ botao de excluir conta
     https://nextjs.org/blog/CVE-2025-66478
 
 * Implementar Meus pedidos
