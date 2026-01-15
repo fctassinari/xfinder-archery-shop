@@ -15,6 +15,11 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 
+import com.xfinder.api.auth.KeycloakAdminService;
+import com.xfinder.api.auth.KeycloakSyncService;
+import io.quarkus.security.identity.SecurityIdentity;
+import com.xfinder.api.customers.Customer;
+
 @Path("/api/customers")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -23,6 +28,15 @@ public class CustomerResource {
 
     @Inject
     CustomerService customerService;
+
+    @Inject
+    KeycloakAdminService keycloakAdminService;
+
+    @Inject
+    KeycloakSyncService keycloakSyncService;
+
+    @Inject
+    SecurityIdentity securityIdentity;
 
     @GET
     @RolesAllowed({"admin"})
@@ -159,6 +173,69 @@ public class CustomerResource {
         } catch (NotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("{\"error\": \"Cliente não encontrado\"}")
+                    .build();
+        }
+    }
+
+    @DELETE
+    @Path("/{id}/lgpd")
+    @RolesAllowed({"customer", "admin"})
+    @Transactional
+    @Operation(summary = "Excluir dados pessoais (LGPD)", description = "Anonimiza dados pessoais do cliente e exclui usuário do Keycloak")
+    public Response deleteCustomerDataLGPD(@PathParam("id") Long id) {
+        try {
+            // Buscar customer
+            Optional<CustomerDTO> customerOpt = customerService.getCustomerById(id);
+            if (customerOpt.isEmpty()) {
+                // Verificar se existe mas está inativo (anonimizado)
+                Customer customer = Customer.findById(id);
+                if (customer == null) {
+                    return Response.status(Response.Status.NOT_FOUND)
+                            .entity("{\"error\": \"Cliente não encontrado\"}")
+                            .build();
+                }
+                // Se existe mas está inativo, retornar sucesso (já foi anonimizado)
+                return Response.noContent().build();
+            }
+
+            CustomerDTO customer = customerOpt.get();
+
+            // Verificar se o usuário autenticado é o dono do customer ou admin
+            String currentKeycloakId = keycloakSyncService.getCurrentKeycloakId();
+            boolean isAdmin = securityIdentity.hasRole("admin");
+            boolean isOwner = customer.keycloakId != null && 
+                             currentKeycloakId != null && 
+                             customer.keycloakId.equals(currentKeycloakId);
+
+            if (!isAdmin && !isOwner) {
+                return Response.status(Response.Status.FORBIDDEN)
+                        .entity("{\"error\": \"Você não tem permissão para excluir estes dados\"}")
+                        .build();
+            }
+
+            // Excluir usuário do Keycloak se keycloakId existir
+            if (customer.keycloakId != null && !customer.keycloakId.isEmpty()) {
+                try {
+                    keycloakAdminService.deleteUser(customer.keycloakId);
+                } catch (Exception e) {
+                    // Log do erro mas continua com anonimização
+                    System.err.println("Erro ao excluir usuário do Keycloak: " + e.getMessage());
+                    // Não falhar a operação se o usuário já não existir no Keycloak
+                }
+            }
+
+            // Anonimizar dados no banco
+            customerService.anonymizeCustomerData(id);
+
+            return Response.noContent().build();
+
+        } catch (NotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"error\": \"Cliente não encontrado\"}")
+                    .build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Erro ao excluir dados: " + e.getMessage() + "\"}")
                     .build();
         }
     }

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import { Button } from '@/components/ui/button';
 import { MapPin } from 'lucide-react';
+import { getGoogleMapsConfig, isConfigLoaded, initConfig } from '@/config/appConfig';
 
 interface GoogleMapProps {
   address?: string;
@@ -10,57 +11,122 @@ interface GoogleMapProps {
 
 const MapComponent: React.FC<{ address: string }> = ({ address }) => {
   const mapRef = useRef<HTMLDivElement>(null);
+  const markerRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || !window.google?.maps) return;
 
-    const map = new window.google.maps.Map(mapRef.current, {
-      zoom: 15,
-      center: { lat: -23.5505, lng: -46.6333 }, // São Paulo center as fallback
-      styles: [
-        {
-          featureType: 'all',
-          elementType: 'geometry.fill',
-          stylers: [{ color: '#f5f5f5' }]
-        },
-        {
-          featureType: 'water',
-          elementType: 'geometry',
-          stylers: [{ color: '#c9c9c9' }]
-        }
-      ]
-    });
-
-    // Geocoder to convert address to coordinates
-    const geocoder = new window.google.maps.Geocoder();
-    
-    geocoder.geocode({ address }, (results, status) => {
-      if (status === 'OK' && results && results[0]) {
-        const location = results[0].geometry.location;
-        map.setCenter(location);
+    const initMap = async () => {
+      try {
+        // Importar a biblioteca de marcadores avançados
+        const { AdvancedMarkerElement, PinElement } = await window.google.maps.importLibrary("marker") as any;
         
-        // Add marker
-        new window.google.maps.Marker({
-          position: location,
-          map,
-          title: address,
-          icon: {
-            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-              <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 0C7.163 0 0 7.163 0 16C0 24.837 16 40 16 40S32 24.837 32 16C32 7.163 24.837 0 16 0ZM16 21.5C13.515 21.5 11.5 19.485 11.5 17C11.5 14.515 13.515 12.5 16 12.5C18.485 12.5 20.5 14.515 20.5 17C20.5 19.485 18.485 21.5 16 21.5Z" fill="#0ea5e9"/>
-              </svg>
-            `),
-            scaledSize: new window.google.maps.Size(32, 40),
+        const map = new window.google.maps.Map(mapRef.current!, {
+          zoom: 15,
+          center: { lat: -23.5505, lng: -46.6333 }, // São Paulo center as fallback
+          mapId: "XFINDER_MAP_ID", // Necessário para AdvancedMarkerElement
+          styles: [
+            {
+              featureType: 'all',
+              elementType: 'geometry.fill',
+              stylers: [{ color: '#f5f5f5' }]
+            },
+            {
+              featureType: 'water',
+              elementType: 'geometry',
+              stylers: [{ color: '#c9c9c9' }]
+            }
+          ]
+        });
+
+        // Geocoder to convert address to coordinates
+        const geocoder = new window.google.maps.Geocoder();
+        
+        geocoder.geocode({ address }, (results, status) => {
+          if (status === 'OK' && results && results[0]) {
+            const location = results[0].geometry.location;
+            const position = {
+              lat: typeof location.lat === 'function' ? location.lat() : location.lat,
+              lng: typeof location.lng === 'function' ? location.lng() : location.lng
+            };
+            
+            map.setCenter(position);
+            
+            // Limpar marcador anterior se existir
+            if (markerRef.current) {
+              markerRef.current.map = null;
+              markerRef.current = null;
+            }
+            
+            // Criar pin element personalizado
+            const pinElement = new PinElement({
+              background: '#0ea5e9',
+              borderColor: '#0284c7',
+              glyphColor: '#ffffff',
+              scale: 1.2,
+            });
+            
+            // Add advanced marker
+            markerRef.current = new AdvancedMarkerElement({
+              map,
+              position,
+              title: address,
+              content: pinElement.element,
+            });
+          }
+        });
+      } catch (error) {
+        console.error('Erro ao carregar biblioteca de marcadores avançados:', error);
+        // Fallback para Marker antigo se AdvancedMarkerElement falhar
+        const map = new window.google.maps.Map(mapRef.current!, {
+          zoom: 15,
+          center: { lat: -23.5505, lng: -46.6333 },
+          styles: [
+            {
+              featureType: 'all',
+              elementType: 'geometry.fill',
+              stylers: [{ color: '#f5f5f5' }]
+            },
+            {
+              featureType: 'water',
+              elementType: 'geometry',
+              stylers: [{ color: '#c9c9c9' }]
+            }
+          ]
+        });
+
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ address }, (results, status) => {
+          if (status === 'OK' && results && results[0]) {
+            const location = results[0].geometry.location;
+            map.setCenter(location);
+            new window.google.maps.Marker({
+              position: location,
+              map,
+              title: address,
+            });
           }
         });
       }
-    });
+    };
+
+    initMap();
+
+    // Cleanup
+    return () => {
+      if (markerRef.current) {
+        markerRef.current.map = null;
+        markerRef.current = null;
+      }
+    };
   }, [address]);
 
   return <div ref={mapRef} className="w-full h-full rounded-lg" />;
 };
 
-const render = (status: Status) => {
+const render = (status: Status, address: string) => {
+  const encodedAddress = encodeURIComponent(address);
+  
   switch (status) {
     case Status.LOADING:
       return (
@@ -80,8 +146,12 @@ const render = (status: Status) => {
             </div>
             <h3 className="font-semibold text-foreground mb-2">Localização</h3>
             <p className="text-muted-foreground text-sm">
-              Mooca<br/>
-              São Paulo / SP - Brasil
+              {address.split(',').map((part, i) => (
+                <React.Fragment key={i}>
+                  {part.trim()}
+                  {i < address.split(',').length - 1 && <br />}
+                </React.Fragment>
+              ))}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
               Mapa temporariamente indisponível
@@ -93,7 +163,7 @@ const render = (status: Status) => {
               className="mt-3 group"
             >
               <a 
-                href="https://maps.google.com/?q=Mooca,+São+Paulo,+SP,+Brasil" 
+                href={`https://maps.google.com/?q=${encodedAddress}`}
                 target="_blank" 
                 rel="noopener noreferrer"
               >
@@ -105,7 +175,7 @@ const render = (status: Status) => {
         </div>
       );
     case Status.SUCCESS:
-      return <MapComponent address="Mooca, São Paulo, SP, Brazil" />;
+      return <MapComponent address={address} />;
   }
 };
 
@@ -114,13 +184,34 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ address = "Mooca, São Paulo, SP,
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try to use a different API key or show fallback
-    //console.log('🗺️ Attempting to load Google Maps');
-    // For development, we'll show the fallback directly
-    setApiKey(''); // Set API key to empty to force fallback for demonstration
-    setLoading(false);
+    const loadApiKey = async () => {
+      try {
+        // Garantir que as configurações foram carregadas
+        if (!isConfigLoaded()) {
+          await initConfig();
+        }
+
+        // Obter a API key do backend
+        const googleMapsConfig = getGoogleMapsConfig();
+        const key = googleMapsConfig?.apiKey || '';
+
+        if (!key) {
+          console.warn('Google Maps API key não configurada no backend. Configure frontend.google-maps.api-key no application.properties');
+        }
+
+        setApiKey(key);
+      } catch (error) {
+        console.error('Erro ao carregar configuração do Google Maps:', error);
+        setApiKey('');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadApiKey();
   }, []);
 
+  // Se ainda está carregando, mostrar loading
   if (loading) {
     return (
       <div className={className}>
@@ -131,10 +222,27 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ address = "Mooca, São Paulo, SP,
     );
   }
 
-  // Show fallback instead of trying to load Google Maps
+  // Se não houver API key, mostrar fallback
+  if (!apiKey) {
+    return (
+      <div className={className}>
+        {render(Status.FAILURE, address)}
+      </div>
+    );
+  }
+
+  // Usar o Wrapper do @googlemaps/react-wrapper para carregar o script do Google Maps
+  // Passar address para a função render através de uma closure
+  const renderWithAddress = (status: Status) => render(status, address);
+
   return (
     <div className={className}>
-      {render(Status.FAILURE)} {/* Force rendering the fallback for demonstration */}
+      <Wrapper 
+        apiKey={apiKey} 
+        render={renderWithAddress}
+      >
+        <MapComponent address={address} />
+      </Wrapper>
     </div>
   );
 };

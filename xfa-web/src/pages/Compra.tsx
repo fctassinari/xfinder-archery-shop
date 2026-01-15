@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, Clock, Package, User, MapPin, CreditCard, Loader2
 import targetArrows from "@/assets/target-arrows.png";
 import { useCart } from "@/contexts/CartContext";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { getApiConfig, getAppUrls, getStoreConfig, getFeaturesConfig } from "@/config/appConfig";
 
 const Compra = () => {
   const location = useLocation();
@@ -32,14 +33,14 @@ const Compra = () => {
     const capture_method = params.get('capture_method');
     const receipt_url = params.get('receipt_url');
 
-    console.log('✅ Parâmetros recebidos da InfinitePay:', {
-      transaction_id,
-      transaction_nsu,
-      order_nsu,
-      slug,
-      capture_method,
-      receipt_url
-    });
+    // console.log('✅ Parâmetros recebidos da InfinitePay:', {
+    //   transaction_id,
+    //   transaction_nsu,
+    //   order_nsu,
+    //   slug,
+    //   capture_method,
+    //   receipt_url
+    // });
 
     if (receipt_url) {
       setReceiptUrl(decodeURIComponent(receipt_url));
@@ -55,22 +56,21 @@ const Compra = () => {
           sessionStorage.setItem('orderProcessed', 'true');
 
           // Usar o endpoint do backend para evitar problemas de CORS
-          const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+          const apiBaseUrl = getApiConfig().baseUrl;
           const apiUrl = `${apiBaseUrl}/api/payment/check?transaction_nsu=${transaction_nsu}&external_order_nsu=${order_nsu}&slug=${slug}`;
           
           // ========== MOCK PARA TESTE DE ETIQUETAS ==========
-          // Para ativar o mock, defina VITE_USE_MOCK_CHECKOUT=true no .env
-          // ou altere a linha abaixo para: const USE_MOCK = true;
-          const isMock = import.meta.env.VITE_USE_MOCK_CHECKOUT === 'true' || false;
+          // Para ativar o mock, defina useMockCheckout=true no backend
+          const isMock = getFeaturesConfig().useMockCheckout;
           let data;
           
           if (isMock) {
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            console.log('🧪 [MOCK] Verificação de Pagamento');
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            console.log('📋 Ação: Verificando status do pagamento (MOCK MODE)');
-            console.log('🔗 URL que seria chamada:', apiUrl);
-            console.log('📤 Método: GET');
+            // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            // console.log('🧪 [MOCK] Verificação de Pagamento');
+            // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            // console.log('📋 Ação: Verificando status do pagamento (MOCK MODE)');
+            // console.log('🔗 URL que seria chamada:', apiUrl);
+            // console.log('📤 Método: GET');
             
             // Se for mock, usar dados do pedido real do sessionStorage
             let mockAmount = 40000; // valor padrão em centavos
@@ -91,41 +91,41 @@ const Compra = () => {
               "installments": 1,
               "capture_method": capture_method || "pix"
             };
-            console.log('📥 Resposta (MOCK):', JSON.stringify(data, null, 2));
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            // console.log('📥 Resposta (MOCK):', JSON.stringify(data, null, 2));
+            // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           }
           else{
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            console.log('💳 [API] Verificação de Pagamento');
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            console.log('📋 Ação: Verificando status do pagamento na InfinitePay via backend');
-            console.log('🔗 URL (Backend):', apiUrl);
-            console.log('📤 Método: GET');
-            console.log('📤 Query Params:', {
-              transaction_nsu,
-              external_order_nsu: order_nsu,
-              slug
-            });
+            // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            // console.log('💳 [API] Verificação de Pagamento');
+            // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            // console.log('📋 Ação: Verificando status do pagamento na InfinitePay via backend');
+            // console.log('🔗 URL (Backend):', apiUrl);
+            // console.log('📤 Método: GET');
+            // console.log('📤 Query Params:', {
+            //   transaction_nsu,
+            //   external_order_nsu: order_nsu,
+            //   slug
+            // });
             
             const response = await fetch(apiUrl);
             const responseText = await response.text();
             
-            console.log('📥 Status HTTP:', response.status, response.statusText);
-            console.log('📥 Headers da Resposta:', Object.fromEntries(response.headers.entries()));
+            // console.log('📥 Status HTTP:', response.status, response.statusText);
+            // console.log('📥 Headers da Resposta:', Object.fromEntries(response.headers.entries()));
             
             try {
               data = JSON.parse(responseText);
-              console.log('📥 Resposta (JSON):', JSON.stringify(data, null, 2));
+              // console.log('📥 Resposta (JSON):', JSON.stringify(data, null, 2));
             } catch (e) {
-              console.log('📥 Resposta (Texto):', responseText);
+              // console.log('📥 Resposta (Texto):', responseText);
               data = { success: false, paid: false };
             }
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           }
 
           if (data.success && data.paid) {
             setPaymentStatus('success');
-            console.log('✅ Pagamento confirmado com sucesso!');
+            // console.log('✅ Pagamento confirmado com sucesso!');
 
             // Salvar pedido na API ANTES de limpar o carrinho
             const storedData = sessionStorage.getItem('orderData');
@@ -149,7 +149,7 @@ const Compra = () => {
                 paymentCaptureMethod: data.capture_method || 'pix'
               };
 
-              console.log('💰 Dados de pagamento preparados:', paymentData);
+              // console.log('💰 Dados de pagamento preparados:', paymentData);
 
               const savedOrder = await saveOrder(orderInfo, paymentData);
               
@@ -161,35 +161,35 @@ const Compra = () => {
               } else if (savedOrder?.id) {
                 // Tentar buscar o pedido salvo para obter o código de rastreio
                 try {
-                  const ordersApiUrl = import.meta.env.VITE_ORDERS_API_URL || 'http://localhost:8081/api/orders';
+                  const ordersApiUrl = getApiConfig().ordersUrl;
                   const orderUrl = `${ordersApiUrl}/${savedOrder.id}`;
                   
-                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-                  console.log('🔍 [API] Buscar Pedido por ID');
-                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-                  console.log('📋 Ação: Buscando informações do pedido salvo para obter código de rastreio');
-                  console.log('🔗 URL:', orderUrl);
-                  console.log('📤 Método: GET');
-                  console.log('📤 Headers:', {});
+                  // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                  // console.log('🔍 [API] Buscar Pedido por ID');
+                  // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                  // console.log('📋 Ação: Buscando informações do pedido salvo para obter código de rastreio');
+                  // console.log('🔗 URL:', orderUrl);
+                  // console.log('📤 Método: GET');
+                  // console.log('📤 Headers:', {});
                   
                   const orderResponse = await fetch(orderUrl);
                   const responseText = await orderResponse.text();
                   
-                  console.log('📥 Status HTTP:', orderResponse.status, orderResponse.statusText);
-                  console.log('📥 Headers da Resposta:', Object.fromEntries(orderResponse.headers.entries()));
+                  // console.log('📥 Status HTTP:', orderResponse.status, orderResponse.statusText);
+                  // console.log('📥 Headers da Resposta:', Object.fromEntries(orderResponse.headers.entries()));
                   
                   if (orderResponse.ok) {
                     try {
                       const orderData = JSON.parse(responseText);
-                      console.log('📥 Resposta (JSON):', JSON.stringify(orderData, null, 2));
+                      // console.log('📥 Resposta (JSON):', JSON.stringify(orderData, null, 2));
                       trackingCodeValue = orderData.trackingCode;
                     } catch (e) {
-                      console.log('📥 Resposta (Texto):', responseText);
+                      // console.log('📥 Resposta (Texto):', responseText);
                     }
                   } else {
-                    console.log('📥 Resposta (Erro):', responseText);
+                    // console.log('📥 Resposta (Erro):', responseText);
                   }
-                  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                  // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 } catch (error) {
                   console.error('❌ Erro ao buscar código de rastreio:', error);
                 }
@@ -200,34 +200,34 @@ const Compra = () => {
               await sendOrderEmail(orderInfo, receipt_url || '', order_nsu || '', trackingCodeValue);
 
               // Limpar carrinho DEPOIS de salvar tudo
-              console.log('🛒 Iniciando processo de limpeza do carrinho...');
+              // console.log('🛒 Iniciando processo de limpeza do carrinho...');
 
               // 1. Limpa o localStorage PRIMEIRO
               localStorage.removeItem('xfinder-cart');
-              console.log('🗑️ LocalStorage limpo (primeira limpeza)');
+              // console.log('🗑️ LocalStorage limpo (primeira limpeza)');
 
               // 2. Depois chama clearCart do contexto
               clearCart();
-              console.log('✅ clearCart() chamado');
+              // console.log('✅ clearCart() chamado');
 
               // 3. Força uma atualização adicional após um pequeno delay
               setTimeout(() => {
                 localStorage.removeItem('xfinder-cart');
-                console.log('🔄 Limpeza adicional do localStorage (garantia)');
+                // console.log('🔄 Limpeza adicional do localStorage (garantia)');
               }, 100);
 
-              console.log('✅ Processo de limpeza do carrinho concluído');
+              // console.log('✅ Processo de limpeza do carrinho concluído');
             }
 
             // Limpar dados da sessão após 5 minutos
             setTimeout(() => {
               sessionStorage.removeItem('orderData');
               sessionStorage.removeItem('orderProcessed');
-              console.log('🗑️ Dados do pedido removidos do sessionStorage');
+              // console.log('🗑️ Dados do pedido removidos do sessionStorage');
             }, 300000);
           } else {
             setPaymentStatus('failure');
-            console.log('❌ Pagamento não confirmado');
+            // console.log('❌ Pagamento não confirmado');
             sessionStorage.removeItem('orderProcessed');
           }
         } catch (error) {
@@ -240,7 +240,7 @@ const Compra = () => {
       };
       checkPayment();
     } else if (isProcessed) {
-      console.log('ℹ️ Pedido já foi processado, não processar novamente');
+      // console.log('ℹ️ Pedido já foi processado, não processar novamente');
       setPaymentStatus('success');
     } else {
       setPaymentStatus('failure');
@@ -312,7 +312,7 @@ const Compra = () => {
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <tr>
                         <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
-                            <img src="${import.meta.env.VITE_APP_BASE_URL || 'http://localhost:8080'}/logo.png" alt="XFinder Logo" style="max-width: 150px; height: auto; margin-bottom: 20px;" />
+                            <img src="${getAppUrls().baseUrl}/logo.png" alt="XFinder Logo" style="max-width: 150px; height: auto; margin-bottom: 20px;" />
                             <h1 style="color: #ffffff; margin: 0; font-size: 28px;">✅ Pedido Confirmado!</h1>
                             <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">Obrigado por sua compra!</p>
                         </td>
@@ -458,22 +458,22 @@ const Compra = () => {
         htmlContent: htmlContent
       };
 
-      const mailApiUrl = import.meta.env.VITE_MAIL_API_URL || 'http://localhost:8081/api/mail';
+      const mailApiUrl = getApiConfig().mailUrl;
       const mailUrl = `${mailApiUrl}/html`;
       
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📧 [API] Enviar E-mail de Confirmação');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📋 Ação: Enviando e-mail de confirmação de pedido para o cliente');
-      console.log('🔗 URL:', mailUrl);
-      console.log('📤 Método: POST');
-      console.log('📤 Headers:', {
-        'Content-Type': 'application/json'
-      });
-      console.log('📤 Body:', JSON.stringify({
-        ...emailData,
-        htmlContent: emailData.htmlContent ? '[HTML Content - ' + emailData.htmlContent.length + ' caracteres]' : null
-      }, null, 2));
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('📧 [API] Enviar E-mail de Confirmação');
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('📋 Ação: Enviando e-mail de confirmação de pedido para o cliente');
+      // console.log('🔗 URL:', mailUrl);
+      // console.log('📤 Método: POST');
+      // console.log('📤 Headers:', {
+      //   'Content-Type': 'application/json'
+      // });
+      // console.log('📤 Body:', JSON.stringify({
+      //   ...emailData,
+      //   htmlContent: emailData.htmlContent ? '[HTML Content - ' + emailData.htmlContent.length + ' caracteres]' : null
+      // }, null, 2));
       
       const response = await fetch(mailUrl, {
         method: 'POST',
@@ -485,22 +485,22 @@ const Compra = () => {
       
       const responseText = await response.text();
       
-      console.log('📥 Status HTTP:', response.status, response.statusText);
-      console.log('📥 Headers da Resposta:', Object.fromEntries(response.headers.entries()));
+      // console.log('📥 Status HTTP:', response.status, response.statusText);
+      // console.log('📥 Headers da Resposta:', Object.fromEntries(response.headers.entries()));
       
       if (response.ok) {
         try {
           const responseData = JSON.parse(responseText);
-          console.log('📥 Resposta (JSON):', JSON.stringify(responseData, null, 2));
+      // console.log('📥 Resposta (JSON):', JSON.stringify(responseData, null, 2));
         } catch (e) {
-          console.log('📥 Resposta (Texto):', responseText);
+      // console.log('📥 Resposta (Texto):', responseText);
         }
-        console.log('✅ E-mail enviado com sucesso!');
+        // console.log('✅ E-mail enviado com sucesso!');
       } else {
-        console.log('📥 Resposta (Erro):', responseText);
+      // console.log('📥 Resposta (Erro):', responseText);
         console.error('❌ Erro ao enviar e-mail');
       }
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     } catch (error) {
       console.error('❌ Erro ao enviar e-mail:', error);
     }
@@ -508,28 +508,29 @@ const Compra = () => {
 
   const generateSuperfreteLabel = async (orderData: any): Promise<any> => {
     try {
-      console.log('📦 Gerando etiqueta na SuperFrete...');
+      // console.log('📦 Gerando etiqueta na SuperFrete...');
 
       // Verificar se o frete selecionado não é "Em Mãos" (id 99)
       if (orderData.freight?.id === 99 || orderData.freight?.name?.toLowerCase().includes('em mãos')) {
-        console.log('ℹ️ Frete "Em Mãos" selecionado, não gerando etiqueta');
+        // console.log('ℹ️ Frete "Em Mãos" selecionado, não gerando etiqueta');
         return null;
       }
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+      const API_BASE_URL = getApiConfig().baseUrl;
       const superfreteApiUrl = `${API_BASE_URL}/api/superfrete`;
 
-      // Dados do remetente (loja) - usar valores padrão ou do env
-      const storePostalCode = import.meta.env.VITE_STORE_POSTAL_CODE || '03167030';
-      const storeEmail = import.meta.env.VITE_STORE_EMAIL || 'contato.xfinder@gmail.com.br';
-      const storeName = import.meta.env.VITE_STORE_NAME || 'Fabio Tassinari';
-      const storePhone = import.meta.env.VITE_STORE_PHONE || '11991318744';
-      const storeAddress = import.meta.env.VITE_STORE_ADDRESS || 'Rua dos Capitães Mores';
-      const storeNumber = import.meta.env.VITE_STORE_NUMBER || '346';
-      const storeComplement = import.meta.env.VITE_STORE_COMPLEMENT || 'APTO 101 B';
-      const storeDistrict = import.meta.env.VITE_STORE_DISTRICT || 'Mooca';
-      const storeCity = import.meta.env.VITE_STORE_CITY || 'São Paulo';
-      const storeState = import.meta.env.VITE_STORE_STATE || 'SP';
+      // Dados do remetente (loja) - usar valores do backend
+      const storeConfig = getStoreConfig();
+      const storePostalCode = storeConfig.postalCode;
+      const storeEmail = storeConfig.email;
+      const storeName = storeConfig.name;
+      const storePhone = storeConfig.phone;
+      const storeAddress = storeConfig.address;
+      const storeNumber = storeConfig.number;
+      const storeComplement = storeConfig.complement;
+      const storeDistrict = storeConfig.district;
+      const storeCity = storeConfig.city;
+      const storeState = storeConfig.state;
 
       // Dados do destinatário (cliente)
       const customerCep = orderData.customer.cep.replace(/\D/g, '');
@@ -590,22 +591,22 @@ const Compra = () => {
           non_commercial: true
         },
         tag: `Pedido-${Date.now()}`,
-        url: import.meta.env.VITE_APP_BASE_URL || 'http://localhost:8080',
+        url: getAppUrls().baseUrl,
         platform: 'XFinder Archery Shop'
       };
 
       const createOrderUrl = `${superfreteApiUrl}/orders`;
       
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📦 [API SuperFrete] Criar Pedido');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📋 Ação: Criando pedido na SuperFrete para gerar etiqueta de envio');
-      console.log('🔗 URL:', createOrderUrl);
-      console.log('📤 Método: POST');
-      console.log('📤 Headers:', {
-        'Content-Type': 'application/json'
-      });
-      console.log('📤 Body:', JSON.stringify(orderRequest, null, 2));
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('📦 [API SuperFrete] Criar Pedido');
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('📋 Ação: Criando pedido na SuperFrete para gerar etiqueta de envio');
+      // console.log('🔗 URL:', createOrderUrl);
+      // console.log('📤 Método: POST');
+      // console.log('📤 Headers:', {
+      //   'Content-Type': 'application/json'
+      // });
+      // console.log('📤 Body:', JSON.stringify(orderRequest, null, 2));
 
       // 1. Criar pedido
       const createResponse = await fetch(createOrderUrl, {
@@ -618,33 +619,33 @@ const Compra = () => {
       const contentType = createResponse.headers.get('content-type');
       const responseText = await createResponse.text();
 
-      console.log('📥 Status HTTP:', createResponse.status, createResponse.statusText);
-      console.log('📥 Headers da Resposta:', Object.fromEntries(createResponse.headers.entries()));
-      console.log('📥 Content-Type:', contentType);
+      // console.log('📥 Status HTTP:', createResponse.status, createResponse.statusText);
+      // console.log('📥 Headers da Resposta:', Object.fromEntries(createResponse.headers.entries()));
+      // console.log('📥 Content-Type:', contentType);
 
       if (!createResponse.ok) {
-        console.log('📥 Resposta (Erro):', responseText);
+      // console.log('📥 Resposta (Erro):', responseText);
         console.error('❌ Erro ao criar pedido na SuperFrete');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return null;
       }
 
       // Verificar se a resposta é JSON
       if (!contentType || !contentType.includes('application/json')) {
-        console.log('📥 Resposta (Texto):', responseText.substring(0, 500));
+      // console.log('📥 Resposta (Texto):', responseText.substring(0, 500));
         console.error('❌ Resposta não é JSON. Content-Type:', contentType);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return null;
       }
 
       let createdOrder;
       try {
         createdOrder = JSON.parse(responseText);
-        console.log('📥 Resposta (JSON):', JSON.stringify(createdOrder, null, 2));
+      // console.log('📥 Resposta (JSON):', JSON.stringify(createdOrder, null, 2));
       } catch (e) {
-        console.log('📥 Resposta (Texto):', responseText.substring(0, 500));
+      // console.log('📥 Resposta (Texto):', responseText.substring(0, 500));
         console.error('❌ Erro ao fazer parse do JSON:', e);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return null;
       }
 
@@ -652,12 +653,12 @@ const Compra = () => {
 
       if (!superfreteOrderId) {
         console.error('❌ ID do pedido SuperFrete não encontrado na resposta');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return null;
       }
 
-      console.log('✅ Pedido criado na SuperFrete - ID:', superfreteOrderId);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('✅ Pedido criado na SuperFrete - ID:', superfreteOrderId);
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       // 2. Finalizar pedido (checkout) - CORREÇÃO: usar estrutura OrderListRequest
       const checkoutRequest = {
@@ -666,16 +667,16 @@ const Compra = () => {
       
       const checkoutUrl = `${superfreteApiUrl}/orders/checkout`;
       
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🛒 [API SuperFrete] Finalizar Checkout');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📋 Ação: Finalizando checkout do pedido na SuperFrete');
-      console.log('🔗 URL:', checkoutUrl);
-      console.log('📤 Método: POST');
-      console.log('📤 Headers:', {
-        'Content-Type': 'application/json'
-      });
-      console.log('📤 Body:', JSON.stringify(checkoutRequest, null, 2));
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('🛒 [API SuperFrete] Finalizar Checkout');
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('📋 Ação: Finalizando checkout do pedido na SuperFrete');
+      // console.log('🔗 URL:', checkoutUrl);
+      // console.log('📤 Método: POST');
+      // console.log('📤 Headers:', {
+      //   'Content-Type': 'application/json'
+      // });
+      // console.log('📤 Body:', JSON.stringify(checkoutRequest, null, 2));
 
       const finishResponse = await fetch(checkoutUrl, {
         method: 'POST',
@@ -685,25 +686,25 @@ const Compra = () => {
 
       const finishResponseText = await finishResponse.text();
       
-      console.log('📥 Status HTTP:', finishResponse.status, finishResponse.statusText);
-      console.log('📥 Headers da Resposta:', Object.fromEntries(finishResponse.headers.entries()));
+      // console.log('📥 Status HTTP:', finishResponse.status, finishResponse.statusText);
+      // console.log('📥 Headers da Resposta:', Object.fromEntries(finishResponse.headers.entries()));
 
       if (!finishResponse.ok) {
-        console.log('📥 Resposta (Erro):', finishResponseText);
+      // console.log('📥 Resposta (Erro):', finishResponseText);
         console.error('❌ Erro ao finalizar pedido na SuperFrete');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return { superfreteOrderId };
       }
 
       try {
         const finishData = JSON.parse(finishResponseText);
-        console.log('📥 Resposta (JSON):', JSON.stringify(finishData, null, 2));
+      // console.log('📥 Resposta (JSON):', JSON.stringify(finishData, null, 2));
       } catch (e) {
-        console.log('📥 Resposta (Texto):', finishResponseText);
+      // console.log('📥 Resposta (Texto):', finishResponseText);
       }
       
-      console.log('✅ Pedido finalizado na SuperFrete');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('✅ Pedido finalizado na SuperFrete');
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       // 3. Obter informações do pedido (incluindo código de rastreio e link de impressão)
       let trackingCode = '';
@@ -714,19 +715,19 @@ const Compra = () => {
       
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
         if (attempt > 0) {
-          console.log(`⏳ Aguardando ${retryDelay / 1000} segundos antes da tentativa ${attempt + 1}...`);
+          // console.log(`⏳ Aguardando ${retryDelay / 1000} segundos antes da tentativa ${attempt + 1}...`);
           await new Promise(resolve => setTimeout(resolve, retryDelay));
         }
 
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log(`🔍 [API SuperFrete] Obter Informações do Pedido (Tentativa ${attempt + 1}/${maxAttempts})`);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('📋 Ação: Obtendo informações do pedido na SuperFrete (código de rastreio e link de impressão)');
-        console.log('🔗 URL:', getOrderUrl);
-        console.log('📤 Método: GET');
-        console.log('📤 Headers:', {
-          'Content-Type': 'application/json'
-        });
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log(`🔍 [API SuperFrete] Obter Informações do Pedido (Tentativa ${attempt + 1}/${maxAttempts})`);
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('📋 Ação: Obtendo informações do pedido na SuperFrete (código de rastreio e link de impressão)');
+        // console.log('🔗 URL:', getOrderUrl);
+        // console.log('📤 Método: GET');
+        // console.log('📤 Headers:', {
+        //   'Content-Type': 'application/json'
+        // });
 
         const getOrderResponse = await fetch(getOrderUrl, {
           method: 'GET',
@@ -736,15 +737,15 @@ const Compra = () => {
         const orderResponseText = await getOrderResponse.text();
         const orderContentType = getOrderResponse.headers.get('content-type');
         
-        console.log('📥 Status HTTP:', getOrderResponse.status, getOrderResponse.statusText);
-        console.log('📥 Headers da Resposta:', Object.fromEntries(getOrderResponse.headers.entries()));
-        console.log('📥 Content-Type:', orderContentType);
+        // console.log('📥 Status HTTP:', getOrderResponse.status, getOrderResponse.statusText);
+      // console.log('📥 Headers da Resposta:', Object.fromEntries(getOrderResponse.headers.entries()));
+        // console.log('📥 Content-Type:', orderContentType);
 
         if (getOrderResponse.ok) {
           if (orderContentType && orderContentType.includes('application/json')) {
             try {
               const orderInfo = JSON.parse(orderResponseText);
-              console.log('📥 Resposta (JSON):', JSON.stringify(orderInfo, null, 2));
+      // console.log('📥 Resposta (JSON):', JSON.stringify(orderInfo, null, 2));
               
               // Usar apenas o campo tracking conforme solicitado
               trackingCode = orderInfo.tracking || '';
@@ -753,42 +754,42 @@ const Compra = () => {
               labelUrl = orderInfo.print?.url || orderInfo.url || orderInfo.label_url || orderInfo.link || orderInfo.print_url || '';
 
               if (labelUrl) {
-                console.log('✅ Link de impressão obtido:', labelUrl);
+                // console.log('✅ Link de impressão obtido:', labelUrl);
               } else {
-                console.log('⚠️ Link de impressão não encontrado na resposta');
+                // console.log('⚠️ Link de impressão não encontrado na resposta');
               }
 
               if (trackingCode) {
-                console.log('✅ Código de rastreio obtido:', trackingCode);
-                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                // console.log('✅ Código de rastreio obtido:', trackingCode);
+                // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 break;
               } else {
-                console.log('⚠️ Campo tracking está vazio na resposta');
+                // console.log('⚠️ Campo tracking está vazio na resposta');
                 if (attempt === maxAttempts - 1) {
-                  console.log('❌ Não foi possível obter o código de rastreio após', maxAttempts, 'tentativas');
+                  // console.log('❌ Não foi possível obter o código de rastreio após', maxAttempts, 'tentativas');
                   trackingCode = 'Problema ao obter código de rastreamento';
                 }
               }
             } catch (e) {
-              console.log('📥 Resposta (Texto):', orderResponseText);
+      // console.log('📥 Resposta (Texto):', orderResponseText);
               console.warn('⚠️ Aviso: erro ao fazer parse do JSON do pedido (tentativa', attempt + 1, '):', e);
               if (attempt === maxAttempts - 1) {
                 trackingCode = 'Problema ao obter código de rastreamento';
               }
             }
           } else {
-            console.log('📥 Resposta (Texto):', orderResponseText);
+      // console.log('📥 Resposta (Texto):', orderResponseText);
             if (attempt === maxAttempts - 1) {
               trackingCode = 'Problema ao obter código de rastreamento';
             }
           }
         } else {
-          console.log('📥 Resposta (Erro):', orderResponseText);
+      // console.log('📥 Resposta (Erro):', orderResponseText);
           if (attempt === maxAttempts - 1) {
             trackingCode = 'Problema ao obter código de rastreamento';
           }
         }
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       }
 
       return {
@@ -799,7 +800,7 @@ const Compra = () => {
       };
     } catch (error: any) {
       console.error('❌ Erro ao gerar etiqueta na SuperFrete:', error);
-      if (error.message) {
+       if (error.message) {
         console.error('❌ Mensagem de erro:', error.message);
       }
       if (error.stack) {
@@ -811,49 +812,49 @@ const Compra = () => {
 
   const saveOrder = async (orderData: any, paymentData: any) => {
     try {
-      console.log('💾 Salvando pedido na API...');
+      // console.log('💾 Salvando pedido na API...');
 
       // Gerar etiqueta na SuperFrete antes de salvar o pedido
       const labelInfo = await generateSuperfreteLabel(orderData);
       
-      console.log('📦 Informações da etiqueta:', labelInfo);
+      // console.log('📦 Informações da etiqueta:', labelInfo);
 
-      const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || 'http://localhost:8081/api/customers';
+      const customersApiUrl = getApiConfig().customersUrl;
       const customerCpf = orderData.customer.cpf.replace(/\D/g, '');
       const customerUrl = `${customersApiUrl}/cpf/${customerCpf}`;
       
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('👤 [API] Buscar Cliente por CPF');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📋 Ação: Buscando cliente cadastrado pelo CPF');
-      console.log('🔗 URL:', customerUrl);
-      console.log('📤 Método: GET');
-      console.log('📤 Headers:', {});
-      console.log('📤 CPF:', customerCpf);
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('👤 [API] Buscar Cliente por CPF');
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('📋 Ação: Buscando cliente cadastrado pelo CPF');
+      // console.log('🔗 URL:', customerUrl);
+      // console.log('📤 Método: GET');
+      // console.log('📤 Headers:', {});
+      // console.log('📤 CPF:', customerCpf);
 
       const customerResponse = await fetch(customerUrl);
       const customerResponseText = await customerResponse.text();
       
-      console.log('📥 Status HTTP:', customerResponse.status, customerResponse.statusText);
-      console.log('📥 Headers da Resposta:', Object.fromEntries(customerResponse.headers.entries()));
+      // console.log('📥 Status HTTP:', customerResponse.status, customerResponse.statusText);
+      // console.log('📥 Headers da Resposta:', Object.fromEntries(customerResponse.headers.entries()));
 
       if (!customerResponse.ok) {
-        console.log('📥 Resposta (Erro):', customerResponseText);
+      // console.log('📥 Resposta (Erro):', customerResponseText);
         console.error('❌ Cliente não encontrado');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return;
       }
 
       let customer;
       try {
         customer = JSON.parse(customerResponseText);
-        console.log('📥 Resposta (JSON):', JSON.stringify(customer, null, 2));
-        console.log('✅ Cliente encontrado - ID:', customer.id);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('📥 Resposta (JSON):', JSON.stringify(customer, null, 2));
+        // console.log('✅ Cliente encontrado - ID:', customer.id);
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       } catch (e) {
-        console.log('📥 Resposta (Texto):', customerResponseText);
+      // console.log('📥 Resposta (Texto):', customerResponseText);
         console.error('❌ Erro ao fazer parse da resposta do cliente');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return;
       }
 
@@ -897,18 +898,18 @@ const Compra = () => {
         superfreteService: labelInfo?.superfreteService || null
       };
 
-      const ordersApiUrl = import.meta.env.VITE_ORDERS_API_URL || 'http://localhost:8081/api/orders';
+      const ordersApiUrl = getApiConfig().ordersUrl;
       
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('💾 [API] Salvar Pedido');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📋 Ação: Salvando pedido completo na API (incluindo dados de pagamento e SuperFrete)');
-      console.log('🔗 URL:', ordersApiUrl);
-      console.log('📤 Método: POST');
-      console.log('📤 Headers:', {
-        'Content-Type': 'application/json'
-      });
-      console.log('📤 Body:', JSON.stringify(orderPayload, null, 2));
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('💾 [API] Salvar Pedido');
+      // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('📋 Ação: Salvando pedido completo na API (incluindo dados de pagamento e SuperFrete)');
+      // console.log('🔗 URL:', ordersApiUrl);
+      // console.log('📤 Método: POST');
+      // console.log('📤 Headers:', {
+      //   'Content-Type': 'application/json'
+      // });
+      // console.log('📤 Body:', JSON.stringify(orderPayload, null, 2));
 
       const orderResponse = await fetch(ordersApiUrl, {
         method: 'POST',
@@ -920,27 +921,27 @@ const Compra = () => {
 
       const orderResponseText = await orderResponse.text();
       
-      console.log('📥 Status HTTP:', orderResponse.status, orderResponse.statusText);
-      console.log('📥 Headers da Resposta:', Object.fromEntries(orderResponse.headers.entries()));
+      // console.log('📥 Status HTTP:', orderResponse.status, orderResponse.statusText);
+      // console.log('📥 Headers da Resposta:', Object.fromEntries(orderResponse.headers.entries()));
 
       if (orderResponse.ok) {
         try {
           const savedOrder = JSON.parse(orderResponseText);
-          console.log('📥 Resposta (JSON):', JSON.stringify(savedOrder, null, 2));
-          console.log('✅ Pedido salvo com sucesso! ID:', savedOrder.id);
-          console.log('📦 Estoque atualizado automaticamente');
-          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // console.log('📥 Resposta (JSON):', JSON.stringify(savedOrder, null, 2));
+          // console.log('✅ Pedido salvo com sucesso! ID:', savedOrder.id);
+          // console.log('📦 Estoque atualizado automaticamente');
+          // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           return savedOrder;
         } catch (e) {
-          console.log('📥 Resposta (Texto):', orderResponseText);
+      // console.log('📥 Resposta (Texto):', orderResponseText);
           console.error('❌ Erro ao fazer parse da resposta do pedido');
-          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           return null;
         }
       } else {
-        console.log('📥 Resposta (Erro):', orderResponseText);
+      // console.log('📥 Resposta (Erro):', orderResponseText);
         console.error('❌ Erro ao salvar pedido');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return null;
       }
     } catch (error) {

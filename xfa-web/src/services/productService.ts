@@ -1,9 +1,45 @@
 import axios from 'axios';
 import { Product } from '@/types/cart';
+import { getApiConfig, getAppUrls } from '@/config/appConfig';
 
-const API_BASE_URL = import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
-// se as imagens forem servidas em outra pasta, ajuste aqui:
-const IMAGE_BASE_URL = import.meta.env.VITE_PRODUCTS_IMAGE_URL || `http://localhost:8080`;
+// Função para obter URL da API de produtos
+// Tenta usar configurações do backend primeiro. Fallback usa a URL atual do navegador.
+function getProductsApiUrl(): string {
+  try {
+    return getApiConfig().productsUrl;
+  } catch (error) {
+    // Fallback: usar a mesma origem do navegador
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+    
+    let apiBaseUrl: string;
+    if (port) {
+      apiBaseUrl = `${protocol}//${hostname}:${port}`;
+    } else {
+      apiBaseUrl = `${protocol}//${hostname}`;
+    }
+    
+    return `${apiBaseUrl}/api/products`;
+  }
+}
+
+// Função para obter URL base de imagens (sem fallbacks hardcoded)
+function getImageBaseUrl(): string {
+  try {
+    return getAppUrls().imageUrl;
+  } catch (error) {
+    // Se não estiver carregado, inferir da URL atual
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+    
+    if (port) {
+      return `${protocol}//${hostname}:${port}`;
+    }
+    return `${protocol}//${hostname}`;
+  }
+}
 
 export interface ProductDetails {
   originalPrice?: number;
@@ -29,10 +65,12 @@ export interface ApiProduct extends Omit<Product, 'image'> {
 class ProductService {
   private async request<T>(endpoint: string): Promise<T> {
     try {
-      const response = await axios.get(`${API_BASE_URL}${endpoint}`);
+      // Obter URL dinamicamente para garantir que use as configurações carregadas
+      const apiUrl = getProductsApiUrl();
+      const response = await axios.get(`${apiUrl}${endpoint}`);
       return response.data;
     } catch (error) {
-      console.error(`Erro ao buscar dados da API: ${endpoint}`, error);
+      // console.error(`Erro ao buscar dados da API: ${endpoint}`, error);
       throw error;
     }
   }
@@ -69,7 +107,9 @@ class ProductService {
     if (image.startsWith('http://') || image.startsWith('https://')) {
       return image; // já é URL completa
     }
-    return `${IMAGE_BASE_URL}/${image}`; // só nome do arquivo
+    // Obter URL dinamicamente para garantir que use as configurações carregadas
+    const imageBaseUrl = getImageBaseUrl();
+    return `${imageBaseUrl}/${image}`; // só nome do arquivo
   }
 
   // Converter ApiProduct para o formato esperado pelo frontend

@@ -1,11 +1,28 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
 import keycloak from '@/config/keycloak';
+import { getApiConfig } from '@/config/appConfig';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
+// Função para obter URL base da API
+// Tenta usar configurações do backend primeiro. Fallback usa a URL atual do navegador.
+function getApiBaseUrl(): string {
+  try {
+    return getApiConfig().baseUrl;
+  } catch (error) {
+    // Fallback: usar a mesma origem do navegador
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+    
+    if (port) {
+      return `${protocol}//${hostname}:${port}`;
+    }
+    return `${protocol}//${hostname}`;
+  }
+}
 
-// Criar instância do axios
+// Criar instância do axios (baseURL será atualizado dinamicamente)
 const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -17,7 +34,7 @@ apiClient.interceptors.request.use(
     // IMPORTANTE: Só adicionar token se a URL for da nossa API interna
     // URLs externas (SuperFrete, InfinitePay, etc.) não devem receber token
     const requestUrl = config.url || '';
-    const baseUrl = config.baseURL || API_BASE_URL;
+    const baseUrl = config.baseURL || getApiBaseUrl();
     const fullUrl = requestUrl.startsWith('http') ? requestUrl : `${baseUrl}${requestUrl}`;
     
     // Verificar se é uma chamada para API externa (não deve adicionar token)
@@ -65,7 +82,7 @@ apiClient.interceptors.request.use(
               const authState = JSON.parse(savedAuthState);
               token = authState.token || null;
             } catch (e) {
-              console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
+              // console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
             }
           }
         }
@@ -80,7 +97,7 @@ apiClient.interceptors.request.use(
           const authState = JSON.parse(savedAuthState);
           token = authState.token || null;
         } catch (e) {
-          console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
+          // console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
         }
       }
     }
@@ -89,10 +106,10 @@ apiClient.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
       // Debug: logar qual token está sendo enviado
-      if (import.meta.env.DEV) {
-        console.log('[apiClient] Enviando ACCESS TOKEN para API interna (primeiros 50 chars):', 
-          token.substring(0, 50) + '...');
-      }
+      // if (import.meta.env.DEV) {
+      // console.log('[apiClient] Enviando ACCESS TOKEN para API interna (primeiros 50 chars):', 
+        // token.substring(0, 50) + '...');
+      // }
     }
 
     return config;
@@ -112,7 +129,7 @@ apiClient.interceptors.response.use(
 
     // Verificar se é uma chamada para API externa (não deve processar erros de autenticação)
     const requestUrl = originalRequest?.url || '';
-    const baseUrl = originalRequest?.baseURL || API_BASE_URL;
+    const baseUrl = originalRequest?.baseURL || getApiBaseUrl();
     const fullUrl = requestUrl.startsWith('http') ? requestUrl : `${baseUrl}${requestUrl}`;
     
     const isExternalApi = fullUrl.includes('superfrete.com') || 
@@ -157,7 +174,7 @@ apiClient.interceptors.response.use(
                 originalRequest.headers.Authorization = `Bearer ${authState.token}`;
               }
             } catch (e) {
-              console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
+              // console.error('[apiClient] Erro ao ler token do sessionStorage:', e);
               return Promise.reject(error);
             }
           } else {

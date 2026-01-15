@@ -1,0 +1,32 @@
+[Unit]
+Description=X-Finder Archery Shop Keycloak Authentication Server
+After=network-online.target xfinder-postgres.service
+Wants=network-online.target
+Requires=xfinder-postgres.service
+
+[Container]
+Image=localhost/xfinder-keycloak:prod
+ContainerName=xfinder-keycloak-prod
+Network=nt-xfinder.network
+PublishPort=8084:8084
+Volume=xfinder-keycloak-realm:/opt/keycloak/data/import
+# NOTA: A maioria das variáveis (KC_DB, KC_DB_URL, KC_HOSTNAME, KC_HTTP_ENABLED, etc.)
+# já estão definidas no Dockerfile.prod. Apenas variáveis que precisam ser diferentes
+# ou que não estão no Dockerfile são definidas aqui.
+# Variáveis SMTP (não estão no Dockerfile)
+Environment=KC_SMTP_HOST=smtp.gmail.com
+Environment=KC_SMTP_PORT=465
+Environment=KC_SMTP_FROM=contato.xfinder@gmail.com
+Environment=KC_SMTP_FROM_DISPLAY_NAME=X-Finder Archery Shop
+Environment=KC_SMTP_USERNAME=contato.xfinder@gmail.com
+Environment=KC_SMTP_PASSWORD=bpir kvyk osew qxkz
+Environment=KC_SMTP_SSL_ENABLED=true
+Environment=KC_SMTP_STARTTLS_ENABLED=false
+Timezone=America/Sao_Paulo
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target default.target

@@ -30,4 +30,13 @@ ENV KC_DB_PASSWORD='XFA@2025'
 ENV KC_HOSTNAME='localhost'
 ENV KC_BOOTSTRAP_ADMIN_USERNAME=admin
 ENV KC_BOOTSTRAP_ADMIN_PASSWORD=XFA@2025
+# Configuração SMTP para envio de emails (desenvolvimento)
+ENV KC_SMTP_HOST=smtp.gmail.com
+ENV KC_SMTP_PORT=465
+ENV KC_SMTP_FROM=contato.xfinder@gmail.com
+ENV KC_SMTP_FROM_DISPLAY_NAME='X-Finder Archery Shop'
+ENV KC_SMTP_USERNAME=contato.xfinder@gmail.com
+ENV KC_SMTP_PASSWORD='bpir kvyk osew qxkz'
+ENV KC_SMTP_SSL_ENABLED=true
+ENV KC_SMTP_STARTTLS_ENABLED=false
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]

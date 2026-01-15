@@ -47,7 +47,7 @@ const Products = () => {
         setProductDetails(details.slice(0, 3));
       } catch (err) {
         setError('Erro ao carregar produtos. Usando dados locais.');
-        console.error('Erro ao buscar produtos:', err);
+        // console.error('Erro ao buscar produtos:', err);
 
         // Dados fallback
         const fallbackProducts: ExtendedProduct[] = [

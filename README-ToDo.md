@@ -107,10 +107,45 @@ location.reload();
   * ✅ Ver o que fazer com a newsletter
   * ✅ Implementar Login
   * ✅ SSL
-  
+  * ✅ Tirar variaveis do .env e passar para recuperar de api backend
+  * ✅ Comentar os console.*
+  * ✅ Configurar email no keycloak
+  * ✅ Permitir fretes somente dos correios
+  * ✅ banner de consentimento de cookies
+  * ✅ aceite email promocional
+  * ✅ botao de excluir conta
+
+* Implementar regras firewall
+  * ✅ Só aceita do cloudfare
+
+* Implementar failban
+  * ✅ rich rules:
+    ✅ rule family="ipv4" source address="179.118.137.6/32" port port="9090" protocol="tcp" accept fail2ban
+
 * Implementar Meus pedidos
   * Listar todos os pedidos do cliente
 
 * Implementar tela Administração
   * Buscar pedidos em aberto 
   * Imprimir etiqueta
+  
+* Implementar Brechó
+* Implementar produtos de parceiros
+
+
+
+
+
+```  
+  The P.R.O.M.P.T
+  # P.ersona - Eu sou um engenheiro de software
+  # R.oteiro - Gostaria de um exemplo de autenticação (dos usuários) para um aplicativo em Python com o office365.
+  # O.bjetivo - que meus usuários entrem no aplicativo que estou desenvolvendo em streamlit usando suas contas do office365.
+  # M.odelo - Algo como um botão de login social.
+  # P.anorama -  gostaria de manter um "cadastro local, após autenticação devo registrar o Nome e Sobrenome do usuário em meu aplicativo e ainda associar as minhas permições de RBAC existentes" 
+  # T.ransformar - se possível informar também os módulos de python em uma arquivo de requisitos para facilitar a implementação da funcionalidade.
+    
+  Sou um engenheiro de software
+  Gostaria de implementar um controle de autenticação com o Keycloak 26.4 para garantir que o cliente que está comprando é realmente a pessoa cadastrada
+  o cliente deve ter a possibilidade de criar sua conta e/ou recuperar a senha no keycloak
+```

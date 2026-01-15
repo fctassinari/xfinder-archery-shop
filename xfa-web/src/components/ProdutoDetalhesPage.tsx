@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, ArrowLeft, Loader2, AlertTriangle, Package, Ruler, Scale } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/types/cart";
+import { getApiConfig } from "@/config/appConfig";
 
 // Re-define a interface ApiProduct baseada na estrutura da API Java
 interface ApiProduct extends Product {
@@ -65,7 +66,7 @@ const ProdutoDetalhesPage = () => {
       return;
     }
 
-    const BASE_API_URL = import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
+    const BASE_API_URL = getApiConfig().productsUrl;
     const apiUrl = `${BASE_API_URL}/${productId}`;
 
     const fetchProductDetails = async () => {
@@ -91,12 +92,12 @@ const ProdutoDetalhesPage = () => {
             throw new Error("Resposta inesperada do servidor. O formato de dados está incorreto (esperado JSON).");
         }
 
-        //console.log('🔍 Produto carregado:', data);
-        //console.log('🔍 Variantes:', data?.variants);
+        // console.log('🔍 Produto carregado:', data);
+        // console.log('🔍 Variantes:', data?.variants);
 
         // Usa safeProduct para garantir dados consistentes
         const safeProductData = safeProduct(data);
-        //console.log('🔍 Produto seguro:', safeProductData);
+        // console.log('🔍 Produto seguro:', safeProductData);
 
         setProduct(safeProductData);
 
@@ -277,7 +278,8 @@ const ProdutoDetalhesPage = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                {/* TODO: Implementar sistema de avaliações e rating no futuro */}
+                {/* <div className="flex items-center space-x-2">
                   <div className="flex">
                     {Array.from({ length: 5 }).map((_, index) => (
                       <Star
@@ -293,7 +295,7 @@ const ProdutoDetalhesPage = () => {
                   <span className="text-sm font-medium text-gray-700">
                     {selectedProduct.rating.toFixed(1)} ({selectedProduct.reviews} avaliações)
                   </span>
-                </div>
+                </div> */}
 
                 <p className="text-gray-600 leading-relaxed pt-2">{selectedProduct.description}</p>
 

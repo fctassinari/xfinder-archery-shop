@@ -1,0 +1,18 @@
+[Unit]
+Description=X-Finder Archery Shop Frontend Web
+After=network-online.target xfinder-api.service
+Wants=network-online.target
+
+[Container]
+Image=localhost/xfinder-web:latest
+ContainerName=xfinder-web
+Network=nt-xfinder.network
+PublishPort=8083:8080
+Timezone=America/Sao_Paulo
+
+[Service]
+Restart=unless-stopped
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target default.target

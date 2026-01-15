@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ShoppingCart, Minus, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Sheet,
   SheetContent,
@@ -14,6 +15,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { LoginButton } from "@/components/auth/LoginButton";
 import apiClient from "@/services/apiClient";
+import { getApiConfig, getAppUrls, getPaymentConfig, getFeaturesConfig } from "@/config/appConfig";
 
 const Cart = () => {
   const { cart, removeItem, updateQuantity, clearCart } = useCart();
@@ -42,20 +44,19 @@ const Cart = () => {
     complement: "",
     neighborhood: "",
     city: "",
-    state: ""
+    state: "",
+    acceptsPromotionalEmails: false
   });
 
-  const cleanUrl = (value: string | undefined, fallback: string) => {
-    if (!value) return fallback;
-    let v = value.trim();
-    v = v.replace(/^['"][\s]*/g, "").replace(/[\s]*['";]+$/g, "");
-    v = v.replace(/\\"/g, '"').replace(/\\'/g, "'");
-    return v || fallback;
-  };
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
-  const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL || "http://localhost:8080";
-  const SUPERFRETE_API_URL = cleanUrl(import.meta.env.VITE_SUPERFRETE_API_URL, `${API_BASE_URL}/api/superfrete/calculate-freight`);
+  // Obter configurações do backend
+  const apiConfig = getApiConfig();
+  const appUrls = getAppUrls();
+  const paymentConfig = getPaymentConfig();
+  const featuresConfig = getFeaturesConfig();
+  
+  const API_BASE_URL = apiConfig.baseUrl;
+  const APP_BASE_URL = appUrls.baseUrl;
+  const SUPERFRETE_API_URL = apiConfig.superfreteUrl;
 
   const calculateFreight = async () => {
     const sanitizedCep = cep.replace(/\D/g, "");
@@ -200,16 +201,16 @@ const Cart = () => {
       return;
     }
 
-    console.log('🛒 Abrindo checkout, customer:', customer);
-    console.log('🛒 isAuthenticated:', isAuthenticated);
+    // console.log('🛒 Abrindo checkout, customer:', customer);
+    // console.log('🛒 isAuthenticated:', isAuthenticated);
 
     // Se customer não está disponível, tentar sincronizar primeiro
     if (!customer) {
-      console.log('🔄 Customer não disponível, sincronizando...');
+      // console.log('🔄 Customer não disponível, sincronizando...');
       setIsLoadingCustomer(true);
       try {
         await syncCustomer();
-        console.log('✅ Sincronização iniciada, aguardando customer ser carregado...');
+        // console.log('✅ Sincronização iniciada, aguardando customer ser carregado...');
       } catch (error) {
         console.error('❌ Erro ao sincronizar customer:', error);
         setIsLoadingCustomer(false);
@@ -229,11 +230,11 @@ const Cart = () => {
   // Carregar dados do cliente quando o popup de checkout abre e o customer está disponível
   useEffect(() => {
     if (showCheckoutPopup && isAuthenticated) {
-      console.log('📦 Popup de checkout aberto, verificando customer:', customer);
+      // console.log('📦 Popup de checkout aberto, verificando customer:', customer);
       
       // Se customer está disponível, carregar os dados
       if (customer && customer.id) {
-        console.log('✅ Customer encontrado, carregando dados:', customer);
+        // console.log('✅ Customer encontrado, carregando dados:', customer);
         const loadedData = {
           name: customer.name || "",
           email: customer.email || "",
@@ -245,16 +246,17 @@ const Cart = () => {
           complement: customer.complement || "",
           neighborhood: customer.neighborhood || "",
           city: customer.city || "",
-          state: customer.state || ""
+          state: customer.state || "",
+          acceptsPromotionalEmails: customer.acceptsPromotionalEmails || false
         };
 
-        console.log('📦 Dados carregados no popup:', loadedData);
+        // console.log('📦 Dados carregados no popup:', loadedData);
         setCustomerData(loadedData);
         setOriginalCustomerData(loadedData);
         setCustomerId(customer.id);
         setCustomerExists(true);
       } else if (!customer) {
-        console.log('⚠️ Customer não disponível ainda (pode estar sincronizando)');
+        // console.log('⚠️ Customer não disponível ainda (pode estar sincronizando)');
         // Se o customer não está disponível, pode estar sendo sincronizado
         // O useEffect vai executar novamente quando o customer for carregado
       }
@@ -338,7 +340,7 @@ const Cart = () => {
   const checkExistingCustomer = async (cpf: string) => {
     setIsLoadingCustomer(true);
     try {
-      const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+      const customersApiUrl = apiConfig.customersUrl;
       const response = await fetch(`${customersApiUrl}/cpf/${cpf}`);
 
       if (response.ok) {
@@ -363,7 +365,7 @@ const Cart = () => {
         setOriginalCustomerData(loadedData); // Guarda dados originais para comparação
         setCustomerId(customer.id);
         setCustomerExists(true);
-        //console.log('✅ Cliente encontrado:', customer.name, '- ID:', customer.id);
+        // console.log('✅ Cliente encontrado:', customer.name, '- ID:', customer.id);
       } else {
         // Cliente não existe, limpa os campos (exceto CPF)
         setCustomerData(prev => ({
@@ -382,7 +384,7 @@ const Cart = () => {
         setOriginalCustomerData(null);
         setCustomerId(null);
         setCustomerExists(false);
-        //console.log('ℹ️ Cliente não cadastrado, preencha os dados');
+        // console.log('ℹ️ Cliente não cadastrado, preencha os dados');
       }
     } catch (error) {
       console.error('❌ Erro ao verificar cliente:', error);
@@ -455,7 +457,8 @@ const Cart = () => {
       customerData.complement !== originalCustomerData.complement ||
       customerData.neighborhood !== originalCustomerData.neighborhood ||
       customerData.city !== originalCustomerData.city ||
-      customerData.state !== originalCustomerData.state
+      customerData.state !== originalCustomerData.state ||
+      customerData.acceptsPromotionalEmails !== originalCustomerData.acceptsPromotionalEmails
     );
   };
 
@@ -463,12 +466,11 @@ const Cart = () => {
     if (!validateCheckoutData()) return;
 
     // ========== MOCK PARA TESTE DE ETIQUETAS ==========
-    // Para ativar o mock, defina VITE_USE_MOCK_CHECKOUT=true no .env
-    // ou altere a linha abaixo para: const USE_MOCK = true;
-    const USE_MOCK = import.meta.env.VITE_USE_MOCK_CHECKOUT === 'true' || false;
+    // Para ativar o mock, defina useMockCheckout=true no backend
+    const USE_MOCK = featuresConfig.useMockCheckout;
     
     if (USE_MOCK) {
-      console.log('🧪 MODO MOCK ATIVADO - Testando fluxo de etiquetas');
+      // console.log('🧪 MODO MOCK ATIVADO - Testando fluxo de etiquetas');
       
       try {
         // Processar cliente (criar ou atualizar) - mesma lógica do original
@@ -485,10 +487,11 @@ const Cart = () => {
               complement: customerData.complement,
               neighborhood: customerData.neighborhood,
               city: customerData.city,
-              state: customerData.state
+              state: customerData.state,
+              acceptsPromotionalEmails: customerData.acceptsPromotionalEmails
             };
 
-            const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+            const customersApiUrl = apiConfig.customersUrl;
             const headers: HeadersInit = { 'Content-Type': 'application/json' };
             if (token) {
               headers['Authorization'] = `Bearer ${token}`;
@@ -523,10 +526,11 @@ const Cart = () => {
             complement: customerData.complement,
             neighborhood: customerData.neighborhood,
             city: customerData.city,
-            state: customerData.state
+            state: customerData.state,
+            acceptsPromotionalEmails: customerData.acceptsPromotionalEmails
           };
 
-          const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+          const customersApiUrl = apiConfig.customersUrl;
           const headers: HeadersInit = { 'Content-Type': 'application/json' };
           if (token) {
             headers['Authorization'] = `Bearer ${token}`;
@@ -576,7 +580,7 @@ const Cart = () => {
 
         // Redirecionar para a página de compra com parâmetros mockados
         const mockCheckoutUrl = `${APP_BASE_URL}/compra?${mockPaymentParams.toString()}`;
-        console.log('🧪 Redirecionando para:', mockCheckoutUrl);
+        // console.log('🧪 Redirecionando para:', mockCheckoutUrl);
         window.location.href = mockCheckoutUrl;
         return;
       } catch (error) {
@@ -592,7 +596,7 @@ const Cart = () => {
       if (customerExists && customerId) {
         // Cliente existe - verificar se houve alterações
         if (hasCustomerDataChanged()) {
-          //console.log('📝 Atualizando cadastro do cliente...');
+          // console.log('📝 Atualizando cadastro do cliente...');
           const customerPayload = {
             name: customerData.name,
             email: customerData.email,
@@ -604,12 +608,13 @@ const Cart = () => {
             complement: customerData.complement,
             neighborhood: customerData.neighborhood,
             city: customerData.city,
-            state: customerData.state
+            state: customerData.state,
+            acceptsPromotionalEmails: customerData.acceptsPromotionalEmails
           };
 
-          //console.log('📤 Enviando atualização:', customerPayload);
+          // console.log('📤 Enviando atualização:', customerPayload);
 
-          const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+          const customersApiUrl = apiConfig.customersUrl;
           const headers: HeadersInit = { 'Content-Type': 'application/json' };
           if (token) {
             headers['Authorization'] = `Bearer ${token}`;
@@ -635,15 +640,15 @@ const Cart = () => {
           // Só tentar fazer parse JSON se houver conteúdo
           const responseText = await updateResponse.text();
           const updatedCustomer = responseText ? JSON.parse(responseText) : null;
-          //console.log('✅ Cadastro atualizado com sucesso! ID:', updatedCustomer.id);
+          // console.log('✅ Cadastro atualizado com sucesso! ID:', updatedCustomer.id);
         } else {
-          //console.log('ℹ️ Nenhuma alteração detectada, prosseguindo com a compra');
+          // console.log('ℹ️ Nenhuma alteração detectada, prosseguindo com a compra');
         }
       } else {
         // Cliente não existe - criar novo cadastro
-        //console.log('📝 Criando novo cadastro de cliente...');
-        //console.log('🔍 customerExists:', customerExists);
-        //console.log('🔍 customerId:', customerId);
+        // console.log('📝 Criando novo cadastro de cliente...');
+        // console.log('🔍 customerExists:', customerExists);
+        // console.log('🔍 customerId:', customerId);
 
         const customerPayload = {
           name: customerData.name,
@@ -659,9 +664,9 @@ const Cart = () => {
           state: customerData.state
         };
 
-        //console.log('📤 Enviando novo cliente:', customerPayload);
+        // console.log('📤 Enviando novo cliente:', customerPayload);
 
-        const customersApiUrl = import.meta.env.VITE_CUSTOMERS_API_URL || `${API_BASE_URL}/api/customers`;
+        const customersApiUrl = apiConfig.customersUrl;
         const headers: HeadersInit = { 'Content-Type': 'application/json' };
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
@@ -672,11 +677,11 @@ const Cart = () => {
           body: JSON.stringify(customerPayload)
         });
 
-        //console.log('📥 Status da resposta:', customerResponse.status);
+        // console.log('📥 Status da resposta:', customerResponse.status);
 
         if (!customerResponse.ok) {
           const errorText = await customerResponse.text();
-          console.error('❌ Erro na resposta (texto):', errorText);
+          // console.error('❌ Erro na resposta (texto):', errorText);
           try {
             const errorData = JSON.parse(errorText);
             alert(`Erro ao cadastrar cliente: ${errorData.error || 'Erro desconhecido'}`);
@@ -689,11 +694,11 @@ const Cart = () => {
         // Só tentar fazer parse JSON se houver conteúdo
         const responseText = await customerResponse.text();
         const createdCustomer = responseText ? JSON.parse(responseText) : null;
-        //console.log('✅ Cliente cadastrado com sucesso!', createdCustomer);
+        // console.log('✅ Cliente cadastrado com sucesso!', createdCustomer);
       }
 
       // Continua com o fluxo de checkout
-      //console.log('🛒 Prosseguindo com o checkout...');
+      // console.log('🛒 Prosseguindo com o checkout...');
 
       const orderData = {
         customer: customerData,
@@ -724,7 +729,7 @@ const Cart = () => {
       }
 
       // Monta a URL usando URLSearchParams para encoding correto
-      const baseUrl = import.meta.env.VITE_CHECKOUT_BASE_URL || "https://checkout.infinitepay.io/fctassinari";
+      const baseUrl = paymentConfig.checkoutBaseUrl;
       const searchParams = new URLSearchParams();
 
       searchParams.append('items', JSON.stringify(items));
@@ -738,8 +743,8 @@ const Cart = () => {
 
       const checkoutUrl = `${baseUrl}?${searchParams.toString()}`;
 
-      //console.log('✅ URL checkout gerada:', checkoutUrl);
-      //console.log('📦 Items:', JSON.stringify(items, null, 2));
+      // console.log('✅ URL checkout gerada:', checkoutUrl);
+      // console.log('📦 Items:', JSON.stringify(items, null, 2));
 
       window.location.href = checkoutUrl;
     } catch (error) {
@@ -763,7 +768,7 @@ const Cart = () => {
   // Carregar CEP do cliente quando o carrinho abre e o cliente está logado
   useEffect(() => {
     if (isOpen && isAuthenticated && customer?.cep) {
-      console.log('📍 Carregando CEP do cliente no carrinho:', customer.cep);
+      // console.log('📍 Carregando CEP do cliente no carrinho:', customer.cep);
       const formattedCep = formatCEP(customer.cep);
       setCep(formattedCep);
     }
@@ -1076,6 +1081,24 @@ const Cart = () => {
                       onChange={(e) => handleCustomerDataChange('neighborhood', e.target.value)}
                     />
                   </div>
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="acceptsPromotionalEmails"
+                    checked={customerData.acceptsPromotionalEmails}
+                    onCheckedChange={(checked) => 
+                      setCustomerData(prev => ({ ...prev, acceptsPromotionalEmails: checked === true }))
+                    }
+                  />
+                  <label
+                    htmlFor="acceptsPromotionalEmails"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    Aceito receber emails promocionais
+                  </label>
                 </div>
               </div>
 

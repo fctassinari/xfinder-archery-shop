@@ -8,37 +8,37 @@ import java.time.LocalDateTime;
 @Table(name = "customers")
 public class Customer extends PanacheEntity { // Já herda 'id' auto-increment do PanacheEntity
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = true, length = 200)
     public String name;
 
-    @Column(nullable = false, unique = true, length = 200)
+    @Column(nullable = true, length = 200)
     public String email;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = true, length = 20)
     public String phone;
 
-    @Column(nullable = false, unique = true, length = 14)
+    @Column(nullable = true, length = 14)
     public String cpf;
 
-    @Column(nullable = false, length = 9)
+    @Column(nullable = true, length = 9)
     public String cep;
 
-    @Column(nullable = false, length = 300)
+    @Column(nullable = true, length = 300)
     public String address;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = true, length = 20)
     public String number;
 
     @Column(length = 100)
     public String complement;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     public String neighborhood;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     public String city;
 
-    @Column(nullable = false, length = 2)
+    @Column(nullable = true, length = 2)
     public String state;
 
     @Column(name = "created_at", nullable = false)
@@ -52,6 +52,9 @@ public class Customer extends PanacheEntity { // Já herda 'id' auto-increment d
 
     @Column(name = "keycloak_id", length = 100)
     public String keycloakId;
+
+    @Column(name = "accepts_promotional_emails")
+    public Boolean acceptsPromotionalEmails = false;
 
     @PrePersist
     public void prePersist() {

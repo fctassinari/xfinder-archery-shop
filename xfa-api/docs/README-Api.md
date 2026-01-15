@@ -1,3 +1,20 @@
+### Configuração de Variáveis de Ambiente
+
+Antes de executar a aplicação, configure as variáveis de ambiente necessárias.
+
+📖 **Documentação completa**: [ENV-VARIABLES.md](ENV-VARIABLES.md)
+
+**Variáveis obrigatórias**:
+- `DB_PASSWORD` - Senha do banco de dados PostgreSQL
+- `SUPERFRETE_TOKEN_DEV` - Token da API Superfrete (desenvolvimento)
+- `SUPERFRETE_TOKEN_PROD` - Token da API Superfrete (produção)
+- `GMAIL_PASSWORD` - Senha de aplicativo do Gmail
+- `KEYCLOAK_ADMIN_USERNAME` - Username do admin do Keycloak (padrão: admin)
+- `KEYCLOAK_ADMIN_PASSWORD` - Senha do admin do Keycloak
+- `GOOGLE_MAPS_API_KEY` - Chave da API do Google Maps
+
+Crie um arquivo `.env` na raiz do projeto `xfa-api` ou configure as variáveis no seu sistema.
+
 ### Executar local
 ```shell script
   ./mvnw quarkus:dev -DskipTests=true

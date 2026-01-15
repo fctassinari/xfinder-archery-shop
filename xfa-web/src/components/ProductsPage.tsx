@@ -9,6 +9,7 @@ import { Star, ShoppingCart, Heart, Search, Filter, Grid3X3, List, Eye, Ruler, P
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/types/cart";
 import heroImage from "@/assets/nocks.jpeg";
+import { getApiConfig } from "@/config/appConfig";
 
 // Interface para o produto da API
 interface ApiProduct {
@@ -169,11 +170,11 @@ const ProductsPage = () => {
         limit: '6'
       });
 
-      // Usando a variável de ambiente
-      const baseUrl = import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products';
+      // Usando configuração do backend
+      const baseUrl = getApiConfig().productsUrl;
       const apiUrl = `${baseUrl}?${params}`;
 
-      //console.log('🔍 Buscando produtos da API...', apiUrl);
+      // console.log('🔍 Buscando produtos da API...', apiUrl);
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -182,7 +183,7 @@ const ProductsPage = () => {
         },
       });
 
-      //console.log('📡 Status da resposta:', response.status);
+        // console.log('📡 Status da resposta:', response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -190,7 +191,7 @@ const ProductsPage = () => {
 
       const apiProducts = await response.json();
 
-      //console.log('✅ Produtos recebidos da API:', apiProducts);
+        // console.log('✅ Produtos recebidos da API:', apiProducts);
 
       if (!Array.isArray(apiProducts)) {
         throw new Error('Resposta da API não é um array');
@@ -231,7 +232,7 @@ const ProductsPage = () => {
       setHasMore(formattedProducts.length === 6);
 
     } catch (error) {
-      console.error('💥 Erro ao carregar produtos da API, usando fallback:', error);
+      // console.error('💥 Erro ao carregar produtos da API, usando fallback:', error);
       setApiError(true);
 
       // Usar produtos hardcoded como fallback
