@@ -1,8 +1,8 @@
 :root {
     --keycloak-logo-url: url('../img/xfinder_Logo_nome-dourado.png');
     --keycloak-bg-logo-url: url("../img/xfinder_bg.png");
-    --keycloak-logo-height: 63px;
-    --keycloak-logo-width: 300px;
+    --keycloak-logo-height: 66px;
+    --keycloak-logo-width: 280px;
     /* --keycloak-card-top-color: var(--pf-v5-global--palette--blue-400); */
     --keycloak-card-top-color: #DFBB45;
 }
