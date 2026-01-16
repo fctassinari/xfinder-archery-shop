@@ -90,6 +90,17 @@
 **/*.mov
 **/*.avi
 
+# Exceções (arquivos pequenos e críticos para PWA)
+!xfa-web/public/pwa-screenshot-wide.svg
+!xfa-web/public/pwa-screenshot-mobile.svg
+!xfa-web/public/icon-192x192.png
+!xfa-web/public/icon-512x512.png
+!xfa-web/public/apple-touch-icon-180x180.png
+!xfa-web/public/apple-touch-icon-152x152.png
+!xfa-web/public/apple-touch-icon-120x120.png
+!xfa-web/public/apple-touch-icon-76x76.png
+!xfa-web/public/favicon.ico
+
 # Arquivos de dados grandes
 **/*.json.bak
 **/product.json

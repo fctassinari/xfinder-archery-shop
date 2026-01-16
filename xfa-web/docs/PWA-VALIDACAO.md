@@ -131,6 +131,31 @@ Ao abrir o app pela primeira vez:
    ✅ Icons: 2 ícones listados (192x192 e 512x512)
    ```
 
+### Avisos comuns no Manifest (e como corrigir)
+
+Na parte **Errors and warnings** do DevTools (Application > Manifest), é comum aparecerem avisos como:
+
+- **"Richer PWA Install UI won’t be available on desktop..."**
+  - Isso acontece quando o `manifest.json` não tem **nenhuma screenshot** com `"form_factor": "wide"`.
+- **"Richer PWA Install UI won’t be available on mobile..."**
+  - Isso acontece quando o `manifest.json` não tem **nenhuma screenshot** com `"form_factor"` diferente de `wide` (ou sem `form_factor`).
+- **"Declaring an icon with 'purpose' of 'any maskable' is discouraged..."**
+  - Isso acontece quando você declara `"purpose": "any maskable"` no mesmo ícone.
+
+**Correção recomendada (já aplicada no projeto):**
+- Adicionar a seção `"screenshots"` no `manifest.json` com:
+  - Pelo menos **1 screenshot wide** (`"form_factor": "wide"`)
+  - Pelo menos **1 screenshot mobile/narrow** (`"form_factor": "narrow"`)
+- Trocar `"purpose": "any maskable"` por `"purpose": "any"` (ou criar ícones específicos `maskable` separados, se desejar).
+
+**Nota importante sobre formato:**
+- Em alguns Chromes, `screenshots` em **SVG** podem aparecer como **failed to load** no DevTools.
+- Para evitar isso, prefira **PNG/JPG/WebP** em `screenshots`.
+
+**Depois de ajustar, valide assim:**
+- Recarregue a página com cache limpo: `Ctrl+Shift+R`
+- Em **Application > Manifest**, clique em **Update** (se aparecer) e confirme que os avisos sumiram
+
 ### Verificar Meta Tags no HTML
 
 1. Abra DevTools (F12)
