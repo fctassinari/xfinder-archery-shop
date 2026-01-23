@@ -17,7 +17,7 @@
 ```
 **Criar container postres**
 ```bash
-  podman run --tz=America/Sao_Paulo name xfinder-postgres --network nt-xfinder -p 5432:5432 -e POSTGRES_PASSWORD=XFA@2025 --volume postgres:/var/lib/postgresql -d postgres:18.0
+  podman run --tz=America/Sao_Paulo --name xfinder-postgres --network nt-xfinder -p 5432:5432 -e POSTGRES_PASSWORD=XFA@2025 --volume postgres:/var/lib/postgresql -d postgres:18.0
 ```
 **Criar Data Base**
 ```bash
@@ -40,7 +40,7 @@
 [Subir Web](xfa-web/README-Web.md)
 
 ---
-[Subir Keycloak](xfa-keyckoak/README.md)
+[Subir Keycloak](../xfa-keyckoak/docs/README.md)
 
 ---
 ## 🚀 Configuração Podman Quadlet (Produção)
