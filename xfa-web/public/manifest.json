@@ -1,7 +1,7 @@
 {
   "name": "XFinder Archery - Equipamentos de Tiro com Arco",
   "short_name": "XFinder Archery",
-  "description": "Equipamentos profissionais de tiro com arco competitivo. Arcos, flechas e acessórios aprovados pela World Archery. Qualidade e precisão para atletas de elite.",
+  "description": "Equipamentos profissionais de tiro com arco competitivo. Qualidade e precisão para atletas de elite.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
